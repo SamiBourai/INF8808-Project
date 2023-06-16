@@ -53,16 +53,6 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
       possessionPercentage: possessionPercentages[i],
       color: colors[i],
     }));
-
-    const possessionPercentages2: number[] = [48, 52, 49, 51];
-    const countries2: string[] = ['Morroco', 'Argentina', 'France', 'Croatia'];
-    const colors2: string[] = ['#e80284', '#4517EE', '#4517EE', '#4517EE'];
-
-    this.data2 = countries2.map((country, i) => ({
-      country: country,
-      possessionPercentage: possessionPercentages[i],
-      color: colors[i],
-    }));
   }
 
   ngAfterViewInit() {

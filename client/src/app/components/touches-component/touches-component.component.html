@@ -1,13 +1,69 @@
-<div data-aos="fade-up" class="wrapper">
-  <div>
-    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quibusdam impedit aspernatur corporis expedita
-    exercitationem dolorum dolorem ut, tempora magni, ex nisi delectus consequatur est eius! Eius iusto repellendus
-    error maiores!
+<div data-aos="fade-up">
+  <div class="chart-title-container">
+    <img src="assets/images/abstract-2.png" alt="image" />
+    <h1 class="chart-title">Efficiency in front of the goal</h1>
   </div>
-  <section data-aos="fade-up" data-aos-duration="700" class="container">
-    <div style="align-items: left;">
-      <div #chart></div>
-      <div style="opacity:0;position:fixed;" id="tooltip"></div>
+</div>
+<div data-aos="fade-up">
+  <div>
+    <div class="italic-text">
+      <p>A goal comes from a shot on target, and a shot on target comes from a shot.</p>
+
+      <p>
+        Let's look at how each player makes the most of every occasion to score. Transforming a simple shot into a goal
+        is very hard, and
+        requires a lot of calm, composure and accuracy. The best scorers are the ones who are able to focus on the
+        moment.
+      </p>
     </div>
-  </section>
+    <div data-aos="fade-up" class="statistics-used">
+      <div class="statistic-container grid">
+        <table class="statistics">
+          <tr>
+            <td class="stats-variable">Sh - Shots</td>
+            <td>All of the shots realized by the player.</td>
+          </tr>
+          <tr>
+            <td class="stats-variable">SoT - Shots on target</td>
+            <td>Those are the shots correctly aimed at the goals</td>
+          </tr>
+          <tr>
+            <td class="stats-variable">G - Goals</td>
+            <td>Goal !</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div data-aos="fade-up">
+  <div class="container">
+    <div class="grid-container">
+      <div class="grid">
+        <div *ngFor="let single of data; index as i">
+          <h2 class="title">{{ single.Player }}</h2>
+          <figure id="waffle-chart-{{ i }}" class="svg-container"></figure>
+        </div>
+      </div>
+    </div>
+    <div data-aos="fade-up" class="text-container">
+      <div class="para-title">The Verdict :</div>
+      <p class="text-paragraph">
+        As we can see, <strong>Benzema</strong>, Mbappé & <strong>Salah</strong> are above the rest accuracy wise while
+        maintaning a high shot
+        volume.
+      </p>
+      <p class="text-paragraph">
+        This aspect is extremely important, because it is a concrete proof that the player is able to create
+        opportunities and exploit them.
+      </p>
+      <p class="text-paragraph">
+        Once again, <strong>Mané</strong> and <strong>Leao</strong> are left behind as only players with under 20 goals
+        scored while having 20
+        to 30 more shots attempted than <strong>Nkunku</strong>.
+      </p>
+      <p class="text-paragraph">Funny enough, <strong>Nkunku</strong> has about the same amount of shots on target than
+        those two.</p>
+    </div>
+  </div>
 </div>
