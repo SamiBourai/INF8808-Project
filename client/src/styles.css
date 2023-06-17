@@ -3,6 +3,7 @@
 html, body { 
     margin: 0;
     font-family: Arial, Helvetica, sans-serif;
+    color: #ffffffc0;
     width: 100vw;
     height: 100vh;
     max-width: 100%;

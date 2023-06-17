@@ -8,6 +8,9 @@ import * as aos from 'aos';
 })
 export class AppComponent implements OnInit {
   ngOnInit(): void {
-      aos.init();
+    window.onbeforeunload = function () {
+      window.scrollTo(0, 0);
+    };
+    // aos.init();
   }
 }

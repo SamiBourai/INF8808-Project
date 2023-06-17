@@ -74,7 +74,7 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
 
   createChart(): void {
     let element = this.chartContainer.nativeElement;
-    const margin = { top: 30, right: 30, bottom: 70, left: 60 };
+    const margin = { top: 50, right: 30, bottom: 50, left: 100 };
     const width = element.offsetWidth - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
@@ -84,7 +84,7 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .scaleBand()
       .range([0, height])
       .domain(this.data.map((d) => d.country))
-      .padding(0.1);
+      .padding(0.3);
 
     const svg = d3
       .select(element)
@@ -122,8 +122,21 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
         .style('stroke-dasharray', '3, 3');
     });
 
-    svg.append('g').call(d3.axisLeft(y).tickSizeOuter(0));
+    // svg.append('g').call(d3.axisLeft(y).tickSizeOuter(0));
+    let yAxis = svg.append('g').call(d3.axisLeft(y).tickSize(0).tickSizeOuter(0));
+    yAxis.select(".domain").remove();
+    yAxis.selectAll("text")
+          .attr("font-size", "16px")
+          .attr("font-family", "Arial")
+          .attr("color", "white"); 
 
+    svg.append('line')
+      .attr('x1', x(0))
+      .attr('y1', 0)
+      .attr('x2', x(0))
+      .attr('y2', height)
+      .attr('stroke', 'black');
+    
     const tooltip = d3.select('#tooltip');
 
     svg
