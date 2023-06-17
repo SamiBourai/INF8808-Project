@@ -10,23 +10,21 @@ import { HorizontalPictogramComponent } from './components/horizontal-pictogram/
 import { WinsAndLossesBarsChartComponent } from './components/wins-and-losses-bars-chart/wins-and-losses-bars-chart.component';
 import { ParallelCoordinatesChartComponent } from './components/parallel-coordinates-chart/parallel-coordinates-chart.component';
 import { PolarAreaChartsComponent } from './components/polar-area-charts/polar-area-charts.component';
+import { PossessionTopFourComponent } from './components/possession-top-four/possession-top-four.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     BackToBackChartComponent,
     PossessionHistogrammeComponent,
+    PossessionTopFourComponent,
     HorizontalPictogramComponent,
     WinsAndLossesBarsChartComponent,
     ParallelCoordinatesChartComponent,
-    PolarAreaChartsComponent
+    PolarAreaChartsComponent,
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    BrowserAnimationsModule
-  ],
+  imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

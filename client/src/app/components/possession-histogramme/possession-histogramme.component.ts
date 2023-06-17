@@ -7,11 +7,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
-interface Possession {
-  country: string;
-  possessionPercentage: number;
-  color: string;
-}
+import { Possession } from 'src/models/interfaces/possession';
 @Component({
   selector: 'app-possession-histogramme',
   templateUrl: './possession-histogramme.component.html',
@@ -19,13 +15,11 @@ interface Possession {
 })
 export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
   @ViewChild('histogramme') private chartContainer!: ElementRef;
-  @ViewChild('histogramme2') private chartContainer2!: ElementRef;
+
   constructor() {}
 
   private data: Possession[] = [];
   private observer: IntersectionObserver | null = null;
-  private data2: Possession[] = [];
-  private observer2: IntersectionObserver | null = null;
 
   ngOnInit(): void {
     const possessionPercentages: number[] = [48, 52, 49, 51, 50, 50, 50, 50];
@@ -49,16 +43,6 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
     ];
 
     this.data = countries.map((country, i) => ({
-      country: country,
-      possessionPercentage: possessionPercentages[i],
-      color: colors[i],
-    }));
-
-    const possessionPercentages2: number[] = [48, 52, 49, 51];
-    const countries2: string[] = ['Morroco', 'Argentina', 'France', 'Croatia'];
-    const colors2: string[] = ['#e80284', '#4517EE', '#4517EE', '#4517EE'];
-
-    this.data2 = countries2.map((country, i) => ({
       country: country,
       possessionPercentage: possessionPercentages[i],
       color: colors[i],
@@ -222,7 +206,6 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
           .style('font-weight', 'bold');
         tooltip
           .style('opacity', 1)
-          .style('position', 'absolute')
           .style('left', event.pageX - 55 + 'px')
           .style('top', event.pageY - 75 + 'px').html(`
       <div>
@@ -288,10 +271,6 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
     if (this.observer) {
       this.observer.disconnect();
       this.observer = null;
-    }
-    if (this.observer2) {
-      this.observer2.disconnect();
-      this.observer2 = null;
     }
   }
 }
