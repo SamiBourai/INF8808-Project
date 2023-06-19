@@ -11,6 +11,7 @@ import { WinsAndLossesBarsChartComponent } from './components/wins-and-losses-ba
 import { ParallelCoordinatesChartComponent } from './components/parallel-coordinates-chart/parallel-coordinates-chart.component';
 import { PolarAreaChartsComponent } from './components/polar-area-charts/polar-area-charts.component';
 import { PossessionTopFourComponent } from './components/possession-top-four/possession-top-four.component';
+import { TouchesComponent } from './components/touches-component/touches-component.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { PossessionTopFourComponent } from './components/possession-top-four/pos
     BackToBackChartComponent,
     PossessionHistogrammeComponent,
     PossessionTopFourComponent,
+    TouchesComponent,
     HorizontalPictogramComponent,
     WinsAndLossesBarsChartComponent,
     ParallelCoordinatesChartComponent,

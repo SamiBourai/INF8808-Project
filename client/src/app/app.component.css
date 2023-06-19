@@ -80,10 +80,15 @@ body {
 .viz7{
     background-color: rgba(112, 78, 5, 0.849);
 }
+.viz8{
+    background-color: rgba(99, 86, 59, 0.849);
+}
 .flex-container {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
   /* optional: to add space between the components */
 }
+
+
 
