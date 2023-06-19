@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    backdrop-filter: blur(20px);
 }
 
 body {
@@ -24,16 +25,11 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    height: 400vh;
-    /* background-image: linear-gradient(
-        0deg,
-        hsl(240deg 100% 20%) 0%,
-        hsl(229deg 100% 19%) 25%,
-        hsl(223deg 100% 18%) 50%,
-        hsl(218deg 100% 17%) 75%,
-        hsl(213deg 100% 16%) 100%
-    );
-    background-size: cover; */
+    height: 800vh;
+    background-image: url('background.svg');
+    background-repeat: no-repeat;
+    background-position: top left;
+    background-size: cover;
     z-index: -1;
 }
 
@@ -46,6 +42,28 @@ body {
     justify-content: center;
 }
 
+.logo-container {
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 20%;
+    background-image: url('2022_FIFA_World_Cup.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 70% 70%;
+  }
+
+  .logo {
+    height: 100%;
+    align-self: center;
+    margin-top: 5px;
+  }
+
+
+
 .heading{
     display: flex;
     flex-direction: column;
@@ -57,7 +75,7 @@ body {
     padding: 1%;
 }
 
-.viz1-2{
+/* .viz1-2{
     background-color: rgba(5, 112, 112, 0.849);
 }
 
@@ -79,10 +97,7 @@ body {
 
 .viz7{
     background-color: rgba(112, 78, 5, 0.849);
-}
-.viz8{
-    background-color: rgba(99, 86, 59, 0.849);
-}
+} */
 .flex-container {
   display: flex;
   flex-direction: row;
