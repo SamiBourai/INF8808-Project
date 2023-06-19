@@ -76,7 +76,6 @@ export class TouchesComponent implements AfterViewInit {
 
         data.push(...keyArray);
       }
-      console.log('data : ', data);
 
       // Initialize an empty object for storing the counts
       let categoryCounts = {};
@@ -118,8 +117,6 @@ export class TouchesComponent implements AfterViewInit {
             .style('left', _event?.pageX + 'px')
             .style('top', _event?.pageY + 'px')
             .html(this.getTipContent(d.label, d.percentage, constryIzi));
-
-          // console.log('d : ', d);
         })
         .on('mouseleave', (event: MouseEvent, d) => {
           this.previousGroup = d;
