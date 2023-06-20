@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http'; // Import it here
+
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -23,7 +25,11 @@ import { PossessionTopFourComponent } from './components/possession-top-four/pos
     ParallelCoordinatesChartComponent,
     PolarAreaChartsComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule],
+  imports: [BrowserModule,
+            AppRoutingModule,
+            BrowserAnimationsModule,
+            HttpClientModule,
+  ],
   providers: [],
   bootstrap: [AppComponent],
 })
