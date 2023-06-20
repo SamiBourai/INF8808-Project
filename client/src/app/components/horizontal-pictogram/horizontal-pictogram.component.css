@@ -1,13 +1,12 @@
-/* 
+ 
 .container{
     width: 90%;
-    height: 90%;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     margin: auto;
-    background-color: rgba(17, 15, 109, 0.226);
-} */
+}
 
 /* .wrapper{
     display: flex;
@@ -16,6 +15,29 @@
     margin: auto;
     padding: 5%;
 } */
+
+.scroll-div {
+    position: relative;
+    top:12vh
+}
+
+.text {
+    display: flex;
+    position: relative;
+    top:20vh
+}
+
+svg {
+    position: fixed;
+}
+
+.toggle-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+  }
+
 
 #tooltip {
     display: flex;

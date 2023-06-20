@@ -5,9 +5,12 @@ import {
   HostListener,
   OnInit,
   ViewChild,
+  Renderer2,
 } from '@angular/core';
 import * as d3 from 'd3';
 import { HttpClient } from '@angular/common/http';
+import { MatSlideToggleChange,MatSlideToggle } from '@angular/material/slide-toggle';
+
 
 @Component({
   selector: 'app-horizontal-pictogram',
@@ -16,6 +19,19 @@ import { HttpClient } from '@angular/common/http';
 })
 export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
   @ViewChild('pictogram') private chartContainer!: ElementRef;
+  @ViewChild('hscroll') private hscroll!: ElementRef;
+  @ViewChild('toggle') private toggle!: MatSlideToggle;  // Add a ViewChild reference to your slide toggle
+
+changeToggle() {
+  this.toggle.checked = !this.toggle.checked;  // Change the state of the toggle
+  this.toggle.change.emit(  // Emit the change event manually
+    new MatSlideToggleChange(
+      this.toggle, 
+      this.toggle.checked
+    )
+  );
+    }
+
 
   private observer: IntersectionObserver | null = null;
   public countries: string[] = [
@@ -45,8 +61,9 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
   ];
 
   public legendItems: {[key: string]:any} = {
-    'true' : {'color':'black','text':'Player plays in a club in the Top 5 of Top 5 european championship at the end of 2021-2022 season'},
-    'false ': {'color':'white','text':'Player plays in an other clubs'},
+    'true' : {'color':'white','text':'Player plays in a club in the Top 5 of Top 5 european championship at the end of 2021-2022 season'},
+    'false': {'color':'black','text':'Player plays in an other clubs'},
+    'rect' : {'color': 'black', 'text': 'Average player age'},
   }
   private top5Data: {[key: string]: any} = {};
   private playerData: {[key: string]: any} = {};
@@ -54,27 +71,27 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
   private element: any;
   private margin = { top: 50, right: 100, bottom: 20, left: 150 };
   private width: number = 0;
-  private heightLegend: number = 100;
-  private height: number = 400 - this.margin.top - this.margin.bottom - this.heightLegend;
+  private heightLegend: number = 150;
+  private height: number = 500 - this.margin.top - this.margin.bottom - this.heightLegend;
   private svg: any;
   private xScale: any;
   private yScale: any;
   private ageScale: any;
   private colorScale: any;
   private countryColorScale: any;
-  private yAxis: any;
-  private WINDOWS_START_POSITION = (document.querySelector('.viz1-2') as HTMLElement).offsetTop;
-  private WINDOW_END_POSITION = this.WINDOWS_START_POSITION + window.innerHeight;
-  private pointsReorganized: boolean =false;
-  private showAge: boolean = false;
+  private scrollingdown: boolean = false;
+  private transitiondone: boolean = true;
+
+
 
 
 
   
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private renderer: Renderer2) { }
   
 
   async ngOnInit(): Promise<void> {
+
     await this.loadPlayers();
     await this.loadChampionships();
     this.cleanPos();
@@ -247,54 +264,116 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     }, {});
   } 
   
-    
 
-  @HostListener('click', ['$event'])
-  onContentScroll($event: Event) {
-      if (!this.showAge) {  
-        this.svg.selectAll('.player-circle')
-                                  .transition()
-                                  .duration(1000)
-                                  .ease(d3.easeCubicInOut)
-                                  .attr('cx', (d: any) => this.ageScale(d['AgeInYear']))
-                                  .on('end',() => this.showAge = true);
-        this.svg.selectAll('.x-tick')
-                .transition()
-                .duration(1000)
-                .ease(d3.easeCubicInOut)
-                .attr("opacity",1)
+ orderByAge() {
+  this.transitiondone = false;
+  this.svg.selectAll('.player-circle')
+    .transition()
+    .duration(1000)
+    .ease(d3.easeCubicInOut)
+    .attr('cx', (d: any) => this.ageScale(d['AgeInYear']))
+    .on('end', () => this.transitiondone = true)
 
-        this.svg.selectAll('.x-axis')
-                .transition()
-                .duration(1000)
-                .ease(d3.easeCubicInOut)
-                .attr("opacity",1)
-      } else {
-        this.svg.selectAll('.country-g').selectAll('.player-circle')
-                                  .transition()
-                                  .duration(1000)
-                                  .ease(d3.easeCubicInOut)
-                                  .attr('cx', (d: any, i: number) => this.xScale(i))
-                                  .on('end',() => this.showAge = false);
-        this.svg.selectAll('.x-tick')
-                .transition()
-                .duration(1000)
-                .ease(d3.easeCubicInOut)
-                .attr("opacity",0)
+  this.svg.selectAll('.x-tick')
+    .transition()
+    .duration(1000)
+    .ease(d3.easeCubicInOut)
+    .attr("opacity",1)
 
-        this.svg.selectAll('.x-axis')
-                .transition()
-                .duration(1000)
-                .ease(d3.easeCubicInOut)
-                .attr("opacity",0)
+  this.svg.selectAll('.x-axis')
+    .transition()
+    .duration(1000)
+    .ease(d3.easeCubicInOut)
+    .attr("opacity",1);
+  this.svg.selectAll('.country-avg')
+          .transition()
+          .duration(1000)
+          .ease(d3.easeCubicInOut)
+          .attr('opacity',1);
+  this.svg.selectAll('.x-axis')
+          .transition()
+          .duration(1000)
+          .ease(d3.easeCubicInOut)
+          .attr("opacity",1);
+  this.svg.select('#avg-legend-item')
+          .transition()
+          .duration(1000)
+          .ease(d3.easeCubicInOut)
+          .attr('opacity',1);
+ } 
 
-      }
+ orderByClub() {
+  this.transitiondone = false;
+    this.svg.selectAll('.country-g').selectAll('.player-circle')
+      .transition()
+      .duration(1000)
+      .ease(d3.easeCubicInOut)
+      .attr('cx', (d: any, i: number) => this.xScale(i))
+      .on('end', () => this.transitiondone = true);
+
+
+    this.svg.selectAll('.x-tick')
+      .transition()
+      .duration(1000)
+      .ease(d3.easeCubicInOut)
+      .attr("opacity",0);
+
+    this.svg.selectAll('.x-axis')
+      .transition()
+      .duration(1000)
+      .ease(d3.easeCubicInOut)
+      .attr("opacity",0);
+
+    this.svg.selectAll('.country-avg')
+            .transition()
+            .duration(1000)
+            .ease(d3.easeCubicInOut)
+            .attr('opacity',0);
+
+    this.svg.select('#avg-legend-item')
+            .transition()
+            .duration(1000)
+            .ease(d3.easeCubicInOut)
+            .attr('opacity',0);
   }
+ 
+ onSlideToggleChange(event: any) {
+  if (event.checked) {  
+    this.orderByAge()
+
+  } else {
+    this.orderByClub()
+  }
+}
+
+onWheelChange() { 
+  this.renderer.listen(this.hscroll.nativeElement, 'wheel', (event) => {
+    if (this.transitiondone) {
+    if (event.deltaY < 0 && this.scrollingdown) {
+      event.preventDefault();
+      this.changeToggle();
+      console.log('age off')
+      this.scrollingdown = false;
+    }
+  
+    if (event.deltaY > 0 && !this.scrollingdown) {
+      event.preventDefault();
+      this.changeToggle();
+      console.log('age on')
+      this.scrollingdown = true;
+    }
+  } else {
+    event.preventDefault();
+  }
+  });
+}
   
   ngAfterViewInit() {
+    this.onWheelChange();
     this.observeChart();
   }
-  
+
+
 
   observeChart() {
     this.observer = new IntersectionObserver((entries) => {
@@ -326,11 +405,12 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     this.createSVG();
     this.createYAxis();
     this.createAgeAxis();
-    // this.createXAxis()
+    this.addLegend();
     this.createCountryG();
     this.addCircle();
-    this.addLegend();
-    // this.addAvg();
+    this.addAvg();
+    
+ 
   }
 
   private createSVG(): void {
@@ -374,32 +454,87 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
                         .range(this.colors)
   }
 
+  private countClub(d) {
+    const dplayers = this.playerData[d];
+    const countTot = dplayers.length;
+    const  countIn = dplayers.reduce((accumulator, player) => accumulator + (player['ClubInTop5']? 1 : 0), 0);
+    const countOut = countTot - countIn
+
+    return countIn.toString() + "/" + countOut.toString() + "(" + countTot.toString() + "}"
+  }
+
   private createYAxis() : void {
     let yAxis = this.svg.append('g')
                         .attr('class','y-axis')
                         .attr('transform', `translate(${this.margin.left-20}, ${this.margin.top})`)
                         .call(d3.axisLeft(this.yScale).tickSize(0).tickSizeOuter(0));
         yAxis.selectAll("text")
-          .attr("font-size", "16px")
-          .attr("font-family", "Arial")
-          .attr("color", (d:string) => this.countryColorScale(d)); 
+              .attr("font-size", "16px")
+              .attr("font-family", "Arial")
+              .attr("color", (d:string) => this.countryColorScale(d))
+              .on('mouseover', (event: MouseEvent, d: any) => {
+                this.svg
+                  .selectAll('.y-axis .tick')
+                  .filter((node: any) => node === d)
+                  .select('text')
+                  .style('font-weight', 'bold');
+                this.svg
+                  .selectAll('.y-axis .tick')
+                  .filter((node: any) => node !== d)
+                  .select('text')
+                  .attr('opacity', 0.5);
+                this.svg
+                  .selectAll('.player-circle')
+                  .filter((node: any) => node['Country'] !== d)
+                  .attr('opacity', 0.5);
+                d3.select('#tooltip')
+                  .style('opacity', 1)
+                  .style('left', event.pageX - 55 + 'px')
+                  .style('top', event.pageY - 75 + 'px')
+                  .style('border', `2px solid ${this.countryColorScale(d.Country)}`)
+                  .style('background-color', 'white')
+                  .style('color', 'black')
+                  .html(`
+                    <div>
+                      ${this.countClub(d)}
+                    </div>
+                  `);
+              })
+              .on('mouseout', (event: MouseEvent, d: any) => {
+                this.svg
+                  .selectAll('.y-axis .tick')
+                  .filter((node: any) => node === d)
+                  .select('text')
+                  .style('font-weight', 'normal');
+                  this.svg
+                  .selectAll('.y-axis .tick')
+                  .filter((node: any) => node !== d)
+                  .select('text')
+                  .attr('opacity',1)
+                  this.svg
+                  .selectAll('.player-circle')
+                  .filter((node: any) => node['Country'] !== d)
+                  .attr('opacity',1)
+                d3.select('#tooltip')
+                  .style('opacity',0)
+              });
   }
   private createAgeAxis() : void {
-    let yAxis = this.svg.append('g')
+    let xAxis = this.svg.append('g')
                         .attr('class','x-axis')
                         .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`)
                         .attr("opacity",0)
                         .call(d3.axisTop(this.ageScale).ticks(5));
-    var axisSize = yAxis.node().getBBox();
+    var axisSize = xAxis.node().getBBox();
 
-    yAxis.append("text")
+    xAxis.append("text")
       .attr("class", "axis-label")
       .attr("x", axisSize.width/2) // Adjust the x position of the label
       .attr("y", -30) // Adjust the y position of the label
       .style("text-anchor", "middle")
       .attr('fill', 'white')
       .text("Player Age (years old)");
-    yAxis.selectAll("text")
+    xAxis.selectAll("text")
           .attr('class','x-tick')
           .attr("font-size", "12px")
           .attr("font-family", "Arial")
@@ -433,12 +568,12 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     .attr('opacity', 1)
     .on('mouseover', (event: MouseEvent, d: any) => {
       this.svg
-        .selectAll('.tick')
+        .selectAll('.y-axis .tick')
         .filter((node: any) => node === d['Country'])
         .select('text')
         .style('font-weight', 'bold');
       this.svg
-        .selectAll('.tick')
+        .selectAll('.y-axis .tick')
         .filter((node: any) => node !== d['Country'])
         .select('text')
         .attr('opacity', 0.5);
@@ -446,13 +581,17 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
         .selectAll('.player-circle')
         .filter((node: any) => node !== d)
         .attr('opacity', 0.5);
+      this.svg
+        .selectAll('.legend-item')
+        .filter((node: any) => (node[0]==='true') !== d["ClubInTop5"] || node[0]==='rect' )
+        .attr('opacity',0.5)
       d3.select('#tooltip')
         .style('opacity', 1)
         .style('left', event.pageX - 55 + 'px')
         .style('top', event.pageY - 75 + 'px')
         .style('border', `2px solid ${this.countryColorScale(d.Country)}`)
         .style('background-color', this.colorScale(d['ClubInTop5']))
-        .style('color', d['ClubInTop5'] === true ? 'white' : 'black')
+        .style('color', this.colorScale(d['ClubInTop5']) === "white" ? 'black' : 'white')
         .html(`
           <div>
             <p>${d['Player']} #${d['#']}</p>
@@ -464,12 +603,12 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     })    
     .on('mouseout', (event: MouseEvent, d: any) => {
       this.svg
-        .selectAll('.tick')
+        .selectAll('.y-axis .tick')
         .filter((node: any) => node === d['Country'])
         .select('text')
         .style('font-weight', 'normal');
         this.svg
-        .selectAll('.tick')
+        .selectAll('.y-axis .tick')
         .filter((node: any) => node !== d['Country'])
         .select('text')
         .attr('opacity',1)
@@ -477,15 +616,28 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
         .selectAll('.player-circle')
         .filter((node: any) => node !== d)
         .attr('opacity',1)
+        this.svg
+        .selectAll('.legend-item')
+        .filter((node: any) => (node[0]==='true') !== d["ClubInTop5"] || node[0]==='rect' )
+        .attr('opacity',1)
       d3.select('#tooltip')
         .style('opacity', 0)
     })
+    let n = this.svg.selectAll('.country-g').selectAll('circle').size();
+
+    this.svg.selectAll('.country-g')
+    .selectAll('circle')
     .transition()
-    .delay((d: any, i: number) => i * 75) // Incremental delay for cascading effect
+    .delay((d: any, i: number) => i * 40) // Incremental delay for cascading effect
     .attr('fill', (d: any) => this.colorScale(d['ClubInTop5']))
     .attr('opacity', 1)
-    .attr('r', this.yScale.bandwidth() / 4)
-    
+    .on('end', () => {
+      n--;  // Decrement transition counter
+      if (n === 0 && this.toggle.checked) {  // All transitions ended
+          this.orderByAge();
+      }
+  });
+
   }
   private addLegend(): void {
     let legend = this.svg.append('g')
@@ -495,28 +647,143 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
       .join('g')
       .attr('class', 'legend-item')
       .attr('transform', (d:any, i:number) => `translate(${this.margin.left},
-         ${this.height + this.margin.top + this.heightLegend/2 + (i - 1)*this.yScale.bandwidth()/1.5})`);
+         ${this.height + this.margin.top + this.heightLegend/2 + (i - 1.5)*this.yScale.bandwidth()})`);
 
     // Draw legend rectangles
     legend.selectAll('.legend-item')
+      .filter((node:any) => node[0] === 'true' || node[0] === 'false' )
       .append('circle')
       .attr('cx', 0)
       .attr('r', this.yScale.bandwidth() / 4)
-      .style('fill', (d:string) => this.colorScale(d[0]));
+      .attr('stroke-width',this.yScale.bandwidth() / 16)
+      .attr('stroke','#69f0ae')
+      .style('fill', (d:any) => d[1].color);
+    legend.selectAll('.legend-item')
+      .filter((node:any) => node[0] === 'rect')
+      .attr('id','avg-legend-item')
+    legend.select('#avg-legend-item')
+      .attr('opacity',0)
+      .append('rect')
+      .attr('x', -2)
+      .attr('y',-this.yScale.bandwidth()/2)
+      .attr('stroke','#69f0ae')
+      .attr('strok-width',1)
+      .attr('width', 4)
+      .attr('height',this.yScale.bandwidth() )
+      .style('fill', (d:any) => d[1].color);
+      
 
     // Draw legend text
     legend.selectAll('.legend-item')
       .append('text')
-      .join('text')
       .attr('x',20)
       .attr('y',0)
       .attr('dy', '.35em')
       .style('text-anchor', 'start')
       .text((d:any) => d[1].text)
-      .attr('fill','white');
-   
+      .attr('fill','white')
+      var textSize = Math.max(...legend.selectAll('.legend-item').nodes().map((item: any) => (item as SVGGElement).getBBox().width));
+      console.log(textSize);
+      legend
+      .append('text')
+      .attr('transform', () => `translate(${this.margin.left + textSize + 25},
+        ${this.height + this.margin.top + this.heightLegend/2 - 0.5*this.yScale.bandwidth()})`)
+      .text('by')
+      .attr('fill','white')
+      legend
+      .append('text')
+      .attr('transform', () => `translate(${this.margin.left + textSize + 50},
+        ${this.height + this.margin.top + this.heightLegend/2 - 0.5*this.yScale.bandwidth()})`)
+      .text('Team')
+      .attr('fill','#69f0ae')
+
+    
 }
 
+private average(numbers:any) {
+  if (numbers.length === 0) {
+    return 0; // Return 0 for an empty array or handle it as needed
+  }
+
+  const sum = numbers.reduce((total, number) => total + number, 0);
+  const average = sum / numbers.length;
+
+  return average;
+};
+private addAvg(): void {
+  this.svg.selectAll('.country-g')
+    .append('rect')
+    .attr('class','country-avg')
+    .attr('width',4)
+    .attr('height',this.yScale.bandwidth() )
+    .attr('x',(d:any) => this.ageScale(this.average(d.players.map(e => e['AgeInYear']))))
+    .attr('stroke-width',1)
+    .attr('stroke', (d:any)=>this.countryColorScale(d.country))
+    .attr('opacity',0)
+    .on('mouseover', (event: MouseEvent, d: any) => {
+      this.svg
+        .selectAll('.y-axis .tick')
+        .filter((node: any) => node === d.country)
+        .select('text')
+        .style('font-weight', 'bold');
+      this.svg
+        .selectAll('.y-axis .tick')
+        .filter((node: any) => node !== d.country)
+        .select('text')
+        .attr('opacity', 0.5);
+      this.svg
+        .selectAll('.player-circle')
+        .filter((node: any) => node !== d)
+        .attr('opacity', 0.5);
+      this.svg
+        .selectAll('.legend-item')
+        .filter((node: any) => node[0] !== 'rect')
+        .attr('opacity', 0.5);
+      d3.select('#tooltip')
+        .style('opacity', 1)
+        .style('left', event.pageX - 55 + 'px')
+        .style('top', event.pageY - 75 + 'px')
+        .style('border', `2px solid ${this.countryColorScale(d.country)}`)
+        .style('background-color', 'black')
+        .style('color', 'white')
+        .html(`
+          <div>
+            <p>Average Age : ${this.convertAgeToYearsAndDays(this.average(d.players.map(e => e['AgeInYear'])))}</p>
+          </div>
+        `);
+    })    
+    .on('mouseout', (event: MouseEvent, d: any) => {
+      this.svg
+        .selectAll('.y-axis .tick')
+        .filter((node: any) => node === d.country)
+        .select('text')
+        .style('font-weight', 'normal');
+        this.svg
+        .selectAll('.y-axis .tick')
+        .filter((node: any) => node !== d.country)
+        .select('text')
+        .attr('opacity',1)
+        this.svg
+        .selectAll('.player-circle')
+        .filter((node: any) => node !== d)
+        .attr('opacity',1)
+        this.svg
+        .selectAll('.legend-item')
+        .filter((node: any) => node[0] !== 'rect')
+        .attr('opacity', 1);
+      d3.select('#tooltip')
+        .style('opacity', 0)
+    })
+    
+}
+convertAgeToYearsAndDays(age) {
+  const daysInYear = 365; // Compte tenu des années bissextiles
+  
+  const years = Math.floor(age);
+  const days = Math.round((age - years) * daysInYear);
+  const agestr = years.toString() + " years " + days.toString() + " days";
+  return agestr;
+}
 
   removeChart() {
     d3.select(this.chartContainer.nativeElement).selectAll('*').remove();

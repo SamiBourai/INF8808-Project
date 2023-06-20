@@ -13,6 +13,8 @@ import { ParallelCoordinatesChartComponent } from './components/parallel-coordin
 import { PolarAreaChartsComponent } from './components/polar-area-charts/polar-area-charts.component';
 import { PossessionTopFourComponent } from './components/possession-top-four/possession-top-four.component';
 import { TouchesComponent } from './components/touches-component/touches-component.component';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+
 
 @NgModule({
   declarations: [
@@ -30,6 +32,7 @@ import { TouchesComponent } from './components/touches-component/touches-compone
             AppRoutingModule,
             BrowserAnimationsModule,
             HttpClientModule,
+            MatSlideToggleModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
