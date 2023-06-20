@@ -158,6 +158,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
 
         tooltip
           .style('opacity', 1)
+          .style('border', `2px solid ${d.data.color}`)
           .style('left', event.pageX - 55 + 'px')
           .style('top', event.pageY - 75 + 'px').html(`
           <div>
@@ -233,6 +234,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       .style('text-anchor', 'start')
       .style("fill", '#dadad2')
       .text(d => d);
+
   }
 
   @HostListener('click', ['$event'])
