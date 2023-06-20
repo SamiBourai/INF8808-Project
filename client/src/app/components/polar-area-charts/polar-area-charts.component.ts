@@ -109,7 +109,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
   createChart(): void {
 
     let element = this.chartContainer.nativeElement;
-    const margin = { top: 10, right: 50, bottom: 10, left: 10 };
+    const margin = { top: 0, right: 50, bottom: 10, left: 10 };
     const width = element.offsetWidth - margin.left - margin.right;
     const height = 500 - margin.top - margin.bottom;
     const radius = Math.min(width, height) / 2;
@@ -203,10 +203,10 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
     svg
       .append('text')
       .attr('class', 'Chart title')
-      .attr('x', -width/8)
+      .attr('x', -width/4)
       .attr('y', -225)
       .style("fill", '#dadad2')
-      .style("font-size", "16px")
+      .style("font-size", "15px")
       .text(this.dataDetails[this.currentDatasetIndex].title);
 
     var legend = svg
