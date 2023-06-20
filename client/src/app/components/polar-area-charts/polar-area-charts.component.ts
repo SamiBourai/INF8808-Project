@@ -72,9 +72,9 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
     ];
 
     this.dataDetails = [
-      {title:"% of Successful Passes", scale:70, tooltipTitle:"% of successful passes"},
-      {title:"% of Successful Shots", scale:20, tooltipTitle:"% of successful shots"},
-      {title:"% of Successful Goal Occasions", scale:45, tooltipTitle:"% of successful goal occasions"}
+      {title:"% of Successful Passes", scale:70, tooltipTitle:"% of successful passes:"},
+      {title:"% of Successful Shots", scale:20, tooltipTitle:"% of successful shots:"},
+      {title:"% of Successful Goal Occasions", scale:45, tooltipTitle:"% of successful goal occasions:"}
     ];
 
     this.data = this.dataSets[this.currentDatasetIndex]
@@ -146,16 +146,23 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       .data(arcs)
       .enter()
       .append('path')
+      .attr('class', (d) => "country-arc")
       .attr('d', arc)
       .attr('fill', (d) => d.data.color)
       .on("mouseover", function(event, d) {
-        d3.select(this)
-          .style("opacity", 0.5);
+
+        svg
+        .selectAll('.country-arc')
+        .filter((node: any) => node.data !== d.data)
+        .attr('opacity', 0.5);
+
+        labels
+        .filter((label) => label.data.label !== d.data.label)
+        .style("opacity", 0.5);
 
         labels
         .filter((label) => label.data.label === d.data.label)
-        .style("opacity", 0.5)
-        .style('font-weight', 'bold');
+        .style("font-weight", "bold")
 
         tooltip
           .style('opacity', 1)
@@ -171,12 +178,19 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       })
       .on("mouseout", function(event, d) {
         tooltip.style('opacity', 0);
-        d3.select(this)
+
+        svg
+        .selectAll('.country-arc')
+        .filter((node: any) => node.data !== d.data)
+        .attr('opacity', 1);
+
+        labels
+          .filter((label) => label.data.label !== d.data.label)
           .style("opacity", 1);
+
         labels
           .filter((label) => label.data.label === d.data.label)
-          .style("opacity", 1)
-          .style('font-weight', 'normal');
+          .style("font-weight", "normal")
       })
       .transition()
       .duration(1000)
@@ -206,7 +220,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       .append('text')
       .attr('class', 'Chart title')
       .attr('x', -width/4)
-      .attr('y', -225)
+      .attr('y', -230)
       .style("fill", '#dadad2')
       .style("font-size", "15px")
       .text(this.dataDetails[this.currentDatasetIndex].title);
@@ -237,10 +251,41 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       .style("fill", '#dadad2')
       .text(d => d);
 
+    svg.append("rect")
+      .attr("x", -14)
+      .attr("y", -12)
+      .attr("width", 30)
+      .attr("height", 25)
+      .attr("fill", "lightblue")
+      .attr('opacity', 0.6);
+    
+    svg.append("text")
+      .attr("x", -14 + 30 / 2)
+      .attr("y", -10 + 25 / 2)
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "middle") 
+      .attr("fill", "#214762")
+      .text(`${this.dataDetails[this.currentDatasetIndex].scale}`);
+
+    svg.append("rect")
+      .attr("x", -14)
+      .attr("y", -207)
+      .attr("width", 30)
+      .attr("height", 25)
+      .attr("fill", "lightblue")
+      .attr('opacity', 0.6);
+    
+    svg.append("text")
+      .attr("x", -14 + 30 / 2)
+      .attr("y", -205 + 25 / 2)
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "middle") 
+      .attr("fill", "#214762")
+      .text(`${Max}`);
+
   }
 
-  @HostListener('click', ['$event'])
-  updateChartData($event: Event) {
+  updateChartData($event: any) {
     this.removeChart();
 
     this.currentDatasetIndex++;
