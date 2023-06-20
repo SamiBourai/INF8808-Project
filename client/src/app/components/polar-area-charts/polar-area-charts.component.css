@@ -51,19 +51,7 @@
     line-height: 1;
     padding: 1rem;
     background: rgba(0, 0, 0, 0.8);
-    color: #fff;#tooltip {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        line-height: 1;
-        padding: 1rem;
-        background: rgba(0, 0, 0, 0.8);
-        color: #fff;
-        border-radius: 2px;
-        pointer-events: none;
-        border-radius: 5%;
-        transition-duration: 1s;
-    }
+    color: #fff;
     border-radius: 2px;
     pointer-events: none;
     border-radius: 5%;
