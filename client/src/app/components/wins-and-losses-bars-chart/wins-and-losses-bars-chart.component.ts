@@ -31,6 +31,8 @@ interface DataDetails {
 })
 export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
   @ViewChild('chart') private chartContainer!: ElementRef;
+  @ViewChild('legend') private legendContainer!: ElementRef;
+  // @ViewChild('tooltip') private tooltipElement!: ElementRef;
 
   countryMap: { [country: string]: { [phase: string]: PhaseDetails } } = {};
   dataMap: DataDetails[] = []
@@ -39,7 +41,6 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.createMap()
-
   }
 
   createMap(): void {
@@ -80,8 +81,10 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           this.createChart();
+          this.createLegend();
         } else {
           this.removeChart();
+          this.removeLegend();
         }
       });
     });
@@ -91,20 +94,12 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
 
   createChart():void{
     let element = this.chartContainer.nativeElement;
-    const margin = { top: 50, right: 30, bottom: 50, left: 50 };
+    const margin = { top: 100, right: 30, bottom: 50, left: 50 };
     const width = element.offsetWidth - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
     const phases = this.extractPhases()
     console.log(phases)
-
-    // const svg = d3
-    //   .select(element)
-    //   .append('svg')
-    //   .attr('width', width + margin.left + margin.right)
-    //   .attr('height', height + margin.top + margin.bottom)
-    //   .append('g')
-    //   .attr('transform', `translate(${margin.left},${margin.top})`);
 
     const svg = d3.select(element)
       .append("svg")
@@ -112,6 +107,9 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       .attr("height", height + margin.top + margin.bottom)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // create tooltip element
+    const tooltip = d3.select("#tooltip")
     
     // Create scales for x and y axes
     const xScale = d3
@@ -154,7 +152,20 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     .attr("y", d => yScale(d.Country)! - yScale.bandwidth() / 2)
     .attr("width", rectWidth )
     .attr("height", yScale!.bandwidth())
-    .attr("fill", (d) => colorScale(d.Result) as string);
+    .attr("fill", (d) => colorScale(d.Result) as string)
+    .on("mouseover", (event, d) => {
+      // Show tooltip with details
+      tooltip.style("opacity", 1)
+        .style("left", event.pageX + "px")
+        .style("top", (event.pageY - 20) + "px")
+        .html(`<div>Date: ${d.Date}</div>
+               <div>Display: ${d.Display}</div>
+               <div>Score: ${d.Score}</div>`);
+    })
+    .on("mouseout", () => {
+      // Hide tooltip
+      tooltip.style("opacity", 0);
+    });
 
   // Add x-axis
     svg.append("g")
@@ -162,15 +173,80 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       .call(d3.axisBottom(xScale));
 
   // Add y-axis
-  // svg.append('g').call(d3.axisLeft(y).tickSizeOuter(0));
     svg.append("g")
       .call(d3.axisLeft(yScale).tickSizeOuter(0));
-
-
+    
+      // this.createLegend(element, margin, width, height)
   }
 
-  createLegend():void{
-    
+  createLegend(): void{
+    const element = this.legendContainer.nativeElement
+    const margin = { top: 100, right: 30, bottom: 50, left: 50 };
+    const width = element.offsetWidth - margin.left - margin.right;
+    const height = 300 - margin.top - margin.bottom;
+    const legendX = width; // Adjust the horizontal position of the legend
+    const legendY = 0; // Adjust the vertical position of the legend
+
+   // Legend data
+    const legendData = [
+      { result: "Win", color: "green" },
+      { result: "Loss", color: "red" },
+      { result: "Draw", color: "gray" }
+    ];
+
+    // Create the legend container
+    const legendContainer = d3.select(element);
+
+    // Create the legend SVG element
+    const legendSvg = legendContainer.append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", '100%')
+      .append("g")
+      .attr("transform", `translate(${width - (margin.right + 50)}, 0)`)
+      
+    const legendWidth = 150
+    legendSvg.append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", legendWidth)
+    .attr("height", '100%')
+    .attr("fill", "lightgray")
+    .attr("stroke", "black");
+
+    legendSvg.append("text")
+    .attr("x", legendWidth / 2)
+    .attr("dy", "10%")
+    .attr("text-anchor", "middle")
+    .attr("font-weight", "bold")
+    .text("Legend");
+
+    legendSvg.append("text")
+    .attr("x", legendWidth / 2)
+    .attr("dy", "90%")
+    .attr("text-anchor", "middle")
+    .attr("font-size", "12px")
+    .text("Without penalty shootouts");
+
+    // Create a group for each legend item
+    const legendItems = legendSvg.selectAll("g")
+      .data(legendData)
+      .enter()
+      .append("g")
+      .attr("transform", (d, i) => `translate(0, ${10 + i * 30})`);
+
+    // Add colored rectangles
+    legendItems.append("rect")
+      .attr("x", 10)
+      .attr("y", 20)
+      .attr("width", 20)
+      .attr("height", 20)
+      .attr("fill", d => d.color);
+
+    // Add legend text
+    legendItems.append("text")
+      .attr("x", 40)
+      .attr("y", 35)
+      .text(d => d.result);
   }
 
   extractPhases(): string[]{
@@ -187,6 +263,10 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
 
   removeChart():void{
       d3.select(this.chartContainer.nativeElement).selectAll('*').remove();
+  }
+
+  removeLegend():void{
+    d3.select(this.legendContainer.nativeElement).selectAll('*').remove();
   }
 
 }
