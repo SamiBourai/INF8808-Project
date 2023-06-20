@@ -11,6 +11,7 @@ import * as d3 from 'd3';
 export interface DataType {
   label: string;
   value: number;
+  color: string;
 }
 
 @Component({
@@ -24,28 +25,17 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
 
   private observer: IntersectionObserver | null = null;
   private data: DataType[] = [];
-  private colors:string[] = []
 
   ngOnInit(): void {
 
     this.data = [
-      { label: 'Morroco', value: 78.6 },
-      { label: 'Argentina', value: 84.6 },
-      { label: 'France', value: 82.6 },
-      { label: 'Croatia', value: 83.3 },
-      { label: 'Senegal', value: 77.7 },
-      { label: 'Tunisia', value: 73.8 },
-      { label: 'Ghana', value: 77.4 },
-    ];
-
-    this.colors = [
-      '#e80284',
-      '#4517EE',
-      '#4517EE',
-      '#4517EE',
-      '#DB8500',
-      '#DB8500',
-      '#DB8500',
+      { label: 'Morroco', value: 78.6, color: '#e80284' },
+      { label: 'Argentina', value: 84.6, color: '#4517EE' },
+      { label: 'France', value: 82.6, color: '#4517EE' },
+      { label: 'Croatia', value: 83.3 , color: '#4517EE' },
+      { label: 'Senegal', value: 77.7 , color: '#DB8500' },
+      { label: 'Tunisia', value: 73.8 , color: '#DB8500' },
+      { label: 'Ghana', value: 77.4 , color: '#DB8500' },
     ];
     
   }
@@ -84,21 +74,20 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
     const radius = Math.min(width, height) / 2;
 
     const Max = (d3.max(this.data, function(d) { return d.value; }));
-
+    
     const radiusScale = d3.scaleLinear()
     .domain([70, Max as number])
-    .range([0, radius]);
+    .range([0, radius - 50]);
     
+    const tooltip = d3.select('#tooltip');
+
     const svg = d3
       .select(element)
       .append('svg')
       .attr('width', width)
       .attr('height', height)
-      // .attr('transform', 'rotate(180 0 0)')
       .append('g')
       .attr('transform', `translate(${width / 2}, ${height / 2})`);
-
-    
 
     const pie = d3.pie<any>().value((d: any) => d.value);
 
@@ -106,26 +95,74 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
 
     const arc = d3
       .arc<any>()
-      .outerRadius(d => radiusScale(d.value))
+      .outerRadius(0)
       .innerRadius(0);
 
-      svg
+    svg
       .selectAll('path')
       .data(arcs)
       .enter()
       .append('path')
       .attr('d', arc)
-      .attr('fill', (d, i) => this.colors[i])
+      .attr('fill', (d) => d.data.color)
+      .on("mouseover", function(event, d) {
+        d3.select(this)
+          .style("opacity", 0.5);
 
-      svg
-      .selectAll('text')
+        labels
+        .filter((label) => label.data.label === d.data.label)
+        .style('font-weight', 'bold');
+
+        tooltip
+          .style('opacity', 1)
+          .style('left', event.pageX - 55 + 'px')
+          .style('top', event.pageY - 75 + 'px').html(`
+          <div>
+          <div>${d.data.label}</div>
+          <div>% of Successful Passes</div>
+          <div>${Math.abs(d.data.value)}</div>
+          </div>
+        `);
+      })
+      .on("mouseout", function(event, d) {
+        tooltip.style('opacity', 0);
+        d3.select(this)
+          .style("opacity", 1);
+        labels
+          .filter((label) => label.data.label === d.data.label)
+          .style('font-weight', 'normal');
+      })
+      .transition()
+      .duration(1000)
+      .attr("d", arc.outerRadius( d => radiusScale(d.data.value)).innerRadius(0));
+
+
+    const labels = svg.selectAll("text")
       .data(arcs)
       .enter()
+      .append("text")
+      .attr("transform", (d) => {
+        const x = arc.centroid(d)[0];
+        const y = arc.centroid(d)[1];
+        const angle = Math.atan2(y, x) * (180 / Math.PI);
+        return `translate(${x}, ${y}) rotate(${angle}) translate(${radiusScale(d.value)/2 + 30}, 0) rotate(90)`;
+      })
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "middle")
+      .text((d) => d.data.label);
+
+    labels
+      .style("font-size", "14px")
+      .style("font-weight", "normal")
+      .style("fill", d => d.data.color);
+
+    svg
       .append('text')
-      .attr('transform', (d) => `translate(${arc.centroid(d)})`)
-      .attr('text-anchor', 'middle')
-      .text((d: any) => d.data.label);
-    
+      .attr('class', 'Chart title')
+      .attr('x', -width/8)
+      .attr('y', -185)
+      .style("fill", 'white')
+      .text('% of succesful passes');
   }
 
   removeChart() {
