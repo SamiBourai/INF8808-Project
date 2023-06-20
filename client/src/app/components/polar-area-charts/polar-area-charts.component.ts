@@ -68,7 +68,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
   createChart(): void {
 
     let element = this.chartContainer.nativeElement;
-    const margin = { top: 50, right: 100, bottom: 50, left: 200 };
+    const margin = { top: 10, right: 50, bottom: 10, left: 10 };
     const width = element.offsetWidth - margin.left - margin.right;
     const height = 500 - margin.top - margin.bottom;
     const radius = Math.min(width, height) / 2;
@@ -152,7 +152,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       .text((d) => d.data.label);
 
     labels
-      .style("font-size", "14px")
+      .style("font-size", "16px")
       .style("font-weight", "normal")
       .style("fill", d => d.data.color);
 
@@ -160,8 +160,9 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       .append('text')
       .attr('class', 'Chart title')
       .attr('x', -width/8)
-      .attr('y', -185)
-      .style("fill", 'white')
+      .attr('y', -225)
+      .style("fill", '#dadad2')
+      .style("font-size", "16px")
       .text('% of succesful passes');
   }
 
