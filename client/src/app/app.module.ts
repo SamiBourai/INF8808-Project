@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http'; 
+import { HttpClientModule } from '@angular/common/http'; // Import it here
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -11,24 +11,27 @@ import { HorizontalPictogramComponent } from './components/horizontal-pictogram/
 import { WinsAndLossesBarsChartComponent } from './components/wins-and-losses-bars-chart/wins-and-losses-bars-chart.component';
 import { ParallelCoordinatesChartComponent } from './components/parallel-coordinates-chart/parallel-coordinates-chart.component';
 import { PolarAreaChartsComponent } from './components/polar-area-charts/polar-area-charts.component';
+import { PossessionTopFourComponent } from './components/possession-top-four/possession-top-four.component';
+import { TouchesComponent } from './components/touches-component/touches-component.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     BackToBackChartComponent,
     PossessionHistogrammeComponent,
+    PossessionTopFourComponent,
+    TouchesComponent,
     HorizontalPictogramComponent,
     WinsAndLossesBarsChartComponent,
     ParallelCoordinatesChartComponent,
-    PolarAreaChartsComponent
+    PolarAreaChartsComponent,
   ],
-  imports: [
-    HttpClientModule,
-    BrowserModule,
-    AppRoutingModule,
-    BrowserAnimationsModule
+  imports: [BrowserModule,
+            AppRoutingModule,
+            BrowserAnimationsModule,
+            HttpClientModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

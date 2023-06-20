@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   HostListener,
@@ -6,14 +7,14 @@ import {
   ViewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
-import { Possession } from 'src/app/models/interfaces/possession';
+import { Possession } from 'src/models/interfaces/possession';
 
 @Component({
   selector: 'app-possession-top-four',
   templateUrl: './possession-top-four.component.html',
   styleUrls: ['./possession-top-four.component.css'],
 })
-export class PossessionTopFourComponent implements OnInit {
+export class PossessionTopFourComponent implements OnInit, AfterViewInit {
   @ViewChild('histogramme2') private chartContainer2!: ElementRef;
   private data2: Possession[] = [];
   private observer2: IntersectionObserver | null = null;
@@ -190,7 +191,6 @@ export class PossessionTopFourComponent implements OnInit {
           .style('font-weight', 'bold');
         tooltip
           .style('opacity', 1)
-          .style('position', 'absolute')
           .style('left', event.pageX - 55 + 'px')
           .style('top', event.pageY - 75 + 'px').html(`
       <div>

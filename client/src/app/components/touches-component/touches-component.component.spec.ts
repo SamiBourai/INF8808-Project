@@ -1,20 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TouchesComponentComponent } from './touches-component.component';
+import { TouchesComponent } from './touches-component.component';
 
 describe('TouchesComponentComponent', () => {
-  let component: TouchesComponentComponent;
-  let fixture: ComponentFixture<TouchesComponentComponent>;
+  let component: TouchesComponent;
+  let fixture: ComponentFixture<TouchesComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TouchesComponentComponent ]
-    })
-    .compileComponents();
+      declarations: [TouchesComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TouchesComponentComponent);
+    fixture = TestBed.createComponent(TouchesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
