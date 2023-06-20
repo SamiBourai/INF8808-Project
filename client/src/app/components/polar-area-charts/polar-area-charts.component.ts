@@ -154,6 +154,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
 
         labels
         .filter((label) => label.data.label === d.data.label)
+        .style("opacity", 0.5)
         .style('font-weight', 'bold');
 
         tooltip
@@ -174,6 +175,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
           .style("opacity", 1);
         labels
           .filter((label) => label.data.label === d.data.label)
+          .style("opacity", 1)
           .style('font-weight', 'normal');
       })
       .transition()
