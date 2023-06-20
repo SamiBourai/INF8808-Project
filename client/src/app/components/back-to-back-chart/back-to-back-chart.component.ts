@@ -74,9 +74,9 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
 
   createChart(): void {
     let element = this.chartContainer.nativeElement;
-    const margin = { top: 50, right: 30, bottom: 50, left: 100 };
+    const margin = { top: 70, right: 30, bottom: 50, left: 100 };
     const width = element.offsetWidth - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
+    const height = 500 - margin.top - margin.bottom;
 
     const x = d3.scaleLinear().domain([-10, 16]).range([0, width]);
 
@@ -227,6 +227,40 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .transition()
       .duration(1000)
       .attr('width', (d: CountryData) => Math.abs(x(d.scored) - x(0)));
+
+    let legend = svg
+      .selectAll('.legend')
+      .data(['Conceded goals', 'Scored goals'])
+      .enter()
+      .append('g')
+      .attr('class', 'legend')
+      .attr('transform', function (d, i) {
+        let legendX = (width - 2 * 150) / 2;
+        return 'translate(' + (legendX + i * 150) + ',' + (-60) + ')';
+      });
+
+    // Draw legend rectangles
+    legend
+    .append('rect')
+    .attr('x', 0)
+    .attr('width', 18)
+    .attr('height', 18)
+    .style('fill', function (d, i) {
+      return ['#d04a35cc', '#35d047b6'][i];
+    });
+
+    // Draw legend text
+    legend
+    .append('text')
+    .attr('x', 24)
+    .attr('y', 9)
+    .attr('dy', '.35em')
+    .style('text-anchor', 'start')
+    .style('fill', 'white')
+    .text((d) => {
+      return d;
+    });
+
   }
 
   removeChart() {
