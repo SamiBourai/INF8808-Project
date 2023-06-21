@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 // import { countries } from './constants';
 // import * as fs from 'fs';
 // import fs from 'fs';
@@ -92,9 +92,17 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     this.observer.observe(this.chartContainer.nativeElement);
   }
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    d3.select(this.chartContainer.nativeElement).select('svg').remove();
+    this.createChart();
+  }
+
+  countryColorScale
+
   createChart():void{
     let element = this.chartContainer.nativeElement;
-    const margin = { top: 100, right: 30, bottom: 50, left: 50 };
+    const margin = { top: 100, right: 30, bottom: 50, left: 80 };
     const width = element.offsetWidth - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
@@ -130,6 +138,20 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     .domain(['W', 'L', 'D'])
     .range(['green', 'red', 'gray']);
 
+    // Create color scale for the results
+    const countryColorScale = d3
+    .scaleOrdinal()
+    .domain(countries)
+    .range([
+      '#e80284',
+      '#4517EE',
+      '#4517EE',
+      '#4517EE',
+      '#DB8500',
+      '#DB8500',
+      '#DB8500',
+    ]);
+
     // Add horizontal lines
     svg.selectAll("line")
     .data(countries)
@@ -149,9 +171,9 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     .enter()
     .append("rect")
     .attr("x", d => xScale(d.Phase)! + (xScale!.bandwidth() - rectWidth) / 2)
-    .attr("y", d => yScale(d.Country)! - yScale.bandwidth() / 2)
+    .attr("y", d => yScale(d.Country)! + yScale.bandwidth() / 2)
     .attr("width", rectWidth )
-    .attr("height", yScale!.bandwidth())
+    //.attr("height", yScale!.bandwidth())
     .attr("fill", (d) => colorScale(d.Result) as string)
     .on("mouseover", (event, d) => {
       // Show tooltip with details
@@ -165,16 +187,28 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     .on("mouseout", () => {
       // Hide tooltip
       tooltip.style("opacity", 0);
-    });
+    })
+    .attr('height', 0)
+      .transition()
+      .duration(1000)
+      .attr('height', d => yScale!.bandwidth())
+      .attr('y', d => yScale(d.Country)! - yScale.bandwidth() / 2);
 
   // Add x-axis
     svg.append("g")
       .attr("transform", `translate(0, ${height})`)
-      .call(d3.axisBottom(xScale));
+      .call(d3.axisBottom(xScale).tickValues(phases))
+      .selectAll("text")
+      .style("font-size", "14px")
+      .style("font-family", "Arial");
 
   // Add y-axis
     svg.append("g")
-      .call(d3.axisLeft(yScale).tickSizeOuter(0));
+      .call(d3.axisLeft(yScale).tickSizeOuter(0))
+      .selectAll("text")
+      .style("font-size", "16px")
+      .style("font-family", "Arial")
+      .style("fill", (d) => countryColorScale(d as string) as string);
     
       // this.createLegend(element, margin, width, height)
   }
