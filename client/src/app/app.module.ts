@@ -14,6 +14,7 @@ import { PolarAreaChartsComponent } from './components/polar-area-charts/polar-a
 import { PossessionTopFourComponent } from './components/possession-top-four/possession-top-four.component';
 import { TouchesComponent } from './components/touches-component/touches-component.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { IntroductionComponent } from './components/introduction/introduction.component';
 
 
 @NgModule({
@@ -27,6 +28,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     WinsAndLossesBarsChartComponent,
     ParallelCoordinatesChartComponent,
     PolarAreaChartsComponent,
+    IntroductionComponent,
   ],
   imports: [BrowserModule,
             AppRoutingModule,

@@ -488,7 +488,7 @@ onWheelChange() {
                   .filter((node: any) => node['Country'] !== d)
                   .attr('opacity', 0.5);
                 d3.select('#tooltip')
-                  .style('opacity', 1)
+                  .style('opacity', 0.85)
                   .style('left', event.pageX - 55 + 'px')
                   .style('top', event.pageY - 75 + 'px')
                   .style('border', `2px solid ${this.countryColorScale(d.Country)}`)
@@ -586,7 +586,7 @@ onWheelChange() {
         .filter((node: any) => (node[0]==='true') !== d["ClubInTop5"] || node[0]==='rect' )
         .attr('opacity',0.5)
       d3.select('#tooltip')
-        .style('opacity', 1)
+        .style('opacity', 0.85)
         .style('left', event.pageX - 55 + 'px')
         .style('top', event.pageY - 75 + 'px')
         .style('border', `2px solid ${this.countryColorScale(d.Country)}`)
@@ -740,7 +740,7 @@ private addAvg(): void {
         .filter((node: any) => node[0] !== 'rect')
         .attr('opacity', 0.5);
       d3.select('#tooltip')
-        .style('opacity', 1)
+        .style('opacity', 0.85)
         .style('left', event.pageX - 55 + 'px')
         .style('top', event.pageY - 75 + 'px')
         .style('border', `2px solid ${this.countryColorScale(d.country)}`)
