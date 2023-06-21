@@ -192,11 +192,11 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       .transition()
       .duration(1000)
       .attr('height', d => yScale!.bandwidth())
-      .attr('y', d => yScale(d.Country)! - yScale.bandwidth() / 2);
+      .attr('y', d => yScale(d.Country)!);
 
   // Add x-axis
     svg.append("g")
-      .attr("transform", `translate(0, ${height})`)
+      .attr("transform", `translate(0, ${height + 10})`)
       .call(d3.axisBottom(xScale).tickValues(phases))
       .selectAll("text")
       .style("font-size", "14px")
