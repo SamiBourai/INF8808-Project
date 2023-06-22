@@ -8,7 +8,7 @@
 body {
     height: 100%;
     scroll-behavior: smooth;
-    overflow: hidden;
+    /* overflow: hidden; */
     background-color: #041125;
 }
 
@@ -28,6 +28,8 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    padding-top: 75px;
+
 }
 
 
@@ -41,13 +43,16 @@ body {
     flex-wrap: wrap;
     font-size: 40px;
     padding: 1%;
+    height: 80vh;
+
 }
 
-/* .viz1-2{
-    background-color: rgba(5, 112, 112, 0.849);
+
+ .viz1-2{
+    height: 100vh;
 }
 
-.viz3{
+/* .viz3{
     background-color: rgba(5, 42, 112, 0.849);
 }
 

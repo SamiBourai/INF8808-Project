@@ -15,6 +15,7 @@ import { PossessionTopFourComponent } from './components/possession-top-four/pos
 import { TouchesComponent } from './components/touches-component/touches-component.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { IntroductionComponent } from './components/introduction/introduction.component';
+import { BannerComponent } from './components/banner/banner.component';
 
 
 @NgModule({
@@ -29,6 +30,7 @@ import { IntroductionComponent } from './components/introduction/introduction.co
     ParallelCoordinatesChartComponent,
     PolarAreaChartsComponent,
     IntroductionComponent,
+    BannerComponent,
   ],
   imports: [BrowserModule,
             AppRoutingModule,

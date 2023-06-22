@@ -1,0 +1,7 @@
+.banner {
+    position: -webkit-sticky; /* For Safari */
+    position: sticky;
+    background-color: #041125;
+    top: 0;
+    z-index: 1000; /* Ensure it sits over other content */
+  }
