@@ -52,7 +52,7 @@ export class ParallelCoordinatesChartComponent implements OnInit {
 
   create(): void {
     d3.csv(
-      "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/iris.csv"
+      "src/assets/team_parallel_chart.csv"
     ).then((data) => {
       console.log(data);
       this.data = data;
