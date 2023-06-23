@@ -21,15 +21,15 @@ export class TouchesComponent implements AfterViewInit {
 
   data: Touches[] = [
     { country: 'Morroco', defense: 47 * 2, middle: 36 * 2, attack: 17 * 2 },
-    { country: 'Argentina', defense: 42 * 2, middle: 38 * 2, attack: 20 * 2 },
-    { country: 'France', defense: 44 * 2, middle: 37 * 2, attack: 10 * 2 },
-    { country: 'Croatia', defense: 44 * 2, middle: 37 * 2, attack: 19 * 2 },
-    { country: 'Senegal', defense: 44 * 2, middle: 37 * 2, attack: 10 * 2 },
-    { country: 'Tunisia', defense: 44 * 2, middle: 37 * 2, attack: 20 * 2 },
-    { country: 'Ghana', defense: 44 * 2, middle: 37 * 2, attack: 20 * 2 },
+    { country: 'Argentina', defense: 30 * 2, middle: 46 * 2, attack: 24 * 2 },
+    { country: 'France', defense: 31 * 2, middle: 45 * 2, attack: 24 * 2 },
+    { country: 'Croatia', defense: 34 * 2, middle: 45 * 2, attack: 21 * 2 },
+    { country: 'Senegal', defense: 38 * 2, middle: 37 * 2, attack: 25 * 2 },
+    { country: 'Tunisia', defense: 43 * 2, middle: 37 * 2, attack: 20 * 2 },
+    { country: 'Ghana', defense: 41 * 2, middle: 32 * 2, attack: 27 * 2 },
   ];
   width: number = 400;
-  height: number = 130;
+  height: number = 140;
 
   private boxSize: number = 14; // Size of each box
   private boxGap: number = 2; // space between each box

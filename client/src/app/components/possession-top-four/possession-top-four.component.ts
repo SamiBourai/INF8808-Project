@@ -21,7 +21,7 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
   constructor() {}
 
   ngOnInit(): void {
-    const possessionPercentages2: number[] = [48, 52, 49, 51];
+    const possessionPercentages2: number[] = [39, 51.3, 56.5, 54.3];
     const countries2: string[] = ['Morroco', 'Argentina', 'France', 'Croatia'];
     const colors2: string[] = ['#e80284', '#4517EE', '#4517EE', '#4517EE'];
 

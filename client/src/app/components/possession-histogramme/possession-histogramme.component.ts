@@ -22,7 +22,9 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
   private observer: IntersectionObserver | null = null;
 
   ngOnInit(): void {
-    const possessionPercentages: number[] = [48, 52, 49, 51, 50, 50, 50, 50];
+    const possessionPercentages: number[] = [
+      37, 66.6, 58.6, 54, 46.6, 43.3, 42,
+    ];
     const countries: string[] = [
       'Morroco',
       'Argentina',
