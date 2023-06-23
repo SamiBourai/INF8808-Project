@@ -20,7 +20,7 @@ export class BannerComponent implements OnInit,  AfterViewInit{
   public countries: string[] = [
     'Morocco',
     'Top 3 (Argentina, France, Croatia)',
-    'Similar African Countries (Senagal, Tunisia, Ghana)'
+    'Similar African Nations (Senagal, Tunisia, Ghana)'
   ];
   public colors: string[] = [
     '#E80284',
@@ -73,6 +73,8 @@ export class BannerComponent implements OnInit,  AfterViewInit{
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
     this.createChart();
   }
+
+
 
   createChart(): void {
     this.element = this.chartContainer.nativeElement;

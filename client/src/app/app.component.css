@@ -78,5 +78,41 @@ body {
   /* optional: to add space between the components */
 }
 
-
+h1 {
+    font-size: xx-large;
+    justify-content: center;
+    text-align: center;
+    margin: 5% 0;
+  }
+  
+  p {
+    text-indent: 0px;
+    font-size:medium;
+    justify-content: left;
+    margin: 0 10% ;
+  }
+  
+  .top3 {
+    color:#4517EE;
+  }
+  
+  .african {
+    color:   #DB8500
+  }
+  
+  .morocco {
+    color : #E80284;
+  }
+  
+  .logo-container {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .logo {
+    max-width: 50%;
+    align-self: center;
+    margin-top: 5px;
+  }
+  
 
