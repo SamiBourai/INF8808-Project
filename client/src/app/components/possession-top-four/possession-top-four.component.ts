@@ -122,7 +122,8 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
       .attr('text-anchor', 'end')
       .attr('x', width / 2)
       .attr('y', -40)
-      .text('% of possession');
+      .attr('fill', '#fff')
+      .text('Average Possession (%)');
 
     svg
       .selectAll('myRect')
@@ -215,37 +216,6 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
       .attr('width', (d: Possession) =>
         Math.abs(x(d.possessionPercentage) - x(0))
       );
-
-    let legend = svg
-      .selectAll('.legend')
-      .data(['Morroco', 'Top 4'])
-      .enter()
-      .append('g')
-      .attr('class', 'legend')
-      .attr('transform', function (d, i) {
-        return 'translate(' + i * 100 + ',' + (height + 20) + ')';
-      });
-
-    // Draw legend rectangles
-    legend
-      .append('rect')
-      .attr('x', 0)
-      .attr('width', 18)
-      .attr('height', 18)
-      .style('fill', function (d, i) {
-        return ['#e80284', '#4517EE'][i];
-      });
-
-    // Draw legend text
-    legend
-      .append('text')
-      .attr('x', 24)
-      .attr('y', 9)
-      .attr('dy', '.35em')
-      .style('text-anchor', 'start')
-      .text((d) => {
-        return d;
-      });
   }
 
   removeChart2() {

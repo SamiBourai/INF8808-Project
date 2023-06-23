@@ -92,12 +92,14 @@
 
 .chart-title {
   text-align: center;
+  margin-top: 1%;
+  margin-bottom: 1%;
 }
 
 .titles{
   text-align: left;
-  margin-top: 1%;
-  margin-bottom: 1%;
+  margin-top: 6%;
+  margin-bottom: 0%;
   margin-left: 5%;
   margin-right: 5%;
 }

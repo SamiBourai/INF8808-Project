@@ -24,12 +24,12 @@ export class TouchesComponent implements AfterViewInit {
     { country: 'Argentina', defense: 42 * 2, middle: 38 * 2, attack: 20 * 2 },
     { country: 'France', defense: 44 * 2, middle: 37 * 2, attack: 10 * 2 },
     { country: 'Croatia', defense: 44 * 2, middle: 37 * 2, attack: 19 * 2 },
-    { country: 'Senegal', defense: 44 * 2, middle: 37 * 2, attack: 39 * 2 },
-    { country: 'Tunisia', defense: 44 * 2, middle: 37 * 2, attack: 49 * 2 },
-    { country: 'Ghana', defense: 44 * 2, middle: 37 * 2, attack: 49 * 2 },
+    { country: 'Senegal', defense: 44 * 2, middle: 37 * 2, attack: 10 * 2 },
+    { country: 'Tunisia', defense: 44 * 2, middle: 37 * 2, attack: 20 * 2 },
+    { country: 'Ghana', defense: 44 * 2, middle: 37 * 2, attack: 20 * 2 },
   ];
   width: number = 400;
-  height: number = 140;
+  height: number = 130;
 
   private boxSize: number = 14; // Size of each box
   private boxGap: number = 2; // space between each box
@@ -45,7 +45,6 @@ export class TouchesComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.createSvg();
     this.drawWaffle();
-    // this.drawLegend();
   }
 
   @HostListener('window:resize', ['$event'])
@@ -149,15 +148,16 @@ export class TouchesComponent implements AfterViewInit {
         legend
           .append('rect')
           .attr('class', (d) => `square-${d}`)
-          .attr('x', this.width - 70)
+          .attr('x', this.width - 50)
           .attr('width', 11)
           .attr('height', 11)
           .attr('fill', (d) => this.colors[Object.keys(rest).indexOf(d)]);
         legend
           .append('text')
-          .attr('x', this.width - 50)
+          .attr('x', this.width - 30)
           .attr('y', 5)
           .attr('font-size', '10px')
+          .attr('fill', '#fff')
           .attr('dy', '0.35em')
           .text((d) => d);
       }
@@ -172,13 +172,6 @@ export class TouchesComponent implements AfterViewInit {
     </div>
   `;
   }
-
-  // private drawLegend() {
-  //   this.data.forEach((d, i) => {
-  //     const currentSvg = this.svgs.get(d.Player);
-  //     const { Player, ...rest } = d;
-
-  // }
 
   private createSvg(): void {
     this.data.forEach((d, i) => {

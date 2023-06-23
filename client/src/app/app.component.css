@@ -52,29 +52,14 @@ body {
     height: 100vh;
 }
 
-/* .viz3{
-    background-color: rgba(5, 42, 112, 0.849);
-}
-
-.viz4{
-    background-color: rgba(112, 53, 5, 0.849);
-}
-
-.viz5{
-    background-color: rgba(28, 5, 112, 0.849);
-}
-
-.viz6{
-    background-color: rgba(5, 112, 112, 0.849);
-}
-
-.viz7{
-    background-color: rgba(112, 78, 5, 0.849);
-} */
 .flex-container {
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
+  justify-content: center;
+  margin-left: 2%;
+
+  width: 90%;
+
   /* optional: to add space between the components */
 }
 
@@ -84,35 +69,39 @@ h1 {
     text-align: center;
     margin: 5% 0;
   }
-  
+
   p {
     text-indent: 0px;
     font-size:medium;
     justify-content: left;
     margin: 0 10% ;
   }
-  
+
   .top3 {
     color:#4517EE;
   }
-  
+
   .african {
     color:   #DB8500
   }
-  
+
   .morocco {
     color : #E80284;
   }
-  
+
   .logo-container {
     display: flex;
     justify-content: center;
   }
-  
+
   .logo {
     max-width: 50%;
     align-self: center;
     margin-top: 5px;
   }
-  
 
+
+
+  .possession {
+    width: 100%;
+  }
