@@ -1,8 +1,9 @@
 export interface Team {
     country: string;
-    numberPass: number;
-    numberGoal: number;
-    numberRecup: number;
-    numberTacle: number;
-    numberInterv: number;
+    pass: number;
+    goal: number;
+    recup: number;
+    tacles: number;
+    intercep: number;
+    category: number
   }

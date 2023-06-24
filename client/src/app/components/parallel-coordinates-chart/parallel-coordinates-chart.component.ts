@@ -9,6 +9,7 @@ import {
 
 import * as d3 from 'd3';
 import { HttpClient } from '@angular/common/http';
+import { Team } from 'src/models/interfaces/parallel';
 
 @Component({
   selector: 'app-parallel-coordinates-chart',
@@ -30,8 +31,17 @@ export class ParallelCoordinatesChartComponent
   private height = 500 - this.margin.top - this.margin.bottom;
   private xScale: any;
   private colorScale: any;
-  private countries = ['Ghana', 'France', 'Senegal'];
-  public colors: string[] = ['#DB8500', '#4517EE', '#DB8500'];
+  private countries = ['Morocco', 'Argentina', 'France', 'Croatia', 'Ghana', 'Tunisia', 'Croatia'];
+  private category = [1, 2, 3]
+  public colors: string[] = [
+  '#e80284',
+  '#4517EE',
+  '#4517EE',
+  '#4517EE',
+  '#DB8500',
+  '#DB8500',
+  '#DB8500',
+];
   private dimensions = ['pass', 'goal', 'recup', 'tacles', 'intercep'];
   private xlabels = {
     pass: 'Number of\nattempted passes\n/90min',
@@ -45,39 +55,75 @@ export class ParallelCoordinatesChartComponent
 
   private svg: any;
   private color = d3.scaleOrdinal().domain(this.countries).range(this.colors);
-
-  loadData() {
-    this.http
-      .get('/assets/team_parallel_chart.csv', { responseType: 'text' })
-      .subscribe(
-        (data) => {
-          console.log(data);
-          let rows = data.split('\n').filter((row) => row.trim() !== '');
-          let headers = rows[0]
-            .split(',')
-            .map((header) => header.replace('\r', '').trim());
-          this.data = [];
-
-          for (let i = 1; i < rows.length; i++) {
-            let cells = rows[i]
-              .split(',')
-              .map((row) => row.replace('\r', '').trim());
-            let dataObject: { [key: string]: string | number } = {};
-            headers.forEach((col, index) => {
-              dataObject[col] = cells[index];
-            });
-
-            this.data.push(dataObject);
-          }
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
-  }
-
   ngOnInit() {
-    this.loadData();
+    
+    const list= [
+      {
+      country: 'Senegal',
+      pass: 327.5,
+      goal: 5,
+      recup:48,
+      tacles:3,
+      intercep:7.75,
+      category: 1
+    },
+    {
+      country: 'Ghana',
+      pass: 324.0,
+      goal: 5,
+      recup:48.7,
+      tacles:11.3,
+      intercep:6.33,
+      category: 1
+    },
+    {
+      country: 'France',
+      pass: 448.9,
+      goal: 16,
+      recup:49.9,
+      tacles:12.1,
+      intercep:10.4,
+      category: 1
+    },
+    {
+      country: 'Morocco',
+      pass: 311.0,
+      goal: 6,
+      recup:50.5,
+      tacles:10.8,
+      intercep:9.32,
+      category: 1
+    },
+    {
+      country: 'Croatia',
+      pass: 489.1,
+      goal: 5,
+      recup:53.1,
+      tacles:10.8,
+      intercep:6.88,
+      category: 1
+    },
+    {
+      country: 'Argentina',
+      pass: 507.9,
+      goal: 15,
+      recup:46.4,
+      tacles:8.96,
+      intercep:6.75,
+      category: 1
+    }, {
+      country: 'Tunisia',
+      pass: 332.7,
+      goal: 1,
+      recup:56.7,
+      tacles:8,
+      intercep:8.33,
+      category: 1
+    }
+    ]
+    console.log(list)
+    this.data = list
+    // this.loadData();
   }
 
   observeChart() {
@@ -131,17 +177,17 @@ export class ParallelCoordinatesChartComponent
   private highlight(d: any, color: any) {
     // first every group turns grey
     d3.selectAll('.line')
-      .filter((node: any) => node.Country !== d.Country)
+      .filter((node: any) => node.country !== d.country)
       .transition()
       .duration(200)
       .ease(d3.easeCubicInOut)
       .style('opacity', '0.3');
     // Second the hovered specie takes its color
-    d3.selectAll('.' + d.Country)
+    d3.selectAll('.' + d.country)
       .transition()
       .ease(d3.easeCubicInOut)
       .duration(200)
-      .style('stroke', color[d.Country])
+      .style('stroke', color[d.country])
       .style('opacity', '1');
   }
 
@@ -150,12 +196,13 @@ export class ParallelCoordinatesChartComponent
       .transition()
       .ease(d3.easeCubicInOut)
       .duration(200)
-      .style('stroke', color[d.Country])
+      .style('stroke', color[d.country])
       .style('opacity', '1');
   }
 
   buildSvg(): void {
     let element = this.chartContainer.nativeElement;
+    const tooltip = d3.select('#tooltip');
     this.svg = d3
       .select(element)
       .append('svg')
@@ -194,11 +241,24 @@ export class ParallelCoordinatesChartComponent
       .attr('class', (d: any) => this.d_class(d)) // 2 class for each line: 'line' and the group name
       .attr('d', (d: any) => this.path(d))
       .attr('fill', 'none')
-      .attr('stroke-width', 5)
+      .attr('stroke-width', 4)
       .attr('stroke', (d: any) => this.d_species(d))
       .attr('opacity', 1)
-      .on('mouseover', (e, d) => this.highlight(d, this.color))
-      .on('mouseleave', (e, d) => this.doNotHighlight(d, this.color));
+      .on('mouseover', (e, d) => {
+        this.highlight(d, this.color)
+        tooltip
+          .style('opacity', 1)
+          .style('left', e.pageX - 55 + 'px')
+          .style('top', e.pageY - 75 + 'px').html(`
+      <divstyle="text-align: center;">
+        <div>${d.country}</div>
+        
+      </div>
+      `);
+      })
+      .on('mouseleave', (e, d) => {
+        this.doNotHighlight(d, this.color)
+        tooltip.style('opacity', 0);});
 
     this.svg
       .selectAll('.y-axis')
@@ -223,11 +283,11 @@ export class ParallelCoordinatesChartComponent
   }
 
   d_species(d) {
-    return this.colorScale(d.Country); // removed nullish coalescing
+    return this.colorScale(d.country); // removed nullish coalescing
   }
 
   d_class(d) {
-    return 'line ' + d.Country;
+    return 'line ' + d.country;
   }
 
   path(d: any) {
@@ -237,5 +297,12 @@ export class ParallelCoordinatesChartComponent
   }
   removeChart(): void {
     d3.select(this.chartContainer.nativeElement).selectAll('*').remove();
+  }
+
+  ngOnDestroy() {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
   }
 }

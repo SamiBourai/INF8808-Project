@@ -14,3 +14,21 @@
     font-size:15px;
     font-family: Arial ;
 }
+
+#tooltip {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; /* this centers horizontally in a flex column */
+    line-height: 1;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border-radius: 5%;
+    pointer-events: none;
+    transition-duration: 1s;
+    border-radius: 2px;
+    pointer-events: none;
+    border-radius: 5%;
+    transition-duration: 1s;
+}
