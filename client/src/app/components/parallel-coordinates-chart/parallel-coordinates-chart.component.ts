@@ -46,37 +46,38 @@ export class ParallelCoordinatesChartComponent
   private svg: any;
   private color = d3.scaleOrdinal().domain(this.countries).range(this.colors);
 
-  async loadData() {
-    try {
-      const data = await this.http
-        .get('/assets/team_parallel_chart.csv', { responseType: 'text' })
-        .toPromise();
+  loadData() {
+    this.http
+      .get('/assets/team_parallel_chart.csv', { responseType: 'text' })
+      .subscribe(
+        (data) => {
+          console.log(data);
+          let rows = data.split('\n').filter((row) => row.trim() !== '');
+          let headers = rows[0]
+            .split(',')
+            .map((header) => header.replace('\r', '').trim());
+          this.data = [];
 
-      let rows = data.split('\n').filter((row) => row.trim() !== '');
-      let headers = rows[0]
-        .split(',')
-        .map((header) => header.replace('\r', '').trim());
-      this.data = [];
+          for (let i = 1; i < rows.length; i++) {
+            let cells = rows[i]
+              .split(',')
+              .map((row) => row.replace('\r', '').trim());
+            let dataObject: { [key: string]: string | number } = {};
+            headers.forEach((col, index) => {
+              dataObject[col] = cells[index];
+            });
 
-      for (let i = 1; i < rows.length; i++) {
-        let cells = rows[i]
-          .split(',')
-          .map((row) => row.replace('\r', '').trim());
-        let dataObject: { [key: string]: string | number } = {};
-        headers.forEach((col, index) => {
-          dataObject[col] = cells[index];
-        });
-
-        this.data.push(dataObject);
-      }
-      console.log('log', this.data);
-    } catch (error) {
-      console.error('An error occurred while loading player data:', error);
-    }
+            this.data.push(dataObject);
+          }
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
   }
 
-  async ngOnInit(): Promise<void> {
-    await this.loadData().then(() => {});
+  ngOnInit() {
+    this.loadData();
   }
 
   observeChart() {
