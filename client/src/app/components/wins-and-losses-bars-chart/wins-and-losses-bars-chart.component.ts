@@ -63,9 +63,6 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
         };
       });
     })
-
-    console.log(this.dataMap)
-    console.log(this.countryMap)
   }
 
   // cleanMap(): void {
@@ -107,7 +104,6 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     const height = 400 - margin.top - margin.bottom;
 
     const phases = this.extractPhases()
-    console.log(phases)
 
     const svg = d3.select(element)
       .append("svg")
@@ -164,35 +160,61 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     .attr("stroke", "gray")
     .attr("stroke-dasharray", "3,3");
 
-
+    const groupedData = d3.group(this.dataMap, d => d.Phase);
     const rectWidth = xScale!.bandwidth() - xScale!.bandwidth()/4
-    svg.selectAll("rect")
-    .data(this.dataMap)
+    const rects = svg.selectAll("rect")
+    .data(groupedData)
+    .enter()
+    .append("g")
+    .selectAll("rect")
+    .data(d => d[1])
     .enter()
     .append("rect")
     .attr("x", d => xScale(d.Phase)! + (xScale!.bandwidth() - rectWidth) / 2)
-    .attr("y", d => yScale(d.Country)! + yScale.bandwidth() / 2)
-    .attr("width", rectWidth )
-    //.attr("height", yScale!.bandwidth())
-    .attr("fill", (d) => colorScale(d.Result) as string)
+    .attr("y", yScale.bandwidth() / 2)
+    .attr("width", rectWidth)
+    .attr("height", 0)
+    .attr("fill", d => colorScale(d.Result) as string)
     .on("mouseover", (event, d) => {
       // Show tooltip with details
       tooltip.style("opacity", 1)
         .style("left", event.pageX + "px")
         .style("top", (event.pageY - 20) + "px")
+        .style("border", `2px solid ${countryColorScale(d.Country)}`)
         .html(`<div>Date: ${d.Date}</div>
                <div>Display: ${d.Display}</div>
                <div>Score: ${d.Score}</div>`);
+      svg.selectAll("rect")
+      .style("opacity", function(rectData) {
+        return rectData === d ? 1 : 0.3;
+      });
+      svg.selectAll("text")
+        .style("opacity", 0.3);
+      // Highlight corresponding country
+      const countryText = svg.selectAll("text")
+      .filter((data) => data === d.Country)
+      .style("font-weight", "bold")
+      .style("opacity", 1);
+      
     })
     .on("mouseout", () => {
+      svg.selectAll("rect")
+      .style("opacity", 1);
+      svg.selectAll("text")
+      .style("opacity", 1)
+      .style("font-weight", "normal");
       // Hide tooltip
       tooltip.style("opacity", 0);
     })
-    .attr('height', 0)
-      .transition()
-      .duration(1000)
-      .attr('height', d => yScale!.bandwidth())
-      .attr('y', d => yScale(d.Country)!);
+    .transition()
+    .duration(750)
+    .delay((d, i) => {
+      const phaseIndex = phases.indexOf(d.Phase);
+      const countryIndex = countries.indexOf(d.Country);
+      return (phaseIndex * countries.length + countryIndex) * 100; // Delay based on phase and country index
+    })
+    .attr("y", d => yScale(d.Country)!)
+    .attr("height", yScale.bandwidth());
 
   // Add x-axis
     svg.append("g")
@@ -205,11 +227,36 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
   // Add y-axis
     svg.append("g")
       .call(d3.axisLeft(yScale).tickSizeOuter(0))
+      .attr('class','y-axis')
       .selectAll("text")
       .style("font-size", "15px")
       .style("font-family", "Arial")
-      .style("fill", (d) => countryColorScale(d as string) as string);
-    
+      .style("fill", (d) => countryColorScale(d as string) as string)
+      .on("mouseover", function(event, d) {
+        // Reduce opacity of other country names
+        svg.selectAll('.y-axis .tick')
+          .filter((node: any) => node === d)
+          .select('text')
+          .style('font-weight', 'bold');
+        svg.selectAll('.y-axis .tick')
+          .filter((node: any) => node !== d)
+          .select('text')
+          .attr('opacity', 0.5);
+
+        // Make the hovered country name bold
+        d3.select(this).style("font-weight", "bold");
+      })
+      .on("mouseout", function(event, d) {
+        // Restore opacity and font weight of all country names
+        svg.selectAll('.y-axis .tick')
+          .filter((node: any) => node === d)
+          .select('text')
+          .style('font-weight', 'normal');
+        svg.selectAll('.y-axis .tick')
+          .filter((node: any) => node !== d)
+          .select('text')
+          .attr('opacity',1)
+      });
       // this.createLegend(element, margin, width, height)
   }
 
