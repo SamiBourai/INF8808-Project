@@ -98,6 +98,7 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
 
     let xAxis = svg
       .append('g')
+      .attr('class','x-axis')
       .attr('transform', `translate(0,${-10})`)
       .call(
         d3
@@ -106,10 +107,9 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
           .ticks(5)
           .tickFormat((d: any) => Math.abs(d as number).toString())
       );
+      
 
     xAxis.selectAll('.tick text').attr('dy', -20);
-
-    svg.append('g').attr('transform', `translate(${width / 2},${height})`);
 
     x.ticks().forEach((tick) => {
       svg
@@ -124,10 +124,16 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
         .style('stroke-dasharray', '3, 3');
     });
 
-    svg
+    let yAxis = svg
       .append('g')
       .call(d3.axisLeft(y).tickSizeOuter(0))
       .attr('stroke', 'none');
+    
+    yAxis.selectAll('.tick text')
+         .attr('fill', (d:any,i:any) => this.data[i].color) // This will hide the tick lines
+         .attr('font-size',15)
+         .attr("font-family", "Arial")
+
 
     svg.selectAll('.tick line').attr('stroke', 'none'); // This will hide the tick lines
 
@@ -137,12 +143,13 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
       .append('text')
       .attr('class', 'x label')
       .attr('text-anchor', 'end')
-      .attr('x', width / 2)
+      .attr('x', (width + margin.left + margin.right) / 2 + 30)
       .attr('y', -40)
       //fill with white
       .attr('fill', '#fff')
-
-      .text('Average Possession (%)');
+      .style("font-size", "12px")
+      .style("font-family", "Arial")
+      .text('Average Possession (%) (Group Stage)');
 
     svg
       .selectAll('myRect')

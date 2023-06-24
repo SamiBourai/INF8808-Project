@@ -107,12 +107,16 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
         .style('stroke-dasharray', '3, 3');
     });
 
-    svg
+    let yAxis = svg
       .append('g')
       .call(d3.axisLeft(y).tickSizeOuter(0))
       .attr('stroke', 'none');
+    
+    yAxis.selectAll('.tick text')
+         .attr('fill', (d:any,i:any) => this.data2[i].color) // This will hide the tick lines
+         .attr('font-size',15)
+         .attr("font-family", "Arial")
 
-    svg.selectAll('.tick line').attr('stroke', 'none'); // This will hide the tick lines
 
     const tooltip = d3.select('#tooltip');
 
@@ -120,10 +124,12 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
       .append('text')
       .attr('class', 'x label')
       .attr('text-anchor', 'end')
-      .attr('x', width / 2)
+      .attr('x', (width + margin.left + margin.right) / 2 + 30)
       .attr('y', -40)
       .attr('fill', '#fff')
-      .text('Average Possession (%)');
+      .style("font-size", "12px")
+      .style("font-family", "Arial")
+      .text('Average Possession (%) (Knockout Stage)');
 
     svg
       .selectAll('myRect')

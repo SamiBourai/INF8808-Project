@@ -469,7 +469,7 @@ onWheelChange() {
                         .attr('transform', `translate(${this.margin.left-20}, ${this.margin.top})`)
                         .call(d3.axisLeft(this.yScale).tickSize(0).tickSizeOuter(0));
         yAxis.selectAll("text")
-              .attr("font-size", "16px")
+              .attr("font-size", "15px")
               .attr("font-family", "Arial")
               .attr("color", (d:string) => this.countryColorScale(d))
               .on('mouseover', (event: MouseEvent, d: any) => {
@@ -564,7 +564,7 @@ onWheelChange() {
     .attr('r', this.yScale.bandwidth() / 4)
     .attr('stroke-width', this.yScale.bandwidth() / 32)
     .attr('stroke', (d: any) => this.countryColorScale(d['Country']))
-    .attr('fill', 'transparent')
+    .attr('fill', 'black')
     .attr('opacity', 1)
     .on('mouseover', (event: MouseEvent, d: any) => {
       this.svg
@@ -657,7 +657,9 @@ onWheelChange() {
       .attr('r', this.yScale.bandwidth() / 4)
       .attr('stroke-width',this.yScale.bandwidth() / 16)
       .attr('stroke','#69f0ae')
-      .style('fill', (d:any) => d[1].color);
+      .style('fill', (d:any) => d[1].color)
+      .attr("font-size", "12px")
+      .attr("font-family", "Arial")
     legend.selectAll('.legend-item')
       .filter((node:any) => node[0] === 'rect')
       .attr('id','avg-legend-item')
@@ -682,6 +684,8 @@ onWheelChange() {
       .style('text-anchor', 'start')
       .text((d:any) => d[1].text)
       .attr('fill','white')
+      .attr("font-size", "12px")
+      .attr("font-family", "Arial")
       var textSize = Math.max(...legend.selectAll('.legend-item').nodes().map((item: any) => (item as SVGGElement).getBBox().width));
       console.log(textSize);
       legend
@@ -690,12 +694,16 @@ onWheelChange() {
         ${this.height + this.margin.top + this.heightLegend/2 - 0.5*this.yScale.bandwidth()})`)
       .text('by')
       .attr('fill','white')
+      .attr("font-size", "12px")
+      .attr("font-family", "Arial")
       legend
       .append('text')
       .attr('transform', () => `translate(${this.margin.left + textSize + 50},
         ${this.height + this.margin.top + this.heightLegend/2 - 0.5*this.yScale.bandwidth()})`)
       .text('Team')
       .attr('fill','#69f0ae')
+      .attr("font-size", "12px")
+      .attr("font-family", "Arial")
 
     
 }

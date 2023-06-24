@@ -103,6 +103,8 @@ export class BannerComponent implements OnInit,  AfterViewInit{
             .attr('y', 15)
             .attr('fill',(d:any)=>this.countryColorScale(d))
             .style('font-size','15px')
+            .style("font-family", "Arial")
+
   }
 
   private createSVG(): void {

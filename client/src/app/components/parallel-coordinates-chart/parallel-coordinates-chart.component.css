@@ -1,16 +1,16 @@
-.container{
-    width: 90%;
-    height: 90%;
+ 
+.wrapper{
+    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin: auto;
+    /* margin: 0 10% */
 }
 
-.wrapper{
+
+.text {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    margin: auto;
-    padding: 5%;
+    position: relative;
+    font-size:15px;
+    font-family: Arial ;
 }

@@ -1,18 +1,18 @@
  
-.container{
-    width: 90%;
+.wrapper{
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    /* margin: 0 10% */
 }
 
 
 .text {
     display: flex;
     position: relative;
-    margin: 0 10% ;
-
+    font-size:15px;
+    font-family: Arial ;
 }
 
 .toggle-bar {

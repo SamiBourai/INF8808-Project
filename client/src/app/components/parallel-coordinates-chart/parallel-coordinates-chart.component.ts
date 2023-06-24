@@ -165,7 +165,8 @@ export class ParallelCoordinatesChartComponent implements OnInit, AfterViewInit 
         d3.select(nodes[i]).call(axis);
       })
     this.svg.selectAll(".tick text")
-      .attr("font-size", "12px");
+            .attr("font-size", "12px")
+            .attr("font-family", "Arial");
 
     this.svg.append('g')
       .attr('class', 'lines-g')
@@ -190,6 +191,8 @@ export class ParallelCoordinatesChartComponent implements OnInit, AfterViewInit 
       .style("text-anchor", "middle")
       .attr("y", -50)
       .style("fill", "white")
+      .attr("font-size", "12px")
+      .attr("font-family", "Arial")
       .each((d:any, i:number, nodes:any) => {
         let text = this.xlabels[d];
         let parts = text.split('\n');  // split on space, or choose your own criterion

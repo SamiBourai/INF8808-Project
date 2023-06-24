@@ -4,33 +4,21 @@
     flex-direction: column;
 }
 
-
-.section-hero{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    max-width: 30%;
-    flex-wrap: wrap;
-    margin: auto;
-    color: rgb(248, 177, 85);
-    font-size: 40px;
-    padding: 1%;
-}
-
 .wrapper{
     display: flex;
     flex-direction: row;
     justify-content: center;
     flex-wrap:wrap;
     margin: auto;
-    padding: 5%;
+    padding: 5% 0;
     gap: 2%;
 }
 
 .text{
     flex : 2;
     /* padding: 5%; */
+    font-size:15px;
+    font-family: Arial ;
 }
 
 .container{
@@ -41,29 +29,21 @@
     flex-direction: column;
     justify-content: center;
     margin: auto;
-    background-color: rgba(17, 15, 109, 0.226);
+    /* background-color: rgba(17, 15, 109, 0.226); */
 }
 
 #tooltip {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center; /* this centers horizontally in a flex column */
     line-height: 1;
     padding: 1rem;
     background: rgba(0, 0, 0, 0.8);
-    color: #fff;#tooltip {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        line-height: 1;
-        padding: 1rem;
-        background: rgba(0, 0, 0, 0.8);
-        color: #fff;
-        border-radius: 2px;
-        pointer-events: none;
-        border-radius: 5%;
-        transition-duration: 1s;
-    }
+    color: #fff;
+    border-radius: 5%;
+    pointer-events: none;
+    transition-duration: 1s;
     border-radius: 2px;
     pointer-events: none;
     border-radius: 5%;

@@ -25,6 +25,19 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
   private data: CountryData[] = [];
   private observer: IntersectionObserver | null = null;
 
+  public colors: string[] = [
+    '#e80284',
+    '#4517EE',
+    '#4517EE',
+    '#4517EE',
+    '#DB8500',
+    '#DB8500',
+    '#DB8500',
+  ];
+  private colorScale : any = d3.scaleOrdinal()
+  .domain(this.data.map((d:any)=> d.country))
+  .range(this.colors)
+
   constructor() {}
 
   ngOnInit(): void {
@@ -34,12 +47,12 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       'France',
       'Croatia',
       'Senegal',
-      'Cameroon',
       'Tunisia',
       'Ghana',
     ];
-    const scoredGoals: number[] = [6, 15, 16, 8, 5, 4, 1, 5];
-    const concededGoals: number[] = [5, 8, 8, 7, 7, 4, 1, 7];
+    const scoredGoals: number[] = [6, 15, 16, 8, 5, 1, 5];
+    const concededGoals: number[] = [5, 8, 8, 7, 7, 1, 7];
+    
 
     this.data = countries.map((country, i) => ({
       country: country,
@@ -79,7 +92,6 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
     const height = 500 - margin.top - margin.bottom;
 
     const x = d3.scaleLinear().domain([-10, 16]).range([0, width]);
-
     const y = d3
       .scaleBand()
       .range([0, height])
@@ -103,11 +115,13 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
           .tickValues([-8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 14, 16])
           .tickSizeOuter(0)
           .tickFormat((d: any) => Math.abs(d as number).toString())
-      );
+      )
+      .select('text')
+      .attr("font-size", "12px")
+      .attr("font-family", "Arial");
 
-    xAxis.selectAll('.tick text').attr('dy', -18);
-
-    svg.append('g').attr('transform', `translate(${width / 2},${height})`);
+    xAxis.selectAll('.tick text')
+         .attr('dy', -18)
 
     x.ticks().forEach((tick) => {
       svg
@@ -126,9 +140,11 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
     let yAxis = svg.append('g').call(d3.axisLeft(y).tickSize(0).tickSizeOuter(0));
     yAxis.select(".domain").remove();
     yAxis.selectAll("text")
-          .attr("font-size", "16px")
+          .attr("font-size", "15px")
           .attr("font-family", "Arial")
-          .attr("color", "white"); 
+          .attr("fill", (d:any,i:number) => this.colorScale(this.data[i].country))
+          .attr("y",-10)
+
 
     svg.append('line')
       .attr('x1', x(0))
@@ -149,6 +165,7 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .attr('y', (d: CountryData) => y(d.country) ?? '')
       .attr('height', y.bandwidth())
       .attr('fill', '#d04a35cc')
+      .attr('stroke','none')
       .on('mouseover', (event: MouseEvent, d: CountryData) => {
         svg.select(`.scored-${d.country}`).attr('opacity', 0.5);
         svg.select(`.conceded-${d.country}`).attr('fill', '#e72e11');
@@ -161,10 +178,10 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
           .style('opacity', 1)
           .style('left', event.pageX - 55 + 'px')
           .style('top', event.pageY - 75 + 'px').html(`
-      <div>
-      <div>${d.country}</div>
-      <div>Conceded Goals</div>
-      <div>${Math.abs(d.conceded)}</div>
+      <divstyle="text-align: center;">
+        <div>${d.country}</div>
+        <div>Conceded Goals</div>
+        <div>${Math.abs(d.conceded)}</div>
       </div>
       `);
       })
@@ -194,6 +211,7 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .attr('y', (d: CountryData) => y(d.country) ?? '')
       .attr('height', y.bandwidth())
       .attr('fill', '#35d047b6')
+      .attr('stroke','none')
       .on('mouseover', (event: any, d: any) => {
         svg.select(`.conceded-${d.country}`).attr('opacity', 0.5);
         svg.select(`.scored-${d.country}`).attr('fill', '#08b355');
@@ -257,6 +275,8 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
     .attr('dy', '.35em')
     .style('text-anchor', 'start')
     .style('fill', 'white')
+    .style("font-size", "12px")
+    .style("font-family", "Arial")
     .text((d) => {
       return d;
     });

@@ -29,10 +29,10 @@ export class TouchesComponent implements AfterViewInit {
     { country: 'Ghana', defense: 41 * 2, middle: 32 * 2, attack: 27 * 2 },
   ];
   width: number = 400;
-  height: number = 140;
+  height: number = 120;
 
-  private boxSize: number = 14; // Size of each box
-  private boxGap: number = 2; // space between each box
+  private boxSize: number = 12; // Size of each box
+  private boxGap: number = 1; // space between each box
   private howManyAcross: number = Math.floor(this.height / this.boxSize);
   private occurrences: any[] = [];
 
@@ -40,9 +40,33 @@ export class TouchesComponent implements AfterViewInit {
 
   private colors: string[] = ['#21A179', '#1481BA', '#F3535B'];
 
+  private countries: string[] = [
+    'Morroco',
+    'Argentina',
+    'France',
+    'Croatia',
+    'Senegal',
+    'Tunisia',
+    'Ghana',
+  ];
+  private colorCountry: string[] = [
+    '#e80284',
+    '#4517EE',
+    '#4517EE',
+    '#4517EE',
+    '#DB8500',
+    '#DB8500',
+    '#DB8500',
+  ];
+  private countryColorScale: any;
+
+
   constructor() {}
 
   ngAfterViewInit(): void {
+    this.countryColorScale = d3.scaleOrdinal()
+                        .domain(this.countries)
+                        .range(this.colorCountry)
     this.createSvg();
     this.drawWaffle();
   }
@@ -54,6 +78,8 @@ export class TouchesComponent implements AfterViewInit {
   }
 
   private drawWaffle() {
+
+    
     this.data.forEach((d, i) => {
       const currentSvg = this.svgs.get(d.country);
       const constryIzi = d.country;
@@ -135,7 +161,7 @@ export class TouchesComponent implements AfterViewInit {
           .data(Object.keys(rest))
           .join('g')
           .attr('transform', (d, i) => {
-            return `translate(0, ${i * 20})`;
+            return `translate(-20, ${i * 20})`;
           })
           .on('mouseenter', (_event, d) => {
             currentSvg.selectAll('rect').attr('opacity', 0.5);
@@ -156,10 +182,12 @@ export class TouchesComponent implements AfterViewInit {
           .append('text')
           .attr('x', this.width - 30)
           .attr('y', 5)
-          .attr('font-size', '10px')
-          .attr('fill', '#fff')
+          .attr('font-size', '12px')
+          .attr("font-family", "Arial")
+          .attr('fill', 'white' )
           .attr('dy', '0.35em')
           .text((d) => d);
+
       }
     });
   }

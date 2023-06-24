@@ -22,7 +22,8 @@
   justify-content: center;
   align-items: center;
   align-content: center;
-  /* margin-top: -8%; */
+  /* margin: 0 10%; */
+  margin-bottom: 5%;
 }
 /*
 .chart-title{
@@ -84,11 +85,9 @@
   flex-basis: auto;
   align-self: auto;
   order: 0;
+  margin-left: 10px;
 }
 
-.h1{
-  color: black;
-}
 
 .chart-title {
   text-align: center;
@@ -98,8 +97,31 @@
 
 .titles{
   text-align: left;
-  margin-top: 6%;
-  margin-bottom: 0%;
-  margin-left: 5%;
-  margin-right: 5%;
+  /* margin-top: 6%; */
+  /* margin-bottom: 0%; */
+  /* margin-left: 5%; */
+  /* margin-right: 5%; */
 }
+
+.svg-container {
+  margin: 10px 0;
+
+}
+
+.p {
+  font-size:15px;
+  font-family: Arial ;
+}
+
+.top3 {
+  color:#4517EE;
+}
+
+.african {
+  color:   #DB8500
+}
+
+.morocco {
+  color : #E80284;
+}
+

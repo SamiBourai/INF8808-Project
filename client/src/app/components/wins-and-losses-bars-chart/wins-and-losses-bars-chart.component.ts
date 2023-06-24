@@ -199,14 +199,14 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       .attr("transform", `translate(0, ${height + 10})`)
       .call(d3.axisBottom(xScale).tickValues(phases))
       .selectAll("text")
-      .style("font-size", "14px")
+      .style("font-size", "12px")
       .style("font-family", "Arial");
 
   // Add y-axis
     svg.append("g")
       .call(d3.axisLeft(yScale).tickSizeOuter(0))
       .selectAll("text")
-      .style("font-size", "16px")
+      .style("font-size", "15px")
       .style("font-family", "Arial")
       .style("fill", (d) => countryColorScale(d as string) as string);
     
@@ -217,7 +217,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     const element = this.legendContainer.nativeElement
     const margin = { top: 100, right: 30, bottom: 50, left: 50 };
     const width = element.offsetWidth - margin.left - margin.right;
-    const height = 300 - margin.top - margin.bottom;
+    const height = 200 - margin.top - margin.bottom;
     const legendX = width; // Adjust the horizontal position of the legend
     const legendY = 0; // Adjust the vertical position of the legend
 
@@ -280,6 +280,8 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     legendItems.append("text")
       .attr("x", 40)
       .attr("y", 35)
+      .attr("font-size", "12px")
+      .attr("font-family", "Arial")
       .text(d => d.result);
   }
 

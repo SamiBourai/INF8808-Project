@@ -212,8 +212,8 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       .text((d) => d.data.label);
 
     labels
-      .style("font-size", "16px")
-      .style("font-weight", "normal")
+      .style("font-size", "15px")
+      .style("font-family", "Arial")
       .style("fill", d => d.data.color);
 
     svg
