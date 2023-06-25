@@ -109,6 +109,7 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
 
     let yAxis = svg
       .append('g')
+      .attr('class','y-axis')
       .call(d3.axisLeft(y).tickSizeOuter(0))
       .attr('stroke', 'none');
     
@@ -131,61 +132,14 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
       .style("font-family", "Arial")
       .text('Average Possession (%) (Knockout Stage)');
 
-    svg
-      .selectAll('myRect')
-      .data(this.data2)
-      .enter()
-      .append('rect')
-      .attr('class', (d: Possession) => `conceded-${d.country}`)
-      .attr('x', (d: Possession) => x(0))
-      .attr('y', (d: Possession) => y(d.country) ?? '')
-      .attr('height', y.bandwidth())
-      .attr('fill', (d: Possession) => d.color)
-      .on('mouseover', (event: MouseEvent, d: Possession) => {
-        svg.select(`.possession-${d.country}`).attr('opacity', 0.5);
-        svg
-          .select(`.pourcentage-${d.possessionPercentage}`)
-          .attr('fill', '#e72e11');
-        svg
-          .selectAll('.tick')
-          .filter((node: any) => node === d.country)
-          .select('text')
-          .style('font-weight', 'bold');
-        tooltip
-          .style('opacity', 1)
-          .style('border', `2px solid ${d.color}`)
-          .style('left', event.pageX - 10 + 'px')
-          .style('top', event.pageY - 10 + 'px').html(`
-      <div>
-      <div>${d.country}</div>
-      <div>Conceded Goals</div>
-      <div>${Math.abs(d.possessionPercentage)}</div>
-      </div>
-      `);
-      })
-      .on('mouseout', (event: MouseEvent, d: Possession) => {
-        svg.select(`.possession-${d.country}`).attr('opacity', 1);
-        svg
-          .selectAll('.tick')
-          .filter((node: any) => node === d.country)
-          .select('text')
-          .style('font-weight', 'normal');
-        tooltip.style('opacity', 0);
-      })
-      .attr('width', 0)
-      .transition()
-      .duration(1000)
-      .attr('width', (d: Possession) =>
-        Math.abs(x(d.possessionPercentage) - x(0))
-      )
-      .attr('x', (d: Possession) => x(Math.min(0, d.possessionPercentage)));
+  
 
     svg
       .selectAll('myRect')
       .data(this.data2)
       .enter()
       .append('rect')
-      .attr('class', (d: Possession) => `scored-${d.country}`)
+      .attr('class', 'bar')
       .attr('x', (d: Possession) => x(Math.min(0, d.possessionPercentage)))
       .attr('y', (d: Possession) => y(d.country) ?? '')
       .attr('height', y.bandwidth())
@@ -193,12 +147,23 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
       .on('mouseover', (event: any, d: any) => {
         svg.select(`.possession-${d.country}`).attr('fill', '#08b355');
         svg
-          .selectAll('.tick')
+          .selectAll('.y-axis .tick')
           .filter((node: any) => node === d.country)
           .select('text')
           .style('font-weight', 'bold');
+        svg
+          .selectAll('.y-axis .tick')
+          .filter((node: any) => node !== d.country)
+          .attr('opacity',0.3)
+        svg.selectAll('rect')
+            .filter((node:any) => node.country !== d.country)
+            .transition()
+            .duration(100)
+            .ease(d3.easeCubicInOut)
+            .attr('opacity',0.3)
         tooltip
           .style('opacity', 1)
+          .style('border', `2px solid ${d.color}`)
           .style('left', event.pageX - 55 + 'px')
           .style('top', event.pageY - 75 + 'px').html(`
       <div>
@@ -211,11 +176,22 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
       .on('mouseout', (event: MouseEvent, d: Possession) => {
         svg.select(`.possession-${d.country}`).attr('fill', '#35d047b6');
         svg
-          .selectAll('.tick')
-          .filter((node: any) => node === d.country)
+          .selectAll('.y-axis .tick')
+            .filter((node:any) => node.country !== d.country)
           .select('text')
           .style('font-weight', 'normal');
         tooltip.style('opacity', 0);
+      
+        svg.selectAll('rect')
+          .filter((node:any) => node.country !== d.country)
+          .transition()
+            .duration(100)
+            .ease(d3.easeCubicInOut)
+            .attr('opacity',1)
+        svg
+            .selectAll('.y-axis .tick')
+            .filter((node: any) => node !== d.country)
+            .attr('opacity',1)
       })
       .attr('width', 0)
       .transition()
