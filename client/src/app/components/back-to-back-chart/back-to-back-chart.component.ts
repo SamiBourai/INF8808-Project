@@ -174,8 +174,13 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
           .filter((node: any) => node === d.country)
           .select('text')
           .style('font-weight', 'bold');
+        svg
+          .selectAll('.tick')
+          .filter((node: any) => node !== d.country)
+          .attr('opacity',0.5)
         tooltip
           .style('opacity', 1)
+          .style('border', `2px solid ${this.colorScale(d.country)}`)
           .style('left', event.pageX - 55 + 'px')
           .style('top', event.pageY - 75 + 'px').html(`
       <divstyle="text-align: center;">
@@ -193,6 +198,10 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
           .filter((node: any) => node === d.country)
           .select('text')
           .style('font-weight', 'normal');
+        svg
+          .selectAll('.tick')
+          .filter((node: any) => node !== d.country)
+          .attr('opacity',1)
         tooltip.style('opacity', 0);
       })
       .attr('width', 0)

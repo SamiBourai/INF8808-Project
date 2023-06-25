@@ -352,14 +352,12 @@ onWheelChange() {
     if (event.deltaY < 0 && this.scrollingdown) {
       event.preventDefault();
       this.changeToggle();
-      console.log('age off')
       this.scrollingdown = false;
     }
   
     if (event.deltaY > 0 && !this.scrollingdown) {
       event.preventDefault();
       this.changeToggle();
-      console.log('age on')
       this.scrollingdown = true;
     }
   } else {
@@ -687,7 +685,7 @@ onWheelChange() {
       .attr("font-size", "12px")
       .attr("font-family", "Arial")
       var textSize = Math.max(...legend.selectAll('.legend-item').nodes().map((item: any) => (item as SVGGElement).getBBox().width));
-      console.log(textSize);
+      // console.log(textSize);
       legend
       .append('text')
       .attr('transform', () => `translate(${this.margin.left + textSize + 25},

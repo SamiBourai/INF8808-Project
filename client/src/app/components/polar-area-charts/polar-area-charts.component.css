@@ -1,108 +1,36 @@
-
-.section-wrapper{
-    width: 90%;
+ 
+.wrapper{
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    /* margin: 0 10% */
 }
 
-.wrapper{
+
+.text {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    flex-wrap:wrap;
-    margin: auto;
-    padding: 5%;
-    gap: 2%;
+    position: relative;
+    font-size:15px;
+    font-family: Arial ;
+    padding-bottom: 8%;
 }
 
-.text{
-    flex : 2;
-    padding: 5%; 
-}
-
-.container{
-    width: 90%;
-    height: 90%;
-    display: flex;
-    flex: 2;
-    flex-direction: column;
-    justify-content: center;
-    margin: auto;
-    /* background-color: rgba(87, 86, 121, 0.196); */
-}
-
-.button-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-}
-
-
-.next-button {
-  background-color: #e1ecf4;
-  border-radius: 3px;
-  border: 1px solid #7aa7c7;
-  box-shadow: rgba(255, 255, 255, .7) 0 1px 0 0 inset;
-  box-sizing: border-box;
-  color: #39739d;
-  cursor: pointer;
-  display: inline-block;
-  font-family: -apple-system,system-ui,"Segoe UI","Liberation Sans",sans-serif;
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.15385;
-  margin: 0;
-  outline: none;
-  padding: 8px .8em;
-  position: relative;
-  text-align: center;
-  text-decoration: none;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  vertical-align: baseline;
-  white-space: nowrap;
-}
-
-.next-button:hover {
-  background-color: #b3d3ea;
-  color: #2c5777;
-}
 
 #tooltip {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center; /* this centers horizontally in a flex column */
     line-height: 1;
     padding: 1rem;
     background: rgba(0, 0, 0, 0.8);
     color: #fff;
+    border-radius: 5%;
+    pointer-events: none;
+    transition-duration: 1s;
     border-radius: 2px;
     pointer-events: none;
     border-radius: 5%;
     transition-duration: 1s;
 }
-/*
-@media (max-width: 600px) {
-    .wrapper {
-        flex-direction: column;
-        gap:unset;
-    }
-
-    .section-hero{
-        height: 60%;
-        font-size: 15px;
-        margin-top: 5%;
-    }
-
-    .text {
-        margin-bottom: 5%;
-    }
-
-    .container {
-        flex: 1;
-    }
-} */

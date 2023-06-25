@@ -121,7 +121,7 @@ export class ParallelCoordinatesChartComponent
       category: 1
     }
     ]
-    console.log(list)
+    // console.log(list)
     this.data = list
     // this.loadData();
   }
@@ -248,6 +248,7 @@ export class ParallelCoordinatesChartComponent
         this.highlight(d, this.color)
         tooltip
           .style('opacity', 1)
+          .style('border', `2px solid ${this.d_species(d)}`)
           .style('left', e.pageX - 55 + 'px')
           .style('top', e.pageY - 75 + 'px').html(`
       <divstyle="text-align: center;">

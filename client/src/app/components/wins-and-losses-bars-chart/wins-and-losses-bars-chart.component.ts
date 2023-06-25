@@ -99,9 +99,9 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
 
   createChart():void{
     let element = this.chartContainer.nativeElement;
-    const margin = { top: 100, right: 30, bottom: 50, left: 80 };
+    const margin = { top: 50, right: 30, bottom: 50, left: 80 };
     const width = element.offsetWidth - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
+    const height = 350 - margin.top - margin.bottom;
 
     const phases = this.extractPhases()
 
@@ -207,11 +207,11 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       tooltip.style("opacity", 0);
     })
     .transition()
-    .duration(750)
+    .duration(350)
     .delay((d, i) => {
       const phaseIndex = phases.indexOf(d.Phase);
       const countryIndex = countries.indexOf(d.Country);
-      return (phaseIndex * countries.length + countryIndex) * 100; // Delay based on phase and country index
+      return (phaseIndex * countries.length + countryIndex) * 50; // Delay based on phase and country index
     })
     .attr("y", d => yScale(d.Country)!)
     .attr("height", yScale.bandwidth());
@@ -262,11 +262,11 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
 
   createLegend(): void{
     const element = this.legendContainer.nativeElement
-    const margin = { top: 100, right: 30, bottom: 50, left: 50 };
+    const margin = { top: 10, right: 30, bottom: 50, left: 50 };
     const width = element.offsetWidth - margin.left - margin.right;
     const height = 200 - margin.top - margin.bottom;
     const legendX = width; // Adjust the horizontal position of the legend
-    const legendY = 0; // Adjust the vertical position of the legend
+    const legendY = 50; // Adjust the vertical position of the legend
 
    // Legend data
     const legendData = [
@@ -283,7 +283,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       .attr("width", width + margin.left + margin.right)
       .attr("height", '100%')
       .append("g")
-      .attr("transform", `translate(${width - (margin.right + 50)}, 0)`)
+      .attr("transform", `translate(${width - (margin.right + 50)}, ${margin.top})`)
       
     const legendWidth = 150
     legendSvg.append("rect")
@@ -291,21 +291,26 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     .attr("y", 0)
     .attr("width", legendWidth)
     .attr("height", '100%')
-    .attr("fill", "lightgray")
-    .attr("stroke", "black");
+    .attr("fill", "none")
+    .attr("stroke", "none");
 
-    legendSvg.append("text")
-    .attr("x", legendWidth / 2)
-    .attr("dy", "10%")
-    .attr("text-anchor", "middle")
-    .attr("font-weight", "bold")
-    .text("Legend");
+    // legendSvg.append("text")
+    // .attr("x", legendWidth / 2)
+    // .attr("dy", "10%")
+    // .attr("text-anchor", "middle")
+    // .attr("font-weight", "bold")
+    // .text("Legend")
+    // .attr('fill','white')
+    // .style('font-size','15px')
+    // .style('font-style','Arial');
 
     legendSvg.append("text")
     .attr("x", legendWidth / 2)
     .attr("dy", "90%")
     .attr("text-anchor", "middle")
-    .attr("font-size", "12px")
+    .style("font-size", "12px")
+    .style('font-style','Arial')
+    .attr('fill','white')
     .text("Without penalty shootouts");
 
     // Create a group for each legend item
@@ -329,7 +334,8 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       .attr("y", 35)
       .attr("font-size", "12px")
       .attr("font-family", "Arial")
-      .text(d => d.result);
+      .text(d => d.result)
+      .attr('fill','white');
   }
 
   extractPhases(): string[]{

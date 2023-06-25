@@ -153,6 +153,7 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
           .style('font-weight', 'bold');
         tooltip
           .style('opacity', 1)
+          .style('border', `2px solid ${d.color}`)
           .style('left', event.pageX - 10 + 'px')
           .style('top', event.pageY - 10 + 'px').html(`
       <div>

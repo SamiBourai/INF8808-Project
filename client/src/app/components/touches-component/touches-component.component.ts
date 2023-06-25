@@ -28,6 +28,7 @@ export class TouchesComponent implements AfterViewInit {
     { country: 'Tunisia', defense: 43 * 2, middle: 37 * 2, attack: 20 * 2 },
     { country: 'Ghana', defense: 41 * 2, middle: 32 * 2, attack: 27 * 2 },
   ];
+  margin = {left : 80, right:80};
   width: number = 400;
   height: number = 120;
 
@@ -95,6 +96,7 @@ export class TouchesComponent implements AfterViewInit {
       for (let key in rest) {
         let percentage = (rest[key] / totalCount) * 100;
         let keyArray = new Array(rest[key]).fill({
+          country: d.country,
           label: key,
           percentage: percentage,
         });
@@ -123,6 +125,7 @@ export class TouchesComponent implements AfterViewInit {
       currentSvg
         .append('g')
         .attr('class', 'all-rects')
+        .attr("transform",`translate(${this.margin.left},0)`)
         .selectAll('rect')
         .data(data)
         .join('rect')
@@ -141,9 +144,11 @@ export class TouchesComponent implements AfterViewInit {
             .style('opacity', 1)
             .style('left', _event?.pageX + 'px')
             .style('top', _event?.pageY + 'px')
+            .style('border', `2px solid ${this.countryColorScale(d.country)}`)
+
             .html(this.getTipContent(d.label, d.percentage, constryIzi));
         })
-        .on('mouseleave', (event: MouseEvent, d) => {
+        .on('mouseout', (event: MouseEvent, d) => {
           this.previousGroup = d;
 
           tooltip
