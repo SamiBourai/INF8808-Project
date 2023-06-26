@@ -51,6 +51,8 @@ export class ParallelCoordinatesChartComponent
     intercep: 'Number of\ninterceptions\n/90min',
   };
 
+
+  private animationTime = 1000;
   private yScales: { [key: string]: d3.ScaleLinear<number, number> } = {};
 
   private svg: any;
@@ -172,7 +174,13 @@ export class ParallelCoordinatesChartComponent
         .range([this.height, 0]);
     }
     this.buildSvg();
+
   }
+
+
+  
+  
+  
 
   private highlight(d: any, color: any) {
     // first every group turns grey
@@ -208,42 +216,23 @@ export class ParallelCoordinatesChartComponent
       .append('svg')
       .attr('width', this.width + this.margin.left + this.margin.right)
       .attr('height', this.height + this.margin.top + this.margin.bottom);
-    this.svg
-      .selectAll('g')
-      // For each dimension of the dataset I add a 'g' element:
-      .data(this.dimensions)
-      .join('g')
-      .attr('class', 'y-axis')
-      .attr(
-        'transform',
-        (d: any) =>
-          `translate(${this.margin.left + this.xScale(d)},${this.margin.top})`
-      )
-      .each((d: any, i: number, nodes: any) => {
-        const axis = d3.axisLeft(this.yScales[d]).ticks(5);
-        d3.select(nodes[i]).call(axis);
-      });
-    this.svg
-      .selectAll('.tick text')
-      .attr('font-size', '12px')
-      .attr('font-family', 'Arial');
-
+    
     this.svg
       .append('g')
       .attr('class', 'lines-g')
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
 
-    this.svg
-      .select('.lines-g')
+      const paths = this.svg
+      .selectAll('.lines-g')
       .selectAll('path')
       .data(this.data)
       .join('path')
-      .attr('class', (d: any) => this.d_class(d)) // 2 class for each line: 'line' and the group name
-      .attr('d', (d: any) => this.path(d))
+      .attr('class', (d: any) => "line " + this.d_class(d))
       .attr('fill', 'none')
       .attr('stroke-width', 4)
+      .attr('opacity', 0)
+      .attr('d', (d: any) => this.path(d))
       .attr('stroke', (d: any) => this.d_species(d))
-      .attr('opacity', 1)
       .on('mouseover', (e, d) => {
         this.highlight(d, this.color)
         tooltip
@@ -251,15 +240,44 @@ export class ParallelCoordinatesChartComponent
           .style('border', `2px solid ${this.d_species(d)}`)
           .style('left', e.pageX - 55 + 'px')
           .style('top', e.pageY - 75 + 'px').html(`
-      <divstyle="text-align: center;">
-        <div>${d.country}</div>
-        
-      </div>
-      `);
+            <div style="text-align: center;">
+                ${d.country}
+            </div>
+          `);
       })
       .on('mouseleave', (e, d) => {
         this.doNotHighlight(d, this.color)
         tooltip.style('opacity', 0);});
+
+    paths
+      .attr('stroke-dashoffset', (d:any) => (d3.select(".line-" + d.country).node() as SVGPathElement).getTotalLength())
+      .attr('stroke-dasharray', (d:any) => (d3.select(".line-" + d.country).node() as SVGPathElement).getTotalLength())
+      .attr('opacity', 1)
+      .transition()
+      .duration(this.animationTime)
+      .ease(d3.easeLinear)
+      .attr('stroke-dashoffset', 0);
+  
+    this.svg
+    .selectAll('g')
+    // For each dimension of the dataset I add a 'g' element:
+    .data(this.dimensions)
+    .join('g')
+    .attr('class', 'y-axis')
+    .attr(
+      'transform',
+      (d: any) =>
+        `translate(${this.margin.left + this.xScale(d)},${this.margin.top})`
+    )
+    .each((d: any, i: number, nodes: any) => {
+      const axis = d3.axisLeft(this.yScales[d]).ticks(5);
+      d3.select(nodes[i]).call(axis);
+    });
+    this.svg
+      .selectAll('.tick text')
+      .attr('font-size', '12px')
+      .attr('font-family', 'Arial');
+
 
     this.svg
       .selectAll('.y-axis')
@@ -269,6 +287,7 @@ export class ParallelCoordinatesChartComponent
       .style('fill', 'white')
       .attr('font-size', '12px')
       .attr('font-family', 'Arial')
+      .attr('opacity',0)
       .each((d: any, i: number, nodes: any) => {
         let text = this.xlabels[d];
         let parts = text.split('\n'); // split on space, or choose your own criterion
@@ -280,7 +299,10 @@ export class ParallelCoordinatesChartComponent
             .style('font-weight', index === 1 ? 'bold' : 'none')
             .text(part);
         });
-      });
+      })
+      .transition()
+      .delay((d:any,i:number) => i*this.animationTime/this.dimensions.length)
+      .attr('opacity',1)
   }
 
   d_species(d) {
@@ -288,14 +310,20 @@ export class ParallelCoordinatesChartComponent
   }
 
   d_class(d) {
-    return 'line ' + d.country;
+    return 'line-' + d.country;
   }
 
   path(d: any) {
     return d3.line()(
-      this.dimensions.map((p) => [this.xScale(p), this.yScales[p](d[p])])
-    );
+      this.dimensions.map((p) => [this.xScale(p), this.yScales[p](d[p])]));
   }
+
+  // path2(d: any) {
+  //   this.dimensions.map(d3.line()([]))
+  //   return d3.line()(
+  //     .map((p) => [this.xScale(p), this.yScales[p](d[p])])
+  //   );
+  // }
   removeChart(): void {
     d3.select(this.chartContainer.nativeElement).selectAll('*').remove();
   }
