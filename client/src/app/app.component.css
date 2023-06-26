@@ -10,21 +10,76 @@ body {
     scroll-behavior: smooth;
     overflow: hidden;
     background-color: #041125;
+    
 
 }
 
-.content:not(.banner){
-    position: relative;
-    height: 100vh;
-    width: 100%;
-    scroll-snap-type: y mandatory;
-    -ms-scroll-snap-type: y mandatory;
-    overflow-y: scroll;
-    padding-left: 5%;
-    padding-right: 5%;
-    padding-bottom: 2%;
-    align-items: center;
+.content:not(.banner) {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  scroll-snap-type: y mandatory;
+  -ms-scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+  padding-left: 5%;
+  padding-right: 5%;
+  padding-bottom: 2%;
+  align-items: center;
 }
+
+.section-nav {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.dot-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.dot-text {
+  color: #fff;
+  margin-right: 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.dot-container:hover .dot-text,
+.dot-text.active {
+  opacity: 1;
+}
+
+.dot {
+  height: 15px;
+  width: 15px;
+  background-color: transparent;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.dot.active {
+  background-color: #fff;
+}
+
+
+/* For Chrome, Safari and Opera */
+.content:not(.banner)::-webkit-scrollbar {
+  width: 0;  /* Remove scrollbar space */
+  background: transparent;  /* Optional: just make scrollbar invisible */
+}
+
+/* IE, Edge */
+.content:not(.banner) {
+  -ms-overflow-style: none;
+}
+
 
 
 .section{
