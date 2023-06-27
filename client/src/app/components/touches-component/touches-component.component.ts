@@ -222,8 +222,11 @@ export class TouchesComponent implements AfterViewInit {
         .attr('fill', (d) => this.typeColorScale(d.label))
         .on('mouseover', (_event: MouseEvent, d) => {
           currentsubSvg.selectAll('rect')
-                        .filter((node:any) => node.label != d.label)
+                        .filter((node:any) => node.label !== d.label)
                         .attr('opacity', 0.5);
+          currentsubSvg.selectAll('.waffle-title')
+                        .filter((node:any) => node.country === d.country)
+                        .style('font-weight', 'bold');
           
           tooltip
               .style('opacity', 1)
@@ -234,8 +237,11 @@ export class TouchesComponent implements AfterViewInit {
           })
         .on('mouseout', (_event: MouseEvent, d) => {
           currentsubSvg.selectAll('rect')
-                        .filter((node:any) => node.label != d.label)
+                        .filter((node:any) => node.label !== d.label)
                         .attr('opacity', 1);
+          currentsubSvg.selectAll('.waffle-title')
+                        .filter((node:any) => node.country === d.country)
+                        .style('font-weight', 'normal');
           
           tooltip.style('opacity', 0);
         });
