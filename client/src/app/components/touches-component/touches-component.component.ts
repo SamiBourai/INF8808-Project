@@ -9,18 +9,26 @@ import {
 import * as d3 from 'd3';
 import { Touches } from 'src/models/interfaces/touches';
 
+interface gridPlaceData {
+  country : string,
+  gridplace: number
+}
 @Component({
   selector: 'app-touches-component',
   templateUrl: './touches-component.component.html',
   styleUrls: ['./touches-component.component.css'],
 })
 export class TouchesComponent implements AfterViewInit {
-  @ViewChild('izi') private chartContainer!: ElementRef;
+  @ViewChild('waffles') private chartContainer!: ElementRef;
+  private element: any;
   private className: string = 'waffle-chart';
-  private svgs: Map<string, any> = new Map();
+  private svg: any;
+  private subSvgs: Map<string, any> = new Map();
+  private observer: IntersectionObserver | null = null;
+
 
   data: Touches[] = [
-    { country: 'Morroco', defense: 47 * 2, middle: 36 * 2, attack: 17 * 2 },
+    { country: 'Morroco', defense: 47 * 2, middle: 36 * 2, attack: 17 * 2},
     { country: 'Argentina', defense: 30 * 2, middle: 46 * 2, attack: 24 * 2 },
     { country: 'France', defense: 31 * 2, middle: 45 * 2, attack: 24 * 2 },
     { country: 'Croatia', defense: 34 * 2, middle: 45 * 2, attack: 21 * 2 },
@@ -28,18 +36,29 @@ export class TouchesComponent implements AfterViewInit {
     { country: 'Tunisia', defense: 43 * 2, middle: 37 * 2, attack: 20 * 2 },
     { country: 'Ghana', defense: 41 * 2, middle: 32 * 2, attack: 27 * 2 },
   ];
-  margin = {left : 80, right:80};
+  gridPlace: gridPlaceData[] = [
+    { country: 'Morroco', gridplace: 2 } ,
+    { country: 'Argentina', gridplace: 4},
+    { country: 'France', gridplace: 5},
+    { country: 'Croatia', gridplace: 6},
+    { country: 'Senegal', gridplace: 7},
+    { country: 'Tunisia', gridplace: 8},
+    { country: 'Ghana', gridplace: 9 },
+  ];
+  margin = {left : 0, right:0, top:30, bottom:0};
   width: number = 400;
-  height: number = 120;
+  height: number = 500;
+  numCols = 3; // Number of columns
+  numRows = 3; // Number of rows
+  spacing = 40; // Spacing between sub-SVG elements
 
-  private boxSize: number = 12; // Size of each box
-  private boxGap: number = 1; // space between each box
-  private howManyAcross: number = Math.floor(this.height / this.boxSize);
+
   private occurrences: any[] = [];
 
   private previousGroup: any = undefined;
 
-  private colors: string[] = ['#21A179', '#1481BA', '#F3535B'];
+  private colors: {[key:string]:string} = {defense:'#21A179', middle:'#1481BA', attack:'#F3535B'};
+  private typeColorScale : any;
 
   private countries: string[] = [
     'Morroco',
@@ -60,141 +79,253 @@ export class TouchesComponent implements AfterViewInit {
     '#DB8500',
   ];
   private countryColorScale: any;
+  private xScale : any;
+  private yScale: any;
+  private numSubRows: number = 10;
+  private numSubCols: number = 20;
+  private legendRectSide = 20;
+  private legendGap = 10;
 
+
+  private subWidth : number = 0;
+  private subHeight: number = 0;
+
+  private boxSize: number = 12; // Size of each box
+  private boxGap: number = 1; // space between each box
 
   constructor() {}
 
   ngAfterViewInit(): void {
-    this.countryColorScale = d3.scaleOrdinal()
-                        .domain(this.countries)
-                        .range(this.colorCountry)
-    this.createSvg();
-    this.drawWaffle();
+    this.observeChart();
+      }
+
+ 
+  observeChart() {
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          this.createChart();
+        } else {
+          this.removeChart();
+        }
+      });
+    });
+    this.observer.observe(this.chartContainer.nativeElement);
   }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
-    this.drawWaffle();
+    this.createChart();
   }
 
-  private drawWaffle() {
+  createChart() { 
+    this.element = this.chartContainer.nativeElement;
+    this.width = this.element.offsetWidth - this.margin.left - this.margin.right;
+    this.subWidth = (this.width - (this.spacing * (this.numCols - 1))) / this.numCols;
+    this.subHeight = (this.height - (this.spacing * (this.numRows - 1))) / this.numRows;
+    this.boxSize = Math.min((this.subHeight - (this.boxGap * (this.numSubRows - 1))) / this.numSubRows,
+                            (this.subWidth- (this.boxGap * (this.numSubCols - 1))) / this.numSubCols);
+    console.log(this.boxSize)
+    
+    this.countryColorScale = d3.scaleOrdinal()
+                        .domain(this.countries)
+                        .range(this.colorCountry)
+    // Define the x-scale for positioning the sub-SVG elements
+    this.xScale = d3.scaleLinear()
+      .domain([1, this.numCols])
+      .range([0, this.width  - this.subWidth]);
 
+    // Define the y-scale for positioning the sub-SVG elements
+    this.yScale = d3.scaleLinear()
+      .domain([1, this.numRows])
+      .range([0,this.height - this.subHeight]); 
+      
+    this.typeColorScale = d3.scaleOrdinal()
+                            .domain(Object.keys(this.colors))
+                            .range(Object.values(this.colors))   
+    
+    this.createSVG();
+    this.createsubSvg();
+    this.normalizeData();
+    this.drawWaffle();
+    this.createLegend();
+
+  }
+
+
+  private normalizeData() {
+    this.data = this.data.map((d:Touches) => {
+      const {country,defense,middle,attack} = d;
+      const sum = defense + middle + attack;
+      return {
+        country : country,
+        defense : defense/sum*100,
+        middle :  middle/sum*100,
+        attack :  attack/sum*100,
+      }
+    })
+    
+  }
+
+  
+  private drawWaffle() {
+   
     
     this.data.forEach((d, i) => {
-      const currentSvg = this.svgs.get(d.country);
-      const constryIzi = d.country;
+      const currentsubSvg = this.subSvgs.get(d.country);
       const { country, ...rest } = d;
 
       const data: any[] = [];
 
-      let totalCount = 0;
-      for (let key in rest) {
-        totalCount += rest[key];
-      }
       // Create an array of the keys
-      for (let key in rest) {
-        let percentage = (rest[key] / totalCount) * 100;
-        let keyArray = new Array(rest[key]).fill({
+      Object.keys(rest).forEach(key => {
+        let keyArray = new Array(Math.round(d[key]/100*this.numSubCols*this.numSubRows)).fill({
           country: d.country,
           label: key,
-          percentage: percentage,
+          percentage: d[key],
         });
-
         data.push(...keyArray);
-      }
-
-      // Initialize an empty object for storing the counts
-      let categoryCounts = {};
-
-      // Iterate over each element in the data array
-      for (let element of data) {
-        // If the category exists in categoryCounts, increment its count
-        if (categoryCounts[element]) {
-          categoryCounts[element]++;
-        } else {
-          // If the category does not exist in categoryCounts, set its count to 1
-          categoryCounts[element] = 1;
-        }
-      }
-
-      // Push the resulting categoryCounts object to the occurrences array
-      this.occurrences.push(categoryCounts);
+      });
 
       const tooltip = d3.select('#tooltip');
-      currentSvg
+
+
+      currentsubSvg
+        .selectAll('text')
+        .data([{country:country}])
+        .join('text')
+        .attr('class', 'waffle-title')
+        .attr('fill',this.countryColorScale(country))
+        .attr('text-anchor','middle')
+        .style('font-size','15px')
+        .style('font-family','Arial')
+        .attr('x',this.boxSize*this.numSubCols/2)
+        .attr('y',-this.spacing/3)
+        .text(country)
+       
+
+
+
+      currentsubSvg
         .append('g')
-        .attr('class', 'all-rects')
-        .attr("transform",`translate(${this.margin.left},0)`)
+        .attr('class', 'waffle-g')
+        // .attr("transform",`translate(${},0)`)
         .selectAll('rect')
         .data(data)
         .join('rect')
-        .attr('class', (d) => `square-${d.label}`)
-        .attr('x', (d, i) => this.boxSize * Math.floor(i / this.howManyAcross))
-        .attr('y', (d, i) => this.boxSize * (i % this.howManyAcross))
+        .attr('class', (d) => `square square-${d.label}`)
+        .attr('x', (_,j) => Math.floor(j/this.numSubRows)*this.boxSize)
+        .attr('y', (_,j) => j%this.numSubRows*this.boxSize)
         .attr('width', this.boxSize - this.boxGap)
         .attr('height', this.boxSize - this.boxGap)
-        .attr('fill', (d) => this.colors[Object.keys(rest).indexOf(d.label)])
+        .attr('fill', (d) => this.typeColorScale(d.label))
         .on('mouseover', (_event: MouseEvent, d) => {
-          if (this.previousGroup !== d) {
-            currentSvg.selectAll('rect').attr('opacity', 0.5);
-            currentSvg.selectAll(`.square-${d.label}`).attr('opacity', 1);
-          }
+          currentsubSvg.selectAll('rect')
+                        .filter((node:any) => node.label != d.label)
+                        .attr('opacity', 0.5);
+          
           tooltip
-            .style('opacity', 1)
-            .style('left', _event?.pageX + 'px')
-            .style('top', _event?.pageY + 'px')
-            .style('border', `2px solid ${this.countryColorScale(d.country)}`)
-
-            .html(this.getTipContent(d.label, d.percentage, constryIzi));
-        })
-        .on('mouseout', (event: MouseEvent, d) => {
-          this.previousGroup = d;
-
-          tooltip
-            .style('opacity', 0)
-            .style('left', event.pageX + 'px')
-            .style('top', event.pageY + 'px')
-            .html(this.getTipContent(d.label, d.percentage, constryIzi));
+              .style('opacity', 1)
+              .style('left', _event?.pageX + 'px')
+              .style('top', _event?.pageY + 'px')
+              .style('border', `2px solid ${this.countryColorScale(d.country)}`)
+              .html(this.getTipContent(d.label, d.percentage, d.country));
+          })
+        .on('mouseout', (_event: MouseEvent, d) => {
+          currentsubSvg.selectAll('rect')
+                        .filter((node:any) => node.label != d.label)
+                        .attr('opacity', 1);
+          
+          tooltip.style('opacity', 0);
         });
-
-      if (d.country === 'Morroco') {
-        const legend = currentSvg
-          .append('g')
-          .attr('class', `legend-${d.country}`)
-          .selectAll('g')
-          .data(Object.keys(rest))
-          .join('g')
-          .attr('transform', (d, i) => {
-            return `translate(-20, ${i * 20})`;
-          })
-          .on('mouseenter', (_event, d) => {
-            currentSvg.selectAll('rect').attr('opacity', 0.5);
-            currentSvg.selectAll(`.square-${d}`).attr('opacity', 1);
-            let e = currentSvg.select('g.all-rects');
-          })
-          .on('mouseleave', (_event, d) => {
-            currentSvg.selectAll('rect').attr('opacity', 1);
-          });
-        legend
-          .append('rect')
-          .attr('class', (d) => `square-${d}`)
-          .attr('x', this.width - 50)
-          .attr('width', 11)
-          .attr('height', 11)
-          .attr('fill', (d) => this.colors[Object.keys(rest).indexOf(d)]);
-        legend
-          .append('text')
-          .attr('x', this.width - 30)
-          .attr('y', 5)
-          .attr('font-size', '12px')
-          .attr("font-family", "Arial")
-          .attr('fill', 'white' )
-          .attr('dy', '0.35em')
-          .text((d) => d);
-
-      }
+      
+                      
     });
+    this.svg.selectAll('.waffle-title')
+        .on('mouseover', (event, d) => {
+          this.svg.selectAll('.waffle-title')
+                      .filter((node:any) => node !== d)
+                      .attr('opacity', 0.3)
+          this.svg.selectAll('.waffle-title')
+                      .filter((node:any) => node === d)
+                      .style('font-weight', 'bold')
+          this.svg.selectAll('.waffle-g')
+                      .selectAll('rect')
+                      .filter((node:any) => node.country !== d.country)
+                      .attr('opacity',0.3)
+        })
+        .on('mouseout', (event, d) => {
+          this.svg.selectAll('.waffle-title')
+                      .filter((node:any) => node !== d)
+                      .attr('opacity', 1)
+          this.svg.selectAll('.waffle-title')
+                      .filter((node:any) => node === d)
+                      .style('font-weight', 'normal')
+          this.svg.selectAll('.waffle-g')
+                      .selectAll('rect')
+                      .filter((node:any) => node.country !== d.country)
+                      .attr('opacity',1)
+        });
+    
+  }
+
+  private createLegend() {
+    const legend = this.svg
+                      .append('g')
+                      .attr('class', `legend`)
+                      .attr('transform',`translate(${this.xScale(3)},${this.yScale(1)})`);
+    const legend_items =    
+          legend
+            .selectAll('g')
+            .data(Object.entries(this.colors).map(([label, color]) => ({label, color})))
+            .join('g')
+            .attr('class','legend-item')
+            .attr('transform', (d, i) => {
+              return `translate(${this.legendRectSide}, ${(i + 1)* (this.legendRectSide + this.legendGap)})`;
+            })
+            .on('mouseover', (event, d) => {
+              this.svg.selectAll('.waffle-g')
+                      .selectAll('rect')
+                      .filter((node:any) => node.label !== d.label)
+                      .attr('opacity', 0.3);
+              legend.selectAll('.legend-item')
+                    .filter((node:any) => node === d)
+                    .select('text')
+                    .attr('font-weight','bold')
+              legend.selectAll('.legend-item')
+                    .filter((node:any) => node !== d)
+                    .attr('opacity',0.3)
+              })
+            .on('mouseout', (event, d) => {
+              this.svg.selectAll('.waffle-g')
+                      .selectAll('rect')
+                      .filter((node:any) => node.label !== d.label)
+                      .attr('opacity', 1);
+              legend.selectAll('.legend-item')
+                    .filter((node:any) => node === d)
+                    .select('text')
+                    .attr('font-weight','normal');
+              legend.selectAll('.legend-item')
+                    .filter((node:any) => node !== d)
+                    .attr('opacity',1);
+            });
+
+          legend_items
+            .append('rect')
+            .attr('x', 0)
+            .attr('width', this.legendRectSide)
+            .attr('height', this.legendRectSide)
+            .attr('fill', (d) => this.typeColorScale(d.label));
+          legend_items
+            .append('text')
+            .attr('x', this.legendRectSide + this.legendGap)
+            // .attr('y', -this.legendRectSide/2)
+            .attr('font-size', '12px')
+            .attr("font-family", "Arial")
+            .attr('fill', 'white' )
+            .attr('dy',(this.legendRectSide + this.legendGap)/2)
+            .text((d) => d.label);
   }
 
   private getTipContent(z, perc, country): string {
@@ -206,22 +337,46 @@ export class TouchesComponent implements AfterViewInit {
   `;
   }
 
-  private createSvg(): void {
+  private createsubSvg(): void {
     this.data.forEach((d, i) => {
-      this.svgs.set(d.country, this.createSvgForPlayer(d, i));
+      this.subSvgs.set(d.country, this.createsubSvgForPlayer(d.country,this.gridPlace[i].gridplace));
     });
   }
 
-  private createSvgForPlayer(d: any, i: number): any {
-    return d3
-      .select(`figure#waffle-chart-${i}`)
-      .append('svg')
-      .attr('class', `${this.className}-${d.country}`)
-      .attr('width', this.width)
-      .attr('height', this.height)
-      .on('mouseleave', (_event: MouseEvent, d) => {
-        this.previousGroup = d;
-        d3.selectAll('rect').attr('opacity', 1);
-      });
+  private createsubSvgForPlayer(country: string, i: number): any {
+    // Create the sub-SVG elements
+    return this.svg.select(".all-waffle-charts")
+      .append('g')
+      .attr('class', `${this.className}-${country}`)
+      .attr("transform", (d:any) => {
+        if (i%this.numCols===0) {
+          return `translate(${this.xScale(this.numCols)}, ${this.yScale(i/this.numCols)})`
+        } else {
+          return `translate(${this.xScale(i % this.numCols)}, ${this.yScale(Math.floor((i / this.numCols))+1)})`
+        }
+      })
+  }
+  
+  private createSVG() {
+    this.svg = d3.select(this.element)
+        .append('svg')
+        .attr('width', this.width + this.margin.left + this.margin.right)
+        .attr('height', this.height + this.margin.top + this.margin.bottom);
+
+    this.svg.append('g')
+        .attr('class', 'all-waffle-charts')
+        .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
+
+  }
+
+  removeChart() {
+    d3.select(this.chartContainer.nativeElement).selectAll('*').remove();
+  }
+
+  ngOnDestroy() {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
   }
 }

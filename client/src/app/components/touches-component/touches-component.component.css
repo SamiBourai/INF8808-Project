@@ -13,9 +13,16 @@
   border-radius: 5%;
   transition-duration: 0.5s;
 }
+ 
+.wrapper{
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* margin: 0 10% */
+}
 
-
-.wrapper {
+/* .wrapper {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -23,15 +30,15 @@
   align-items: center;
   align-content: center;
   margin-bottom: 5%;
-}
-.container {
+} */
+/* .container {
   margin: 0 10%;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   width: 100%; 
-}
+} */
 
 .flex-items {
   display: flex;
@@ -52,9 +59,9 @@
   margin-top: -6%;
   margin-bottom: 1%;
 } */
-.h3{
+/* .h3{
   text-align: start;
-}
+} */
 
 /* 
 .flex-items:nth-child(1) {
@@ -111,7 +118,7 @@
 } */
 
 
-.chart-title {
+/* .chart-title {
   text-align: center;
   margin-top: 1%;
   margin-bottom: 1%;
@@ -138,5 +145,4 @@
 
 .morocco {
   color : #E80284;
-}
-
+}  */

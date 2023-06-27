@@ -132,7 +132,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     const colorScale = d3
     .scaleOrdinal()
     .domain(['W', 'L', 'D'])
-    .range(['green', 'red', 'gray']);
+    .range(['#21A179', '#F3535B', '#1481BA']);
 
     // Create color scale for the results
     const countryColorScale = d3
@@ -270,9 +270,9 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
 
    // Legend data
     const legendData = [
-      { result: "Win", color: "green" },
-      { result: "Loss", color: "red" },
-      { result: "Draw", color: "gray" }
+      { result: "Win", color: "#21A179" },
+      { result: "Loss", color: "#F3535B" },
+      { result: "Draw", color: "#1481BA" }
     ];
 
     // Create the legend container
