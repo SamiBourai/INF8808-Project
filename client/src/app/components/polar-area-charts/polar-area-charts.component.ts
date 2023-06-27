@@ -1,16 +1,22 @@
 import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 
-export interface DataType {
-  label: string;
-  value: number;
-  color: string;
+interface Data {
+  [key: string]: {
+    color: string;
+    values: {
+    passes: number;
+    shots: number;
+    occasions: number;
+    }
+  };
 }
-
-export interface DataDetails {
-  title: string;
-  scale: number;
-  tooltipTitle: string;
+export interface LegendData {
+  [key: string]: {
+    label: string;
+    fill: string;
+    tooltipLabel: string;
+  }
 }
 
 @Component({
@@ -26,58 +32,69 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
   private svg:any;
   private observer: IntersectionObserver | null = null;
   private currentDatasetIndex = 0;
-
-  private dataSets = {
-    'Morocco': {
+  
+  private dataSets: Data = {
+    Morocco: {
       color: '#e80284',
-      passes: 78.6,
-      shots: 27.9,
-      occasions: 60
+      values: {
+        passes: 78.6,
+        shots: 27.9,
+        occasions: 60
+      }
     },
-    'Argentina': {
+    Argentina: {
       color: '#4517EE',
-      passes: 84.6,
-      shots: 43.2,
-      occasions: 60
+      values: {
+        passes: 84.6,
+        shots: 43.2,
+        occasions: 60
+      }
     },
-    'France': {
+    France: {
       color: '#4517EE',
-      passes: 82.6,
-      shots: 33.0,
-      occasions: 55.2
+      values: {
+        passes: 82.6,
+        shots: 33.0,
+        occasions: 55.2
+      }
     },
-    'Croatia': {
+    Croatia: {
       color: '#4517EE',
-      passes: 83.3,
-      shots: 32.9,
-      occasions: 57.1
+      values: {
+        passes: 83.3,
+        shots: 32.9,
+        occasions: 57.1
+      }
     },
-    'Senegal': {
+    Senegal: {
       color: '#DB8500',
-      passes: 77.7,
-      shots: 23.5,
-      occasions: 55.6
+      values: {
+        passes: 77.7,
+        shots: 23.5,
+        occasions: 55.6
+      }
     },
-    'Tunisia': {
+    Tunisia: {
       color: '#DB8500',
-      passes: 73.8,
-      shots: 25.0,
-      occasions: 50
+      values: {
+        passes: 73.8,
+        shots: 25.0,
+        occasions: 50
+      }
     },
-    'Ghana': {
+    Ghana: {
       color: '#DB8500',
-      passes: 77.4,
-      shots: 36.0,
-      occasions: 55.6
+      values: {
+        passes: 77.4,
+        shots: 36.0,
+        occasions: 55.6
+      }
     }
-  };
+  }
+  
   private colorLegend : string = "#69F0AE";
 
-  private legendData: { [key: string]: {
-      label: string;
-      fill: string;
-      tooltipLabel: string;
-    }} = {
+  private legendData: LegendData = {
       passes: { label: "% of Successful Passes", fill: this.colorLegend,  tooltipLabel: "% of successful passes:" },
       shots: { label: "% of Successful Shots", fill: 'url(#dotted-pattern)', tooltipLabel: "% of successful shots:" },
       occasions: { label: "% of Successful Goal Occasions", fill: 'url(#striped-pattern)', tooltipLabel: "% of successful goal occasions:" }
@@ -93,6 +110,17 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
 
 
   ngOnInit(): void {
+    this.dataSets = Object.entries(this.dataSets)
+  .map(([country, data]) => ({
+    country,
+    ...data,
+    sum: data.values.passes + data.values.shots + data.values.occasions
+  }))
+  .sort((a, b) => b.sum - a.sum)
+  .reduce((acc, { country, ...data }) => {
+    acc[country] = data;
+    return acc;
+  }, {});
   }
 
   ngAfterViewInit(): void {
@@ -256,11 +284,10 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
     const width = element.offsetWidth - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
-
     this.yScale = d3.scaleLinear()
       .domain([0, 100])
       .range([height, 0]);
-    const keys = Object.keys(this.dataSets[Object.keys(this.dataSets)[0]]).filter(key => key !== 'color');
+    const keys = Object.keys(this.dataSets[Object.keys(this.dataSets)[0]].values);
     this.xScale = d3.scaleBand().padding(0.15)
       .domain(Object.keys(this.dataSets))
       .range([0, width]);
@@ -352,10 +379,9 @@ const bars_g = countrybars_g.selectAll('g')
   .data((d: any) => {
     const country = d[0];
     const data = d[1];
-    return Object.entries(data)
-      .filter(([key]) => key !== 'color')
+    return Object.entries(data.values)
       .map(([type, _]) => {
-        return { type, value: data[type], country };
+        return { type, value: data.values[type], country };
       });
   })
       .join('g')
@@ -532,23 +558,6 @@ const bars_g = countrybars_g.selectAll('g')
             .attr('fill','white')
             .style('font-size',12)
             .style('font-style','Arial')
-            // legendItems
-            // .transition()  // start a transition
-            // .duration(200)
-            // .ease(d3.easeCubicInOut)
-            // .delay((d, i) => {
-            //   switch (d.type) {
-            //     case 'passes':
-            //       return 0;
-            //     case 'shots':
-            //       return 200;
-            //     case 'occasions':
-            //       return 400;
-            //     default:
-            //       return 400;
-            //   }}
-            //   ) 
-            // .attr('opacity',1);
     }
 
   removeChart(): void {

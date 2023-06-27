@@ -12,6 +12,7 @@ interface CountryData {
   country: string;
   scored: number;
   conceded: number;
+  color: string
 }
 
 @Component({
@@ -25,18 +26,7 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
   private data: CountryData[] = [];
   private observer: IntersectionObserver | null = null;
 
-  public colors: string[] = [
-    '#e80284',
-    '#4517EE',
-    '#4517EE',
-    '#4517EE',
-    '#DB8500',
-    '#DB8500',
-    '#DB8500',
-  ];
-  private colorScale : any = d3.scaleOrdinal()
-  .domain(this.data.map((d:any)=> d.country))
-  .range(this.colors)
+  
 
   constructor() {}
 
@@ -52,13 +42,30 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
     ];
     const scoredGoals: number[] = [6, 15, 16, 8, 5, 1, 5];
     const concededGoals: number[] = [5, 8, 8, 7, 7, 1, 7];
+    const colors: string[] = [
+      '#e80284',
+      '#4517EE',
+      '#4517EE',
+      '#4517EE',
+      '#DB8500',
+      '#DB8500',
+      '#DB8500',
+    ];
     
 
     this.data = countries.map((country, i) => ({
       country: country,
       scored: scoredGoals[i],
       conceded: -concededGoals[i],
+      color: colors[i],
     }));
+
+    // Sort data by the difference between scored and conceded goals
+    this.data = this.data.sort((a: CountryData, b: CountryData) => {
+    const differenceA = a.scored + a.conceded;
+    const differenceB = b.scored + b.conceded;
+    return differenceB - differenceA; // Sort in descending order
+  });
   }
 
   ngAfterViewInit() {
@@ -91,12 +98,17 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
     const width = element.offsetWidth - margin.left - margin.right;
     const height = 500 - margin.top - margin.bottom;
 
-    const x = d3.scaleLinear().domain([-10, 16]).range([0, width]);
+    
+
+    const x = d3.scaleLinear().domain([-16, 16]).range([0, width]);
     const y = d3
       .scaleBand()
       .range([0, height])
       .domain(this.data.map((d) => d.country))
       .padding(0.3);
+    const colorScale : any= d3.scaleOrdinal()
+      .domain(this.data.map((d:any)=> d.country))
+      .range(this.data.map((d:any)=> d.color))
 
     const svg = d3
       .select(element)
@@ -112,7 +124,7 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .call(
         d3
           .axisBottom(x)
-          .tickValues([-8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 14, 16])
+          .tickValues(Array.from({ length: 17 }, (_, index) => (index * 2) - 16)) //-16 to 16 2by2
           .tickSizeOuter(0)
           .tickFormat((d: any) => Math.abs(d as number).toString())
       )
@@ -142,7 +154,7 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
     yAxis.selectAll("text")
           .attr("font-size", "15px")
           .attr("font-family", "Arial")
-          .attr("fill", (d:any,i:number) => this.colorScale(this.data[i].country))
+          .attr("fill", (d:any,i:number) => colorScale(this.data[i].country))
           .attr("y",-10)
 
 
@@ -178,9 +190,18 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
           .selectAll('.tick')
           .filter((node: any) => node !== d.country)
           .attr('opacity',0.5)
+        svg
+          .selectAll('.legend')
+          .filter((node:any) => node === "Conceded goals")
+          .select('text')
+          .attr('font-weight','bold')
+        svg
+          .selectAll('.legend')
+          .filter((node:any) => node !== "Conceded goals")
+          .attr('opacity',0.3)
         tooltip
           .style('opacity', 1)
-          .style('border', `2px solid ${this.colorScale(d.country)}`)
+          .style('border', `2px solid ${colorScale(d.country)}`)
           .style('left', event.pageX - 55 + 'px')
           .style('top', event.pageY - 75 + 'px').html(`
       <divstyle="text-align: center;">
@@ -201,6 +222,15 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
         svg
           .selectAll('.tick')
           .filter((node: any) => node !== d.country)
+          .attr('opacity',1);
+        svg
+          .selectAll('.legend')
+          .filter((node:any) => node === "Conceded goals")
+          .select('text')
+          .attr('font-weight','normal');
+        svg
+          .selectAll('.legend')
+          .filter((node:any) => node !== "Conceded goals")
           .attr('opacity',1)
         tooltip.style('opacity', 0);
       })
@@ -222,32 +252,57 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .attr('fill', '#35d047b6')
       .attr('stroke','none')
       .on('mouseover', (event: any, d: any) => {
-        svg.select(`.conceded-${d.country}`).attr('opacity', 0.5);
-        svg.select(`.scored-${d.country}`).attr('fill', '#08b355');
         svg
           .selectAll('.tick')
           .filter((node: any) => node === d.country)
           .select('text')
           .style('font-weight', 'bold');
+        svg
+          .selectAll('.tick')
+          .filter((node: any) => node !== d.country)
+          .attr('opacity',0.5);
+        svg
+          .selectAll('.legend')
+          .filter((node:any) => node !== "Conceded goals")
+          .select('text')
+          .attr('font-weight','bold');
+        svg
+          .selectAll('.legend')
+          .filter((node:any) => node === "Conceded goals")
+          .attr('opacity',0.3)
         tooltip
           .style('opacity', 1)
+          .style('border', `2px solid ${colorScale(d.country)}`)
           .style('left', event.pageX - 55 + 'px')
           .style('top', event.pageY - 75 + 'px').html(`
-      <div>
-      <div>${d.country}</div>
-      <div>Scored Goals</div>
-      <div>${Math.abs(d.scored)}</div>
+      <divstyle="text-align: center;">
+        <div>${d.country}</div>
+        <div>Scored Goals</div>
+        <div>${Math.abs(d.scored)}</div>
       </div>
       `);
       })
       .on('mouseout', (event: MouseEvent, d: CountryData) => {
-        svg.select(`.conceded-${d.country}`).attr('opacity', 1);
-        svg.select(`.scored-${d.country}`).attr('fill', '#35d047b6');
+        svg.select(`.scored-${d.country}`).attr('opacity', 1);
+        svg.select(`.conceded-${d.country}`).attr('fill', '#d04a35cc');
         svg
           .selectAll('.tick')
           .filter((node: any) => node === d.country)
           .select('text')
           .style('font-weight', 'normal');
+        svg
+          .selectAll('.tick')
+          .filter((node: any) => node !== d.country)
+          .attr('opacity',1);
+        svg
+          .selectAll('.legend')
+          .filter((node:any) => node !== "Conceded goals")
+          .select('text')
+          .attr('font-weight','normal');
+        svg
+          .selectAll('.legend')
+          .filter((node:any) => node === "Conceded goals")
+          .attr('opacity',1)
         tooltip.style('opacity', 0);
       })
       .attr('width', 0)

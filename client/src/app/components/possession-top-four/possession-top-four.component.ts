@@ -64,7 +64,9 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
     const height = 400 - margin.top - margin.bottom;
 
     const x = d3.scaleLinear().domain([0, 100]).range([0, width]);
-
+     // Sort Data
+     this.data2 = this.data2.sort((eq1:Possession, eq2:Possession) => eq2.possessionPercentage - eq1.possessionPercentage);
+    
     const y = d3
       .scaleBand()
       .range([0, height])
@@ -131,8 +133,6 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
       .style("font-size", "12px")
       .style("font-family", "Arial")
       .text('Average Possession (%) (Knockout Stage)');
-
-  
 
     svg
       .selectAll('myRect')
