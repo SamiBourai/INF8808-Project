@@ -38,6 +38,7 @@ export class TouchesComponent implements AfterViewInit {
   ];
 
   margin = { left: 0, right: 0, top: 30, bottom: 0 };
+
   width: number = 400;
   height: number = 500;
   numCols = 3; // Number of columns
