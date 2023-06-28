@@ -35,9 +35,9 @@ export class ParallelCoordinatesChartComponent
   private category = [1, 2, 3]
   public colors: string[] = [
   '#e80284',
-  '#4517EE',
-  '#4517EE',
-  '#4517EE',
+  '#03a0c7',
+  '#03a0c7',
+  '#03a0c7',
   '#DB8500',
   '#DB8500',
   '#DB8500',

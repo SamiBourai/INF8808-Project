@@ -43,7 +43,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       }
     },
     Argentina: {
-      color: '#4517EE',
+      color: '#03a0c7',
       values: {
         passes: 84.6,
         shots: 43.2,
@@ -51,7 +51,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       }
     },
     France: {
-      color: '#4517EE',
+      color: '#03a0c7',
       values: {
         passes: 82.6,
         shots: 33.0,
@@ -59,7 +59,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       }
     },
     Croatia: {
-      color: '#4517EE',
+      color: '#03a0c7',
       values: {
         passes: 83.3,
         shots: 32.9,
@@ -96,7 +96,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
 
   private legendData: LegendData = {
       passes: { label: "% of Successful Passes", fill: this.colorLegend,  tooltipLabel: "% of successful passes:" },
-      shots: { label: "% of Successful Shots", fill: 'url(#dotted-pattern)', tooltipLabel: "% of successful shots:" },
+      shots: { label: "% of Shots on Target", fill: 'url(#dotted-pattern)', tooltipLabel: "% of shots on target:" },
       occasions: { label: "% of Successful Goal Occasions", fill: 'url(#striped-pattern)', tooltipLabel: "% of successful goal occasions:" }
     };
   private colorScale:any;

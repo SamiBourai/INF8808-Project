@@ -36,9 +36,9 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
     ];
     const colors: string[] = [
       '#e80284',
-      '#4517EE',
-      '#4517EE',
-      '#4517EE',
+      '#03a0c7',
+      '#03a0c7',
+      '#03a0c7',
       '#DB8500',
       '#DB8500',
       '#DB8500',

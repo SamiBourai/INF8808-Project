@@ -24,7 +24,7 @@ export class BannerComponent implements OnInit,  AfterViewInit{
   ];
   public colors: string[] = [
     '#E80284',
-    '#4517EE',
+    '#03a0c7',
     '#DB8500',
   ];
   private element: any;

@@ -45,7 +45,7 @@ export class TouchesComponent implements AfterViewInit {
     { country: 'Tunisia', gridplace: 8},
     { country: 'Ghana', gridplace: 9 },
   ];
-  margin = {left : 0, right:0, top:30, bottom:0};
+  margin = {left : 50, right:0, top:30, bottom:0};
   width: number = 400;
   height: number = 500;
   numCols = 3; // Number of columns
@@ -53,11 +53,7 @@ export class TouchesComponent implements AfterViewInit {
   spacing = 40; // Spacing between sub-SVG elements
 
 
-  private occurrences: any[] = [];
-
-  private previousGroup: any = undefined;
-
-  private colors: {[key:string]:string} = {defense:'#21A179', middle:'#1481BA', attack:'#F3535B'};
+  private colors: {[key:string]:string} = {defense:'#21A179', middle:'#B8B8B8', attack:'#F3535B'};
   private typeColorScale : any;
 
   private countries: string[] = [
@@ -71,9 +67,9 @@ export class TouchesComponent implements AfterViewInit {
   ];
   private colorCountry: string[] = [
     '#e80284',
-    '#4517EE',
-    '#4517EE',
-    '#4517EE',
+    '#03a0c7',
+    '#03a0c7',
+    '#03a0c7',
     '#DB8500',
     '#DB8500',
     '#DB8500',

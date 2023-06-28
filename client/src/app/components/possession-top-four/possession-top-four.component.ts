@@ -23,7 +23,7 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     const possessionPercentages2: number[] = [39, 51.3, 56.5, 54.3];
     const countries2: string[] = ['Morroco', 'Argentina', 'France', 'Croatia'];
-    const colors2: string[] = ['#e80284', '#4517EE', '#4517EE', '#4517EE'];
+    const colors2: string[] = ['#e80284', '#03a0c7', '#03a0c7', '#03a0c7'];
 
     this.data2 = countries2.map((country, i) => ({
       country: country,
