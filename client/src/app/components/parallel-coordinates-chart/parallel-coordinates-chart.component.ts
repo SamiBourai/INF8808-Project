@@ -9,7 +9,7 @@ import {
 
 import * as d3 from 'd3';
 import { HttpClient } from '@angular/common/http';
-import { Team } from 'src/models/interfaces/parallel';
+import { COLOR_PARALLEL_CHART, TEAM_STATS } from 'src/constants/constants';
 
 @Component({
   selector: 'app-parallel-coordinates-chart',
@@ -32,16 +32,7 @@ export class ParallelCoordinatesChartComponent
   private xScale: any;
   private colorScale: any;
   private countries = ['Morocco', 'Argentina', 'France', 'Croatia', 'Ghana', 'Tunisia', 'Croatia'];
-  private category = [1, 2, 3]
-  public colors: string[] = [
-  '#e80284',
-  '#03a0c7',
-  '#03a0c7',
-  '#03a0c7',
-  '#DB8500',
-  '#DB8500',
-  '#DB8500',
-];
+  public colors = COLOR_PARALLEL_CHART
   private dimensions = ['pass', 'goal', 'recup', 'tacles', 'intercep'];
   private xlabels = {
     pass: 'Number of\nattempted passes\n/90min',
@@ -51,81 +42,16 @@ export class ParallelCoordinatesChartComponent
     intercep: 'Number of\ninterceptions\n/90min',
   };
 
-
   private animationTime = 1000;
   private yScales: { [key: string]: d3.ScaleLinear<number, number> } = {};
-
   private svg: any;
   private color = d3.scaleOrdinal().domain(this.countries).range(this.colors);
+  
   ngOnInit() {
     
-    const list= [
-      {
-      country: 'Senegal',
-      pass: 327.5,
-      goal: 5,
-      recup:48,
-      tacles:3,
-      intercep:7.75,
-      category: 1
-    },
-    {
-      country: 'Ghana',
-      pass: 324.0,
-      goal: 5,
-      recup:48.7,
-      tacles:11.3,
-      intercep:6.33,
-      category: 1
-    },
-    {
-      country: 'France',
-      pass: 448.9,
-      goal: 16,
-      recup:49.9,
-      tacles:12.1,
-      intercep:10.4,
-      category: 1
-    },
-    {
-      country: 'Morocco',
-      pass: 311.0,
-      goal: 6,
-      recup:50.5,
-      tacles:10.8,
-      intercep:9.32,
-      category: 1
-    },
-    {
-      country: 'Croatia',
-      pass: 489.1,
-      goal: 5,
-      recup:53.1,
-      tacles:10.8,
-      intercep:6.88,
-      category: 1
-    },
-    {
-      country: 'Argentina',
-      pass: 507.9,
-      goal: 15,
-      recup:46.4,
-      tacles:8.96,
-      intercep:6.75,
-      category: 1
-    }, {
-      country: 'Tunisia',
-      pass: 332.7,
-      goal: 1,
-      recup:56.7,
-      tacles:8,
-      intercep:8.33,
-      category: 1
-    }
-    ]
-    // console.log(list)
+    const list= TEAM_STATS
     this.data = list
-    // this.loadData();
+
   }
 
   observeChart() {
@@ -178,10 +104,6 @@ export class ParallelCoordinatesChartComponent
   }
 
 
-  
-  
-  
-
   private highlight(d: any, color: any) {
     // first every group turns grey
     d3.selectAll('.line')
@@ -232,12 +154,12 @@ export class ParallelCoordinatesChartComponent
       .attr('stroke-width', 4)
       .attr('opacity', 0)
       .attr('d', (d: any) => this.path(d))
-      .attr('stroke', (d: any) => this.d_species(d))
+      .attr('stroke', (d: any) => this.d_country(d))
       .on('mouseover', (e, d) => {
         this.highlight(d, this.color)
         tooltip
           .style('opacity', 1)
-          .style('border', `2px solid ${this.d_species(d)}`)
+          .style('border', `2px solid ${this.d_country(d)}`)
           .style('left', e.pageX - 55 + 'px')
           .style('top', e.pageY - 75 + 'px').html(`
             <div style="text-align: center;">
@@ -260,7 +182,7 @@ export class ParallelCoordinatesChartComponent
   
     this.svg
     .selectAll('g')
-    // For each dimension of the dataset I add a 'g' element:
+    // For each dimension of the dataset, add a 'g' element:
     .data(this.dimensions)
     .join('g')
     .attr('class', 'y-axis')
@@ -305,7 +227,7 @@ export class ParallelCoordinatesChartComponent
       .attr('opacity',1)
   }
 
-  d_species(d) {
+  d_country(d) {
     return this.colorScale(d.country); // removed nullish coalescing
   }
 
@@ -318,12 +240,7 @@ export class ParallelCoordinatesChartComponent
       this.dimensions.map((p) => [this.xScale(p), this.yScales[p](d[p])]));
   }
 
-  // path2(d: any) {
-  //   this.dimensions.map(d3.line()([]))
-  //   return d3.line()(
-  //     .map((p) => [this.xScale(p), this.yScales[p](d[p])])
-  //   );
-  // }
+
   removeChart(): void {
     d3.select(this.chartContainer.nativeElement).selectAll('*').remove();
   }
