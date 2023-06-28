@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PolarAreaChartsComponent } from './polar-area-charts.component';
+import { PolarAreaChartsComponent } from './multi-bar-chart.component';
 
 describe('PolarAreaChartsComponent', () => {
   let component: PolarAreaChartsComponent;

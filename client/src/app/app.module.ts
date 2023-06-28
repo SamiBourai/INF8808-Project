@@ -10,7 +10,7 @@ import { PossessionHistogrammeComponent } from './components/possession-histogra
 import { HorizontalPictogramComponent } from './components/horizontal-pictogram/horizontal-pictogram.component';
 import { WinsAndLossesBarsChartComponent } from './components/wins-and-losses-bars-chart/wins-and-losses-bars-chart.component';
 import { ParallelCoordinatesChartComponent } from './components/parallel-coordinates-chart/parallel-coordinates-chart.component';
-import { PolarAreaChartsComponent } from './components/polar-area-charts/polar-area-charts.component';
+import { PolarAreaChartsComponent } from './components/multi-bar-chart/multi-bar-chart.component';
 import { PossessionTopFourComponent } from './components/possession-top-four/possession-top-four.component';
 import { TouchesComponent } from './components/touches-component/touches-component.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';

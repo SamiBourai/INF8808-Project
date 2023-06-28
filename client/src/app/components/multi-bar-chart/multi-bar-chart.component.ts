@@ -27,9 +27,9 @@ export interface LegendData {
 }
 
 @Component({
-  selector: 'app-polar-area-charts',
-  templateUrl: './polar-area-charts.component.html',
-  styleUrls: ['./polar-area-charts.component.css'],
+  selector: 'multi-bar-chart',
+  templateUrl: './multi-bar-chart.component.html',
+  styleUrls: ['./multi-bar-chart.component.css'],
 })
 export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
   @ViewChild('polarChart') private chartContainer!: ElementRef;
