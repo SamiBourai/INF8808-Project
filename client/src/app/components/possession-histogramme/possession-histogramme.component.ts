@@ -7,6 +7,11 @@ import {
   ViewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
+import {
+  COLORS_POSSESSION_CHART,
+  COUNTRIES,
+  POSSESSION_CHART_DATA,
+} from 'src/constants/constants';
 import { Possession } from 'src/models/interfaces/possession';
 @Component({
   selector: 'app-possession-histogramme',
@@ -22,32 +27,10 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
   private observer: IntersectionObserver | null = null;
 
   ngOnInit(): void {
-    const possessionPercentages: number[] = [
-      37, 66.6, 58.6, 54, 46.6, 43.3, 42,
-    ];
-    const countries: string[] = [
-      'Morroco',
-      'Argentina',
-      'France',
-      'Croatia',
-      'Senegal',
-      'Tunisia',
-      'Ghana',
-    ];
-    const colors: string[] = [
-      '#e80284',
-      '#03a0c7',
-      '#03a0c7',
-      '#03a0c7',
-      '#DB8500',
-      '#DB8500',
-      '#DB8500',
-    ];
-
-    this.data = countries.map((country, i) => ({
+    this.data = COUNTRIES.map((country, i) => ({
       country: country,
-      possessionPercentage: possessionPercentages[i],
-      color: colors[i],
+      possessionPercentage: POSSESSION_CHART_DATA[i],
+      color: COLORS_POSSESSION_CHART[i],
     }));
   }
 
@@ -83,8 +66,11 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
     const x = d3.scaleLinear().domain([0, 100]).range([0, width]);
 
     // Sort Data
-    this.data = this.data.sort((eq1:Possession, eq2:Possession) => eq2.possessionPercentage - eq1.possessionPercentage);
-  
+    this.data = this.data.sort(
+      (eq1: Possession, eq2: Possession) =>
+        eq2.possessionPercentage - eq1.possessionPercentage
+    );
+
     const y = d3
       .scaleBand()
       .range([0, height])
@@ -101,7 +87,7 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
 
     let xAxis = svg
       .append('g')
-      .attr('class','x-axis')
+      .attr('class', 'x-axis')
       .attr('transform', `translate(0,${-10})`)
       .call(
         d3
@@ -110,7 +96,6 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
           .ticks(5)
           .tickFormat((d: any) => Math.abs(d as number).toString())
       );
-      
 
     xAxis.selectAll('.tick text').attr('dy', -20);
 
@@ -128,17 +113,17 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
     });
 
     let yAxis = svg
-                .append('g')
-                .attr('class','y-axis')
-                .call(d3.axisLeft(y).tickSizeOuter(0))
-                .attr('stroke', 'none');
-    
-    yAxis.selectAll('.tick text')
-         .attr('fill', (d:any,i:any) => this.data[i].color) // This will hide the tick lines
-         .attr('font-size',15)
-         .attr("font-family", "Arial")
-         .attr('class','ytick')
+      .append('g')
+      .attr('class', 'y-axis')
+      .call(d3.axisLeft(y).tickSizeOuter(0))
+      .attr('stroke', 'none');
 
+    yAxis
+      .selectAll('.tick text')
+      .attr('fill', (d: any, i: any) => this.data[i].color) // This will hide the tick lines
+      .attr('font-size', 15)
+      .attr('font-family', 'Arial')
+      .attr('class', 'ytick');
 
     svg.selectAll('.tick line').attr('stroke', 'none'); // This will hide the tick lines
 
@@ -152,8 +137,8 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
       .attr('y', -40)
       //fill with white
       .attr('fill', '#fff')
-      .style("font-size", "12px")
-      .style("font-family", "Arial")
+      .style('font-size', '12px')
+      .style('font-family', 'Arial')
       .text('Average Possession (%) (Group Stage)');
 
     svg
@@ -176,13 +161,14 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
         svg
           .selectAll('.y-axis .tick')
           .filter((node: any) => node !== d.country)
-          .attr('opacity',0.3)
-        svg.selectAll('rect')
-            .filter((node:any) => node.country !== d.country)
-            .transition()
-            .duration(100)
-            .ease(d3.easeCubicInOut)
-            .attr('opacity',0.3)
+          .attr('opacity', 0.3);
+        svg
+          .selectAll('rect')
+          .filter((node: any) => node.country !== d.country)
+          .transition()
+          .duration(100)
+          .ease(d3.easeCubicInOut)
+          .attr('opacity', 0.3);
         tooltip
           .style('opacity', 1)
           .style('border', `2px solid ${d.color}`)
@@ -190,7 +176,6 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
           .style('top', event.pageY - 75 + 'px').html(`
       <div>
       <div>${d.country}</div>
-      <div>Average Possession</div>
       <div>${Math.abs(d.possessionPercentage)}%</div>
       </div>
       `);
@@ -199,21 +184,22 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
         svg.select(`.possession-${d.country}`).attr('fill', '#35d047b6');
         svg
           .selectAll('.y-axis .tick')
-            .filter((node:any) => node.country !== d.country)
+          .filter((node: any) => node.country !== d.country)
           .select('text')
           .style('font-weight', 'normal');
         tooltip.style('opacity', 0);
-      
-        svg.selectAll('rect')
-          .filter((node:any) => node.country !== d.country)
-          .transition()
-            .duration(100)
-            .ease(d3.easeCubicInOut)
-            .attr('opacity',1)
+
         svg
-            .selectAll('.y-axis .tick')
-            .filter((node: any) => node !== d.country)
-            .attr('opacity',1)
+          .selectAll('rect')
+          .filter((node: any) => node.country !== d.country)
+          .transition()
+          .duration(100)
+          .ease(d3.easeCubicInOut)
+          .attr('opacity', 1);
+        svg
+          .selectAll('.y-axis .tick')
+          .filter((node: any) => node !== d.country)
+          .attr('opacity', 1);
       })
       .attr('width', 0)
       .transition()
@@ -221,7 +207,6 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
       .attr('width', (d: Possession) =>
         Math.abs(x(d.possessionPercentage) - x(0))
       );
-      
   }
 
   removeChart() {

@@ -5,5 +5,4 @@ export interface Team {
     recup: number;
     tacles: number;
     intercep: number;
-    category: number
   }
