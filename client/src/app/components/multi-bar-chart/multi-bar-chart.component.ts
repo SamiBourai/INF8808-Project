@@ -8,23 +8,7 @@ import {
 } from '@angular/core';
 import * as d3 from 'd3';
 
-interface Data {
-  [key: string]: {
-    color: string;
-    values: {
-      passes: number;
-      shots: number;
-      occasions: number;
-    };
-  };
-}
-export interface LegendData {
-  [key: string]: {
-    label: string;
-    fill: string;
-    tooltipLabel: string;
-  };
-}
+import { Data, LegendData } from 'src/models/interfaces/multibar';
 
 @Component({
   selector: 'multi-bar-chart',
@@ -38,7 +22,6 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
 
   private svg: any;
   private observer: IntersectionObserver | null = null;
-  private currentDatasetIndex = 0;
 
   private dataSets: Data = {
     Morocco: {
