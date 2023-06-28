@@ -44,9 +44,9 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
     const concededGoals: number[] = [5, 8, 8, 7, 7, 1, 7];
     const colors: string[] = [
       '#e80284',
-      '#4517EE',
-      '#4517EE',
-      '#4517EE',
+      '#03a0c7',
+      '#03a0c7',
+      '#03a0c7',
       '#DB8500',
       '#DB8500',
       '#DB8500',
@@ -98,7 +98,11 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
     const width = element.offsetWidth - margin.left - margin.right;
     const height = 500 - margin.top - margin.bottom;
 
-    
+    const legendItems : {type:string, text:string, color:string}[]= 
+      [
+        {type:'conceded', text:'Conceded goals', color:'#F3535B'},
+        {type:'scored', text: 'Scored goals', color:'#21A179'}
+      ]
 
     const x = d3.scaleLinear().domain([-16, 16]).range([0, width]);
     const y = d3
@@ -117,6 +121,7 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
+    
 
     let xAxis = svg
       .append('g')
@@ -167,8 +172,11 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
     
     const tooltip = d3.select('#tooltip');
 
-    svg
-      .selectAll('myRect')
+
+    const back2back_g = svg.append('g').attr('class','back2back-g')
+    back2back_g.append('g')
+       .attr('class','conceded-g')
+      .selectAll('rect')
       .data(this.data)
       .enter()
       .append('rect')
@@ -176,11 +184,14 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .attr('x', (d: CountryData) => x(0))
       .attr('y', (d: CountryData) => y(d.country) ?? '')
       .attr('height', y.bandwidth())
-      .attr('fill', '#d04a35cc')
+      .attr('fill', '#F3535B')
       .attr('stroke','none')
       .on('mouseover', (event: MouseEvent, d: CountryData) => {
-        svg.select(`.scored-${d.country}`).attr('opacity', 0.5);
-        svg.select(`.conceded-${d.country}`).attr('fill', '#e72e11');
+        back2back_g.selectAll(`.scored-g`).selectAll('rect').attr('opacity', 0.3);
+        back2back_g.selectAll('.conceded-g')
+           .selectAll('rect')
+           .filter((rect:any) => rect.country !== d.country)
+           .attr('opacity', 0.3);        
         svg
           .selectAll('.tick')
           .filter((node: any) => node === d.country)
@@ -191,13 +202,13 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
           .filter((node: any) => node !== d.country)
           .attr('opacity',0.5)
         svg
-          .selectAll('.legend')
-          .filter((node:any) => node === "Conceded goals")
+          .selectAll('.legend-item')
+          .filter((node:any) => node.type === "conceded")
           .select('text')
           .attr('font-weight','bold')
         svg
-          .selectAll('.legend')
-          .filter((node:any) => node !== "Conceded goals")
+          .selectAll('.legend-item')
+          .filter((node:any) => node.type !== "conceded")
           .attr('opacity',0.3)
         tooltip
           .style('opacity', 1)
@@ -212,8 +223,11 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       `);
       })
       .on('mouseout', (event: MouseEvent, d: CountryData) => {
-        svg.select(`.scored-${d.country}`).attr('opacity', 1);
-        svg.select(`.conceded-${d.country}`).attr('fill', '#d04a35cc');
+        back2back_g.selectAll(`.scored-g`).selectAll('rect').attr('opacity', 1);
+        back2back_g.selectAll('.conceded-g')
+           .selectAll('rect')
+           .filter((rect:any) => rect.country !== d.country)
+            .attr('opacity', 1); 
         svg
           .selectAll('.tick')
           .filter((node: any) => node === d.country)
@@ -224,13 +238,13 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
           .filter((node: any) => node !== d.country)
           .attr('opacity',1);
         svg
-          .selectAll('.legend')
-          .filter((node:any) => node === "Conceded goals")
+          .selectAll('.legend-item')
+          .filter((node:any) => node.type === "conceded")
           .select('text')
           .attr('font-weight','normal');
         svg
-          .selectAll('.legend')
-          .filter((node:any) => node !== "Conceded goals")
+          .selectAll('.legend-item')
+          .filter((node:any) => node.type !== "conceded")
           .attr('opacity',1)
         tooltip.style('opacity', 0);
       })
@@ -240,8 +254,9 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .attr('width', (d: CountryData) => Math.abs(x(d.conceded) - x(0)))
       .attr('x', (d: CountryData) => x(Math.min(0, d.conceded)));
 
-    svg
-      .selectAll('myRect')
+      back2back_g.append('g')
+      .attr('class','scored-g')
+      .selectAll('rect')
       .data(this.data)
       .enter()
       .append('rect')
@@ -249,9 +264,15 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .attr('x', (d: CountryData) => x(Math.min(0, d.scored)))
       .attr('y', (d: CountryData) => y(d.country) ?? '')
       .attr('height', y.bandwidth())
-      .attr('fill', '#35d047b6')
+      .attr('fill', '#21A179')
       .attr('stroke','none')
       .on('mouseover', (event: any, d: any) => {
+        back2back_g.selectAll(`.conceded-g`).selectAll('rect').attr('opacity', 0.3);
+        back2back_g.selectAll('.scored-g')
+           .selectAll('rect')
+           .filter((rect:any) => rect.country !== d.country)
+           .attr('opacity', 0.3);
+
         svg
           .selectAll('.tick')
           .filter((node: any) => node === d.country)
@@ -262,13 +283,13 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
           .filter((node: any) => node !== d.country)
           .attr('opacity',0.5);
         svg
-          .selectAll('.legend')
-          .filter((node:any) => node !== "Conceded goals")
+          .selectAll('.legend-item')
+          .filter((node:any) => node.type !== "conceded")
           .select('text')
-          .attr('font-weight','bold');
+          .style('font-weight','bold');
         svg
-          .selectAll('.legend')
-          .filter((node:any) => node === "Conceded goals")
+          .selectAll('.legend-item')
+          .filter((node:any) => node === "conceded")
           .attr('opacity',0.3)
         tooltip
           .style('opacity', 1)
@@ -283,8 +304,11 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       `);
       })
       .on('mouseout', (event: MouseEvent, d: CountryData) => {
-        svg.select(`.scored-${d.country}`).attr('opacity', 1);
-        svg.select(`.conceded-${d.country}`).attr('fill', '#d04a35cc');
+        back2back_g.selectAll(`.conceded-g`).selectAll('rect').attr('opacity', 1);
+        back2back_g.selectAll('.scored-g')
+           .selectAll('rect')
+           .filter((rect:any) => rect.country !== d.country)
+          .attr('opacity', 1);
         svg
           .selectAll('.tick')
           .filter((node: any) => node === d.country)
@@ -295,12 +319,12 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
           .filter((node: any) => node !== d.country)
           .attr('opacity',1);
         svg
-          .selectAll('.legend')
-          .filter((node:any) => node !== "Conceded goals")
+          .selectAll('.legend-item')
+          .filter((node:any) => node.type !== "conceded")
           .select('text')
-          .attr('font-weight','normal');
+          .style('font-weight','normal');
         svg
-          .selectAll('.legend')
+          .selectAll('.legend-item')
           .filter((node:any) => node === "Conceded goals")
           .attr('opacity',1)
         tooltip.style('opacity', 0);
@@ -310,40 +334,73 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .duration(1000)
       .attr('width', (d: CountryData) => Math.abs(x(d.scored) - x(0)));
 
-    let legend = svg
-      .selectAll('.legend')
-      .data(['Conceded goals', 'Scored goals'])
-      .enter()
-      .append('g')
-      .attr('class', 'legend')
-      .attr('transform', function (d, i) {
-        let legendX = (width - 2 * 150) / 2;
-        return 'translate(' + (legendX + i * 150) + ',' + (-60) + ')';
-      });
+   
+      
+    const legend = svg.append('g')
+                      .attr('class','legend-g')
+                      .selectAll('g')
+                      .data(legendItems)
+                      .enter()
+                      .append('g')
+                      .attr('class', 'legend-item')
+                      .attr('transform', function (d, i) {
+                        let legendX = (width - 2 * 150) / 2;
+                        return 'translate(' + (legendX + i * 150) + ',' + (-60) + ')';
+                      })
+                      .on('mouseover',(event:any, d:any) => {
+                        svg.selectAll('.legend-item')
+                              .filter((item:any) => item.type === d.type)
+                              .select('text')
+                              .style('font-weight','bold');
+                        if (d.type === 'conceded') {
+                        svg.selectAll('.scored-g')
+                                  .selectAll('rect')
+                                  .attr('opacity',0.3)
+                        } else {
+                          svg.selectAll('.conceded-g')
+                                  .selectAll('rect')
+                                  .attr('opacity',0.3)
+                        }
+                      })
+                      .on('mouseout',(event:any, d:any) => {
+                        svg.selectAll('.legend-item')
+                              .filter((item:any) => item.type === d.type)
+                              .select('text')
+                              .style('font-weight','normal');
+                        if (d.type === 'conceded') {
+                        svg.selectAll('.scored-g')
+                                  .selectAll('rect')
+                                  .attr('opacity',1)
+                        } else {
+                          svg.selectAll('.conceded-g')
+                                  .selectAll('rect')
+                                  .attr('opacity',1)
+                        }
+                      })
+    
 
     // Draw legend rectangles
     legend
-    .append('rect')
-    .attr('x', 0)
-    .attr('width', 18)
-    .attr('height', 18)
-    .style('fill', function (d, i) {
-      return ['#d04a35cc', '#35d047b6'][i];
-    });
+      .append('rect')
+      .attr('x', 0)
+      .attr('width', 18)
+      .attr('height', 18)
+      .style('fill', (d:any) => d.color);
 
     // Draw legend text
     legend
-    .append('text')
-    .attr('x', 24)
-    .attr('y', 9)
-    .attr('dy', '.35em')
-    .style('text-anchor', 'start')
-    .style('fill', 'white')
-    .style("font-size", "12px")
-    .style("font-family", "Arial")
-    .text((d) => {
-      return d;
-    });
+      .append('text')
+      .attr('x', 24)
+      .attr('y', 9)
+      .attr('dy', '.35em')
+      .style('text-anchor', 'start')
+      .style('fill', 'white')
+      .style("font-size", "12px")
+      .style("font-family", "Arial")
+      .text((d) => {
+        return d.text;
+      });
+          
 
   }
 
