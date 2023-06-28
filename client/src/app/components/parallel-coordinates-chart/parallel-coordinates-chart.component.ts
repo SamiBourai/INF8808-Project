@@ -240,7 +240,7 @@ export class ParallelCoordinatesChartComponent
           .style('border', `2px solid ${this.d_species(d)}`)
           .style('left', e.pageX - 55 + 'px')
           .style('top', e.pageY - 75 + 'px').html(`
-            <div style="text-align: center;">
+            <div style="text-align: center;color=${this.colorScale(d.country)}">
                 ${d.country}
             </div>
           `);

@@ -48,6 +48,11 @@ body {
   margin-right: 10px;
   opacity: 0;
   transition: opacity 0.3s ease;
+  background-color: #1e1e1e;
+  border: 1px solid #fff;
+  padding: 4px;
+
+
 }
 
 .dot-container:hover .dot-text,

@@ -15,11 +15,11 @@ export class AppComponent implements OnInit, AfterViewInit {
     // Initialize sections as an array of objects, each with an id and a name.
     sections : { id: string; name: string }[] = [
       { id: 'section0', name: 'Introduction' },
-      { id: 'section1', name: 'Team' },
-      { id: 'section2', name: 'Win vs Defeat' },
+      { id: 'section1', name: 'Teams' },
+      { id: 'section2', name: 'Results'},
       { id: 'section3', name: 'Goals' },
       { id: 'section4', name: 'Activity' },
-      { id: 'section5', name: 'Effectivness' },
+      { id: 'section5', name: 'Efficiency' },
       { id: 'section6', name: 'Possession 1' },
       { id: 'section7', name: 'Possession 2' },
     ]

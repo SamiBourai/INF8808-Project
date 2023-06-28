@@ -352,6 +352,9 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
                               .filter((item:any) => item.type === d.type)
                               .select('text')
                               .style('font-weight','bold');
+                        svg.selectAll('.legend-item')
+                              .filter((item:any) => item.type !== d.type)
+                              .style('opacity',0.3);
                         if (d.type === 'conceded') {
                         svg.selectAll('.scored-g')
                                   .selectAll('rect')
@@ -367,6 +370,9 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
                               .filter((item:any) => item.type === d.type)
                               .select('text')
                               .style('font-weight','normal');
+                        svg.selectAll('.legend-item')
+                              .filter((item:any) => item.type !== d.type)
+                              .style('opacity',1);
                         if (d.type === 'conceded') {
                         svg.selectAll('.scored-g')
                                   .selectAll('rect')
