@@ -32,7 +32,7 @@ export interface LegendData {
   styleUrls: ['./multi-bar-chart.component.css'],
 })
 export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
-  @ViewChild('polarChart') private chartContainer!: ElementRef;
+  @ViewChild('multiBarChart') private chartContainer!: ElementRef;
 
   constructor() {}
 
