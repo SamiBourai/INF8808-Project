@@ -143,8 +143,9 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any): void {
-    d3.select(this.chartContainer.nativeElement).select('this.svg').remove();
-    this.createChart();
+    this.observer?.disconnect()
+    this.observeChart()
+    this.removeChart()
   }
 
 

@@ -70,8 +70,9 @@ export class BannerComponent implements OnInit,  AfterViewInit{
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
-    d3.select(this.chartContainer.nativeElement).select('svg').remove();
-    this.createChart();
+    this.removeChart()
+    this.observer?.disconnect()
+    this.observeChart()
   }
 
 

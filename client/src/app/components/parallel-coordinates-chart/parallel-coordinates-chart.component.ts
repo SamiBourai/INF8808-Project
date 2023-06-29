@@ -44,11 +44,11 @@ export class ParallelCoordinatesChartComponent
 ];
   private dimensions = ['pass', 'goal', 'recup', 'tacles', 'intercep'];
   private xlabels = {
-    pass: 'Number of\nattempted passes\n/90min',
-    goal: 'Number of\ngoal-creating actions\n/90min',
-    recup: 'Number of\nrecoveries\n/90min',
-    tacles: 'Number of\ntackles\n/90min',
-    intercep: 'Number of\ninterceptions\n/90min',
+    pass: 'Number of\nattempted passes\n(NAP)\n/90min',
+    goal: 'Number of\ngoal-creating actions\n(NGCA)\n/90min',
+    recup: 'Number of\nrecoveries\n(NR)\n/90min',
+    tacles: 'Number of\ntackles\n(NT)\n/90min',
+    intercep: 'Number of\ninterceptions\n(NI)\n/90min',
   };
 
 
@@ -143,8 +143,9 @@ export class ParallelCoordinatesChartComponent
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
-    d3.select(this.chartContainer.nativeElement).select('svg').remove();
-    this.createChart();
+    this.observer?.disconnect()
+    this.observeChart()
+    this.removeChart()
   }
 
   ngAfterViewInit() {
@@ -238,12 +239,18 @@ export class ParallelCoordinatesChartComponent
         tooltip
           .style('opacity', 1)
           .style('border', `2px solid ${this.d_species(d)}`)
-          .style('left', e.pageX - 55 + 'px')
-          .style('top', e.pageY - 75 + 'px').html(`
+          .style('left', e.pageX + 5 + 'px')
+          .style('top', e.pageY - 60 + 'px').html(`
             <div style="text-align: center;">
-                ${d.country}
+                <h3>${d.country}</h3>
+                <p>NAP: ${d.pass}</p>
+                <p>NGCA: ${d.goal}</p>
+                <p>NR: ${d.recup} </p>
+                <p>NT: ${d.tacles}</p>
+                <p>NI: ${d.intercep}</p>
             </div>
           `);
+        
       })
       .on('mouseleave', (e, d) => {
         this.doNotHighlight(d, this.color)
@@ -283,7 +290,7 @@ export class ParallelCoordinatesChartComponent
       .selectAll('.y-axis')
       .append('text')
       .style('text-anchor', 'middle')
-      .attr('y', -50)
+      .attr('y', -70)
       .style('fill', 'white')
       .attr('font-size', '12px')
       .attr('font-family', 'Arial')
