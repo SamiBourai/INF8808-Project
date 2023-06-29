@@ -330,8 +330,9 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
   // If event occurs, delete and recreate the chart
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
-    d3.select(this.chartContainer.nativeElement).select('svg').remove();
-    this.createChart();
+    this.removeChart()
+    this.observer?.disconnect()
+    this.observeChart()
   }
 
   // Create the chart

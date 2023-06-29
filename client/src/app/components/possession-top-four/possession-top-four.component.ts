@@ -51,8 +51,9 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
 
   @HostListener('window:resize', ['$event'])
   onResize2(event: any) {
-    d3.select(this.chartContainer2.nativeElement).select('svg').remove();
-    this.createChart();
+    this.removeChart()
+    this.observer2?.disconnect()
+    this.observeChart()
   }
 
   createChart(): void {

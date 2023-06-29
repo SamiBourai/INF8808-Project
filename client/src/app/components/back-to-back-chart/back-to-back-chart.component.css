@@ -16,10 +16,31 @@
 
 .text{
     flex : 2;
+    flex-wrap: wrap;
+
     /* padding: 5%; */
     font-size:15px;
     font-family: Arial ;
+
 }
+
+h1 {
+    justify-content: center;
+    text-align: center;
+    font-size: 32px;
+    line-height: 1.5;
+    font-family: 'Montserrat', sans-serif;
+    margin-bottom: 5%;
+  }
+  
+  p {
+    font-size:18px;
+    font-family: 'Poppins', sans-serif;
+    justify-content:space-evenly;
+    text-indent: 3px;
+    line-height: 1.5;
+    /* margin: 0 10% ; */
+  }
 
 .container{
     width: 90%;

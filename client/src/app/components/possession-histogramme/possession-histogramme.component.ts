@@ -53,8 +53,9 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
-    d3.select(this.chartContainer.nativeElement).select('svg').remove();
-    this.createChart();
+    this.observer?.disconnect()
+    this.observeChart()
+    this.removeChart()
   }
 
   createChart(): void {
