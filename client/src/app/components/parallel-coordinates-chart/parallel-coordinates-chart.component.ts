@@ -59,9 +59,9 @@ export class ParallelCoordinatesChartComponent
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
+    this.removeChart()
     this.observer?.disconnect()
     this.observeChart()
-    this.removeChart()
   }
 
   ngAfterViewInit() {
