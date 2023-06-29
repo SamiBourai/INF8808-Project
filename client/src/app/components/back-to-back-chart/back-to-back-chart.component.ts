@@ -26,8 +26,11 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
 
   private data: GoalsData[] = [];
   private observer: IntersectionObserver | null = null;
-  private svg : any;
-  private transitionDuration: any;
+  private element: any;
+  private margin!: { top: number, right: number, bottom: number, left: number };
+  private width!: number;
+  private height!: number;
+  private svg: any;
   private xScale: any;
   private yScale: any;
 
@@ -51,7 +54,7 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
     this.observeChart();
   }
 
-  observeChart() {
+  observeChart(): void {
     this.observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -66,43 +69,63 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: any) {
+  onResize(event: any): void {
     this.removeChart()
     this.observer?.disconnect()
     this.observeChart()
   }
 
-  createChart(): void {
-    let element = this.chartContainer.nativeElement;
-    const margin = { top: 70, right: 30, bottom: 50, left: 100 };
-    const width = element.offsetWidth - margin.left - margin.right;
-    const height = 500 - margin.top - margin.bottom;
-
-    const legendItems : LegendItem[]= 
-      [
-        {type:'conceded', text:'Conceded goals', color: '#F3535B'},
-        {type:'scored', text: 'Scored goals', color: '#21A179'}
-      ]
-    
-    const maxAgePlayer = Math.max(...this.data.map((goals:GoalsData) => [goals.scored, goals.conceded]).reduce((acc, val) => acc.concat(val), []));
-    this.xScale = d3.scaleLinear().domain([-maxAgePlayer, maxAgePlayer]).range([0, width]);
-    this.yScale = d3
-      .scaleBand()
-      .range([0, height])
-      .domain(this.data.map((d) => d.country))
-      .padding(NOT_FOCUSED_OPACITY);
-    const typeGoalColorScale = d3.scaleBand()
-                                  .domain(legendItems.map((d:LegendItem) => d.type))
+  private setupScales(): void {
+    const maxAgePlayer = Math.max(
+      ...this.data.map((goals: GoalsData) => [goals.scored, goals.conceded])
+      .reduce((acc, val) => acc.concat(val), [])
+    );
+  
+    this.xScale = d3.scaleLinear().domain([-maxAgePlayer, maxAgePlayer]).range([0, this.width]);
+    this.yScale = d3.scaleBand().range([0, this.height]).domain(this.data.map((d) => d.country)).padding(NOT_FOCUSED_OPACITY);
+  }
+  
+  private setupChart(): void {
+    this.element = this.chartContainer.nativeElement;
+    this.margin = { top: 70, right: 30, bottom: 50, left: 100 };
+    this.width = this.element.offsetWidth - this.margin.left - this.margin.right;
+    this.height = 500 - this.margin.top - this.margin.bottom;
+  
+    this.setupScales();
+  
     this.svg = d3
-      .select(element)
+      .select(this.element)
       .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
+      .attr('width', this.width + this.margin.left + this.margin.right)
+      .attr('height', this.height + this.margin.top + this.margin.bottom)
       .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`);
-    
+      .attr('transform', `translate(${this.margin.left},${this.margin.top})`);
+  }
+  
+  private drawgridLines(): void {
+    this.xScale.ticks().forEach((tick) => {
+      this.svg
+        .append('g')
+        .attr('class', 'grid-line')
+        .append('line')
+        .attr('x1', this.xScale(tick))
+        .attr('y1', 0)
+        .attr('x2', this.xScale(tick))
+        .attr('y2', this.height)
+        .style('stroke', '#5a5858a8')
+        .style('stroke-dasharray', '3, 3');
+    });
 
-    let xAxis =this.svg
+    this.svg.append('line')
+      .attr('x1', this.xScale(0))
+      .attr('y1', 0)
+      .attr('x2', this.xScale(0))
+      .attr('y2', this.height)
+      .attr('stroke', 'black');
+  }
+
+  private drawXAxis(): void {
+    let xAxis = this.svg
       .append('g')
       .attr('transform', `translate(0,${-10})`)
       .call(
@@ -115,24 +138,13 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .select('text')
       .attr("font-size", "12px")
       .attr("font-family", CHART_POLICE);
+  
+    xAxis.selectAll('.tick text').attr('dy', -18)
 
-    xAxis.selectAll('.tick text')
-         .attr('dy', -18)
+    this.drawgridLines();
+  }
 
-    this.xScale.ticks().forEach((tick) => {
-     this.svg
-        .append('g')
-        .attr('class', 'grid-line')
-        .append('line')
-        .attr('x1', this.xScale(tick))
-        .attr('y1', 0)
-        .attr('x2', this.xScale(tick))
-        .attr('y2', height)
-        .style('stroke', '#5a5858a8')
-        .style('stroke-dasharray', '3, 3');
-    });
-
-    //this.svg.append('g').call(d3.axisLeft(y).tickSizeOuter(0));
+  private drawYAxis(): void {
     let yAxis =this.svg.append('g').call(d3.axisLeft(this.yScale).tickSize(0).tickSizeOuter(0));
     yAxis.select(".domain").remove();
     yAxis.selectAll("text")
@@ -177,20 +189,86 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
                 .selectAll('.tick')
                 .filter((country2: string) => country2 !== country)
                 .attr('opacity',1);
-
           })
+    }
 
+    private drawScoredGoalsBars(backToBackGroupingElement: any): void {
+      backToBackGroupingElement.append('g')
+      .attr('class','scored-g')
+      .selectAll('g')
+      .data(this.data)
+      .join('g')
+      .attr('class',`scored-bar`)
+      .append('rect')
+      .attr('class', (d: GoalsData) => `scored-${d.country}`)
+      .attr('x', (d: GoalsData) => this.xScale(Math.min(0, d.scored)))
+      .attr('y', (d: GoalsData) => this.yScale(d.country) ?? '')
+      .attr('height', this.yScale.bandwidth())
+      .attr('fill', '#21A179')
+      .attr('stroke','none')
+      .on('mouseover', (event: any, d: any) => {
+        backToBackGroupingElement.selectAll(`.conceded-bar`).attr('opacity', NOT_FOCUSED_OPACITY);
+        backToBackGroupingElement.selectAll('.scored-bar')
+           .filter((goal:GoalsData) => goal.country !== d.country)
+           .selectAll('rect')
+           .attr('opacity', NOT_FOCUSED_OPACITY);
 
-   this.svg.append('line')
-      .attr('x1', this.xScale(0))
-      .attr('y1', 0)
-      .attr('x2', this.xScale(0))
-      .attr('y2', height)
-      .attr('stroke', 'black');
-  
-    const back2back_g =this.svg.append('g').attr('class','back2back-g')
-    back2back_g.append('g')
-       .attr('class','conceded-g')
+       this.svg
+          .selectAll('.tick')
+          .filter((node: any) => node === d.country)
+          .select('text')
+          .style('font-weight', 'bold');
+       this.svg
+          .selectAll('.tick')
+          .filter((node: any) => node !== d.country)
+          .attr('opacity',NOT_FOCUSED_OPACITY);
+       this.svg
+          .selectAll('.legend-item')
+          .filter((node:any) => node.type !== "conceded")
+          .select('text')
+          .style('font-weight','bold');
+       this.svg
+          .selectAll('.legend-item')
+          .filter((node:any) => node === "conceded")
+          .attr('opacity',NOT_FOCUSED_OPACITY)
+          this.showGoal([d.country],true);
+      })
+      .on('mouseout', (event: MouseEvent, d: GoalsData) => {
+        backToBackGroupingElement.selectAll(`.conceded-bar`).attr('opacity', 1);
+        backToBackGroupingElement.selectAll('.scored-bar')
+           .filter((goal:GoalsData) => goal.country !== d.country)
+           .selectAll('rect')
+          .attr('opacity', 1);
+       this.svg
+          .selectAll('.tick')
+          .filter((node: any) => node === d.country)
+          .select('text')
+          .style('font-weight', 'normal');
+       this.svg
+          .selectAll('.tick')
+          .filter((node: any) => node !== d.country)
+          .attr('opacity',1);
+       this.svg
+          .selectAll('.legend-item')
+          .filter((node:any) => node.type !== "conceded")
+          .select('text')
+          .style('font-weight','normal');
+       this.svg
+          .selectAll('.legend-item')
+          .filter((node:any) => node.type === "conceded")
+          .attr('opacity',1)
+        this.hideGoal();
+        
+      })
+      .attr('width', 0)
+      .transition()
+      .duration(1000)
+      .attr('width', (d: GoalsData) => Math.abs(this.xScale(d.scored) - this.xScale(0)));
+    }
+
+    private drawConcededGoalsBars(backToBackGroupingElement: any): void {
+      backToBackGroupingElement.append('g')
+      .attr('class','conceded-g')
       .selectAll('g')
       .data(this.data)
       .join('g')
@@ -202,8 +280,8 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .attr('fill', '#F3535B')
       .attr('stroke','none')
       .on('mouseover', (event: MouseEvent, d: GoalsData) => {
-        back2back_g.selectAll(`.scored-bar`).attr('opacity', NOT_FOCUSED_OPACITY);
-        back2back_g.selectAll('.conceded-bar')
+        backToBackGroupingElement.selectAll(`.scored-bar`).attr('opacity', NOT_FOCUSED_OPACITY);
+        backToBackGroupingElement.selectAll('.conceded-bar')
            .filter((goal:GoalsData) => goal.country !== d.country)
            .selectAll('rect')
            .attr('opacity', NOT_FOCUSED_OPACITY);        
@@ -229,8 +307,8 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
 
       })
       .on('mouseout', (event: MouseEvent, d: GoalsData) => {
-        back2back_g.selectAll(`.scored-bar`).attr('opacity', 1);
-        back2back_g.selectAll('.conceded-bar')
+        backToBackGroupingElement.selectAll(`.scored-bar`).attr('opacity', 1);
+        backToBackGroupingElement.selectAll('.conceded-bar')
            .filter((goal:GoalsData) => goal.country !== d.country)
            .selectAll('rect')
            .attr('opacity', 1); 
@@ -260,90 +338,33 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .duration(1000)
       .attr('width', (d: GoalsData) => Math.abs(this.xScale(d.conceded) - this.xScale(0)))
       .attr('x', (d: GoalsData) => this.xScale(Math.min(0, d.conceded)));
+    }
 
-      back2back_g.append('g')
-      .attr('class','scored-g')
-      .selectAll('g')
-      .data(this.data)
-      .join('g')
-      .attr('class',`scored-bar`)
-      .append('rect')
-      .attr('class', (d: GoalsData) => `scored-${d.country}`)
-      .attr('x', (d: GoalsData) => this.xScale(Math.min(0, d.scored)))
-      .attr('y', (d: GoalsData) => this.yScale(d.country) ?? '')
-      .attr('height', this.yScale.bandwidth())
-      .attr('fill', '#21A179')
-      .attr('stroke','none')
-      .on('mouseover', (event: any, d: any) => {
-        back2back_g.selectAll(`.conceded-bar`).attr('opacity', NOT_FOCUSED_OPACITY);
-        back2back_g.selectAll('.scored-bar')
-           .filter((goal:GoalsData) => goal.country !== d.country)
-           .selectAll('rect')
-           .attr('opacity', NOT_FOCUSED_OPACITY);
+    private drawBars(): void {
+      const backToBackGroupingElement =this.svg.append('g').attr('class','back2back-g')
+      this.drawConcededGoalsBars(backToBackGroupingElement);
+      this.drawScoredGoalsBars(backToBackGroupingElement);
+    }
 
-       this.svg
-          .selectAll('.tick')
-          .filter((node: any) => node === d.country)
-          .select('text')
-          .style('font-weight', 'bold');
-       this.svg
-          .selectAll('.tick')
-          .filter((node: any) => node !== d.country)
-          .attr('opacity',NOT_FOCUSED_OPACITY);
-       this.svg
-          .selectAll('.legend-item')
-          .filter((node:any) => node.type !== "conceded")
-          .select('text')
-          .style('font-weight','bold');
-       this.svg
-          .selectAll('.legend-item')
-          .filter((node:any) => node === "conceded")
-          .attr('opacity',NOT_FOCUSED_OPACITY)
-          this.showGoal([d.country],true);
-      })
-      .on('mouseout', (event: MouseEvent, d: GoalsData) => {
-        back2back_g.selectAll(`.conceded-bar`).attr('opacity', 1);
-        back2back_g.selectAll('.scored-bar')
-           .filter((goal:GoalsData) => goal.country !== d.country)
-           .selectAll('rect')
-          .attr('opacity', 1);
-       this.svg
-          .selectAll('.tick')
-          .filter((node: any) => node === d.country)
-          .select('text')
-          .style('font-weight', 'normal');
-       this.svg
-          .selectAll('.tick')
-          .filter((node: any) => node !== d.country)
-          .attr('opacity',1);
-       this.svg
-          .selectAll('.legend-item')
-          .filter((node:any) => node.type !== "conceded")
-          .select('text')
-          .style('font-weight','normal');
-       this.svg
-          .selectAll('.legend-item')
-          .filter((node:any) => node.type === "conceded")
-          .attr('opacity',1)
-        this.hideGoal();
-        
-      })
-      .attr('width', 0)
-      .transition()
-      .duration(1000)
-      .attr('width', (d: GoalsData) => Math.abs(this.xScale(d.scored) - this.xScale(0)));
+    private createLegendItems(): any {
+      const legendItems : LegendItem[]= 
+      [
+        {type:'conceded', text:'Conceded goals', color: '#F3535B'},
+        {type:'scored', text: 'Scored goals', color: '#21A179'}
+      ]
 
-   
+      const typeGoalColorScale = d3.scaleBand()
+      .domain(legendItems.map((d: LegendItem) => d.type));
       
-    const legend =this.svg.append('g')
+      const legend = this.svg.append('g')
                       .attr('class','legend-g')
                       .selectAll('g')
                       .data(legendItems)
                       .enter()
                       .append('g')
                       .attr('class', 'legend-item')
-                      .attr('transform', function (d, i) {
-                        let legendX = (width - 2 * 150) / 2;
+                      .attr('transform',  (d, i) => {
+                        let legendX = (this.width - 2 * 150) / 2;
                         return 'translate(' + (legendX + i * 150) + ',' + (-60) + ')';
                       })
                       .on('mouseover',(event:any, d:LegendItem) => {
@@ -386,18 +407,20 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
                         this.hideGoal();
 
                       })
-    
+      return legend;              
+    }
 
-    // Draw legend rectangles
-    legend
+    private drawLegendRect(legend: any): void {
+      legend
       .append('rect')
       .attr('x', 0)
       .attr('width', 18)
       .attr('height', 18)
       .style('fill', (d:any) => d.color);
+    }
 
-    // Draw legend text
-    legend
+    private drawLegendText(legend: any): void {
+      legend
       .append('text')
       .attr('x', 24)
       .attr('y', 9)
@@ -409,7 +432,20 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .text((d) => {
         return d.text;
       });
-          
+    }
+
+    private drawLegend(): void {
+      const legend = this.createLegendItems();
+      this.drawLegendRect(legend);
+      this.drawLegendText(legend);
+    }
+
+  createChart(): void {
+    this.setupChart();
+    this.drawXAxis();
+    this.drawYAxis(); 
+    this.drawBars();
+    this.drawLegend();       
 
   }
 
