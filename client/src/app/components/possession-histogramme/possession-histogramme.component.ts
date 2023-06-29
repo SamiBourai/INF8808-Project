@@ -8,9 +8,12 @@ import {
 } from '@angular/core';
 import * as d3 from 'd3';
 import {
-  COLORS_POSSESSION_CHART,
   COUNTRIES,
   POSSESSION_CHART_DATA,
+  NOT_FOCUSED_OPACITY,
+  NOM_PAYS_FONTSIZE,
+  CHART_POLICE,
+  COUNTRY_COLOR_SCALE
 } from 'src/constants/constants';
 import { Possession } from 'src/models/interfaces/possession';
 @Component({
@@ -21,16 +24,25 @@ import { Possession } from 'src/models/interfaces/possession';
 export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
   @ViewChild('histogramme') private chartContainer!: ElementRef;
 
-  constructor() {}
-
+  private element : any;
+  private margin = { top: 70, right: 100, bottom: 40, left: 100 };
+  private width = 0;
+  private height = 400 - this.margin.top - this.margin.bottom;
+  private layoutStroke = '#5a5858a8'
+  private xOffSet = 30;
+  private transitionDuration = 100;
   private data: Possession[] = [];
   private observer: IntersectionObserver | null = null;
+  private svg: any;
+  private yScale:any;
+  private xScale:any;
+
+  constructor() {}
 
   ngOnInit(): void {
     this.data = COUNTRIES.map((country, i) => ({
       country: country,
-      possessionPercentage: POSSESSION_CHART_DATA[i],
-      color: COLORS_POSSESSION_CHART[i],
+      percentage: POSSESSION_CHART_DATA[i],
     }));
   }
 
@@ -59,40 +71,40 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
   }
 
   createChart(): void {
-    let element = this.chartContainer.nativeElement;
-    const margin = { top: 70, right: 100, bottom: 40, left: 100 };
-    const width = element.offsetWidth - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
+    this.element = this.chartContainer.nativeElement;
+    this.margin = { top: 70, right: 100, bottom: 40, left: 100 };
+    this.width = this.element.offsetWidth - this.margin.left - this.margin.right;
+    const layoutStrok = '#5a5858a8'
 
-    const x = d3.scaleLinear().domain([0, 100]).range([0, width]);
+    this.xScale = d3.scaleLinear().domain([0, 100]).range([0, this.width]);
 
     // Sort Data
     this.data = this.data.sort(
       (eq1: Possession, eq2: Possession) =>
-        eq2.possessionPercentage - eq1.possessionPercentage
+        eq2.percentage - eq1.percentage
     );
 
-    const y = d3
+    this.yScale = d3
       .scaleBand()
-      .range([0, height])
+      .range([0, this.height])
       .domain(this.data.map((d) => d.country))
       .padding(0.1);
 
-    const svg = d3
-      .select(element)
+    this.svg = d3
+      .select(this.element)
       .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
+      .attr('width', this.width + this.margin.left + this.margin.right)
+      .attr('height', this.height + this.margin.top + this.margin.bottom)
       .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`);
+      .attr('transform', `translate(${this.margin.left},${this.margin.top})`);
 
-    let xAxis = svg
+    let xAxis = this.svg
       .append('g')
       .attr('class', 'x-axis')
       .attr('transform', `translate(0,${-10})`)
       .call(
         d3
-          .axisBottom(x)
+          .axisBottom(this.xScale)
           .tickSizeOuter(0)
           .ticks(5)
           .tickFormat((d: any) => Math.abs(d as number).toString())
@@ -100,114 +112,137 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
 
     xAxis.selectAll('.tick text').attr('dy', -20);
 
-    x.ticks().forEach((tick) => {
-      svg
+    this.svg.append('g')
+       .attr('class','layout')
+    this.xScale.ticks().forEach((tick:string) => {
+      this.svg.select('.layout')
         .append('g')
         .attr('class', 'grid-line')
         .append('line')
-        .attr('x1', x(tick))
+        .attr('x1', this.xScale(tick))
         .attr('y1', 0)
-        .attr('x2', x(tick))
-        .attr('y2', height)
-        .style('stroke', '#5a5858a8')
+        .attr('x2', this.xScale(tick))
+        .attr('y2', this.height)
+        .style('stroke', this.layoutStroke)
         .style('stroke-dasharray', '3, 3');
     });
 
-    let yAxis = svg
+    let yAxis = this.svg
       .append('g')
       .attr('class', 'y-axis')
-      .call(d3.axisLeft(y).tickSizeOuter(0))
+      .call(d3.axisLeft(this.yScale).tickSizeOuter(0))
       .attr('stroke', 'none');
 
     yAxis
       .selectAll('.tick text')
-      .attr('fill', (d: any, i: any) => this.data[i].color) // This will hide the tick lines
-      .attr('font-size', 15)
-      .attr('font-family', 'Arial')
+      .attr('fill', (country: string) => COUNTRY_COLOR_SCALE(country)) // This will hide the tick lines
+      .attr('font-size', NOM_PAYS_FONTSIZE)
+      .attr('font-family', CHART_POLICE)
       .attr('class', 'ytick');
 
-    svg.selectAll('.tick line').attr('stroke', 'none'); // This will hide the tick lines
+    this.svg.selectAll('.tick line').attr('stroke', 'none'); // This will hide the tick lines
 
-    const tooltip = d3.select('#tooltip');
-
-    svg
+    this.svg
       .append('text')
       .attr('class', 'x label')
       .attr('text-anchor', 'end')
-      .attr('x', (width + margin.left + margin.right) / 2 + 30)
+      .attr('x', (this.width + this.margin.left + this.margin.right) / 2 + this.xOffSet)
       .attr('y', -40)
       //fill with white
       .attr('fill', '#fff')
       .style('font-size', '12px')
-      .style('font-family', 'Arial')
+      .style('font-family', CHART_POLICE)
       .text('Average Possession (%) (Group Stage)');
 
-    svg
-      .selectAll('rect')
-      .data(this.data)
-      .enter()
-      .append('rect')
-      .attr('class', 'bar')
-      .attr('x', (d: Possession) => x(Math.min(0, d.possessionPercentage)))
-      .attr('y', (d: Possession) => y(d.country) ?? '')
-      .attr('height', y.bandwidth())
-      .attr('fill', (d: Possession) => d.color)
-      .on('mouseover', (event: any, d: any) => {
-        svg.select(`.possession-${d.country}`).attr('fill', '#08b355');
-        svg
-          .selectAll('.y-axis .tick')
-          .filter((node: any) => node === d.country)
-          .select('text')
-          .style('font-weight', 'bold');
-        svg
-          .selectAll('.y-axis .tick')
-          .filter((node: any) => node !== d.country)
-          .attr('opacity', 0.3);
-        svg
-          .selectAll('rect')
-          .filter((node: any) => node.country !== d.country)
-          .transition()
-          .duration(100)
-          .ease(d3.easeCubicInOut)
-          .attr('opacity', 0.3);
-        tooltip
-          .style('opacity', 1)
-          .style('border', `2px solid ${d.color}`)
-          .style('left', event.pageX - 55 + 'px')
-          .style('top', event.pageY - 75 + 'px').html(`
-      <div>
-      <div>${d.country}</div>
-      <div>${Math.abs(d.possessionPercentage)}%</div>
-      </div>
-      `);
-      })
-      .on('mouseout', (event: MouseEvent, d: Possession) => {
-        svg.select(`.possession-${d.country}`).attr('fill', '#35d047b6');
-        svg
-          .selectAll('.y-axis .tick')
-          .filter((node: any) => node.country !== d.country)
-          .select('text')
-          .style('font-weight', 'normal');
-        tooltip.style('opacity', 0);
 
-        svg
-          .selectAll('rect')
-          .filter((node: any) => node.country !== d.country)
-          .transition()
-          .duration(100)
-          .ease(d3.easeCubicInOut)
-          .attr('opacity', 1);
-        svg
-          .selectAll('.y-axis .tick')
-          .filter((node: any) => node !== d.country)
-          .attr('opacity', 1);
+    this.svg.append('g')
+      .attr('class','bars-g');
+    this.svg.select('.bars-g')
+      .selectAll('g')
+      .data(this.data)
+      .join('g')
+      .attr('class', 'bar-g')
+      .append('rect')
+      .attr('x', 0)
+      .attr('y', (possesion: Possession) => this.yScale(possesion.country) ?? '')
+      .attr('height', this.yScale.bandwidth())
+      .attr('fill', (possession: Possession) => COUNTRY_COLOR_SCALE(possession.country))
+      .on('mouseover', (event: any, possession: Possession) => {
+        this.highlightYAxis(possession.country);
+        this.highlightBar(possession);
+      })
+      .on('mouseout', (event: MouseEvent, possession: Possession) => {
+        this.unhighlightYAxis(possession.country)
+        this.unhighlightBar(possession);
       })
       .attr('width', 0)
       .transition()
       .duration(1000)
-      .attr('width', (d: Possession) =>
-        Math.abs(x(d.possessionPercentage) - x(0))
-      );
+      .attr('width', (possesion: Possession) =>this.xScale(possesion.percentage));
+  }
+
+  highlightBar(possession: Possession): void {
+    this.svg
+      .selectAll('.bar-g')
+      .filter((node: any) =>  node.country !== possession.country)
+      .select('rect')
+      .transition()
+      .duration(this.transitionDuration)
+      .ease(d3.easeCubicInOut)
+      .attr('opacity', NOT_FOCUSED_OPACITY);
+
+    const barmargin = 5;
+    this.svg
+      .selectAll('.bar-g')
+      .filter((possession2: Possession) => possession2.country === possession.country)
+      .append('text')
+      .text((possesion: Possession) => possesion.percentage.toString())
+      .style('font-size', NOM_PAYS_FONTSIZE)
+      .style('font-family', CHART_POLICE)
+      .attr('x', (possesion: Possession) => this.xScale(possesion.percentage) + barmargin)
+      .attr('y', (possesion: Possession) => this.yScale(possesion.country) + this.yScale.bandwidth()/2 + 4)
+      .attr('text-anchor', 'left')
+      .attr('fill', (possession: Possession) => COUNTRY_COLOR_SCALE(possession.country));
+  }
+
+  unhighlightBar(d: any): void {
+    this.svg
+      .selectAll('.bar-g')
+      .filter((node: any) => node.country !== d.country)
+      .select('rect')
+      .transition()
+      .duration(this.transitionDuration)
+      .ease(d3.easeCubicInOut)
+      .attr('opacity', 1);
+
+    this.svg
+      .selectAll('.bar-g text')
+      .filter((node: any) => node.country === d.country)
+      .remove();
+  }
+
+  highlightYAxis(country:string) {
+    this.svg
+      .selectAll('.y-axis .tick')
+      .filter((tick: string) => tick === country)
+      .select('text')
+      .style('font-weight', 'bold');
+    this.svg
+      .selectAll('.y-axis .tick')
+      .filter((tick: string) => tick !== country)
+      .attr('opacity',NOT_FOCUSED_OPACITY);
+  }
+
+  unhighlightYAxis(country:string) {
+    this.svg
+      .selectAll('.y-axis .tick')
+      .filter((tick: string) => tick === country)
+      .select('text')
+      .style('font-weight', 'normal');
+    this.svg
+      .selectAll('.y-axis .tick')
+      .filter((tick: string) => tick !== country)
+      .attr('opacity', 1);
   }
 
   removeChart() {

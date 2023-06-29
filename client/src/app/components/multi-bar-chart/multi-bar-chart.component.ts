@@ -7,6 +7,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
+import { CHART_POLICE, COUNTRY_COLOR_SCALE } from 'src/constants/constants';
 
 import { Data, LegendData } from 'src/models/interfaces/multibar';
 
@@ -101,7 +102,6 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       tooltipLabel: '% of successful goal occasions:',
     },
   };
-  private colorScale: any;
   private xSubgroupScale: any;
   private xScale: any;
   private yScale: any;
@@ -182,11 +182,11 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       .append('text')
       .text((d: any) => d.value.toString())
       .style('font-size', 15)
-      .style('font-style', 'Arial')
+      .style('font-family', CHART_POLICE)
       .attr('y', (d: any) => this.yScale(d.value) - barmargin)
       .attr('x', this.xSubgroupScale.bandwidth() / 2)
       .attr('text-anchor', 'middle')
-      .attr('fill', (d: any) => this.colorScale(d.country));
+      .attr('fill', (d: any) => COUNTRY_COLOR_SCALE(d.country));
   }
 
   unhighlightBar(d: any, fCountry: boolean, fType: boolean): void {
@@ -294,15 +294,6 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       .domain(keys)
       .range([0, this.xScale.bandwidth()]);
 
-    this.colorScale = d3
-      .scaleOrdinal()
-      .domain(Object.keys(this.dataSets))
-      .range(
-        Object.keys(this.dataSets).map(
-          (country) => this.dataSets[country].color
-        )
-      );
-
     const tooltip = d3.select('#tooltip');
 
     this.svg = d3
@@ -402,7 +393,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       .attr('width', this.xSubgroupScale.bandwidth())
       .attr('height', (d: any) => 0)
       .attr('fill', (d: any) => {
-        let color = this.colorScale(d.country);
+        let color = COUNTRY_COLOR_SCALE(d.country);
         switch (d.type) {
           case 'passes':
             return color;
@@ -488,9 +479,9 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
 
     this.svg
       .selectAll('.x-axis .tick text')
-      .attr('fill', (d) => this.colorScale(d))
+      .attr('fill', (d) => COUNTRY_COLOR_SCALE(d))
       .style('font-size', 15)
-      .style('font-style', 'Arial');
+      .style('font-family', CHART_POLICE);
 
     // append the y axis to the chart
     this.svg
@@ -501,7 +492,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
     this.svg
       .selectAll('.y-axis .tick text')
       .style('font-size', 12)
-      .style('font-style', 'Arial');
+      .style('font-family', CHART_POLICE);
 
     this.svg
       .append('text')
@@ -514,7 +505,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       .attr('transform', 'rotate(-90)')
       .text('Percentages (%)')
       .style('font-size', 15)
-      .style('font-style', 'Arial');
+      .style('font-family', CHART_POLICE);
 
     const legendItemSize = 20; // Adjust the size of each legend item
     const legendItemSpacing = 10; // Adjust the spacing between legend items
@@ -584,7 +575,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       .text((d) => d.values.label)
       .attr('fill', 'white')
       .style('font-size', 12)
-      .style('font-style', 'Arial');
+      .style('font-family', CHART_POLICE);
   }
 
   removeChart(): void {

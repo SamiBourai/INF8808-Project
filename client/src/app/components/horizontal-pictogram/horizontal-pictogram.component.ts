@@ -12,6 +12,7 @@ import { HttpClient } from '@angular/common/http';
 import { MatSlideToggleChange,MatSlideToggle } from '@angular/material/slide-toggle';
 
 import {Team,Player,LegendItem} from 'src/models/interfaces/pictogram';
+import { COUNTRY_COLOR_SCALE, NOT_FOCUSED_OPACITY } from 'src/constants/constants';
 
 
 @Component({
@@ -90,11 +91,9 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
   private yScale: any;
   private ageScale: any;
   private legendColorScale: any;
-  private countryColorScale: any;
   private scrollingdown: boolean = false;
   private transitiondone: boolean = true;
   private transitionDuration: number = 1000;
-  private notFocusedOpacity: number = 0.3;
 
 
 
@@ -342,7 +341,6 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     this.element = this.chartContainer.nativeElement;
     this.width = this.element.offsetWidth - this.margin.left - this.margin.right;
     this.createLegendColorScale();
-    this.createCountryColorScale();
     this.createXScale();
     this.createYScale();
     this.createAgeScale();
@@ -406,26 +404,20 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
                         .range(this.legendItems.map((item:LegendItem) => item.color))
   }
 
-  // Define the color scale for the country color code
-  private createCountryColorScale() : void {
-    this.countryColorScale = d3.scaleOrdinal()
-                        .domain(this.countries)
-                        .range(this.colors)
-  }
 
   private showYAxisTootltip(event:MouseEvent,country:string) {
     d3.select('#tooltip')
                   .style('opacity', 0.85)
                   .style('left', event.pageX - 55 + 'px')
                   .style('top', event.pageY - 75 + 'px')
-                  .style('border', `2px solid ${this.countryColorScale(country)}`)
+                  .style('border', `2px solid ${COUNTRY_COLOR_SCALE(country)}`)
                   .style('background-color', this.textColor)
                   .style('color', 'black')
                   .html( () => {
                     const counts = this.countClub(country)
                     return `
                     <div>
-                    <span style='font-weight:bold;font-size:15px;color:${this.countryColorScale(country)};'> ${country}</span><br><br>
+                    <span style='font-weight:bold;font-size:15px;color:${COUNTRY_COLOR_SCALE(country)};'> ${country}</span><br><br>
                     <span style='font-weight:bold'>In Top 5's Top5 :</span> ${counts.in}<br>
                     <span style='font-weight:bold'>Not In Top 5's Top5 :</span> ${counts.out}<br>
                     <span style='font-weight:bold'>Total Players :</span> ${counts.total} <br>
@@ -441,7 +433,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
         yAxis.selectAll("text")
               .attr("font-size", "15px")
               .attr("font-family", "Arial")
-              .attr("color", (d:string) => this.countryColorScale(d))
+              .attr("color", (d:string) => COUNTRY_COLOR_SCALE(d))
               .on('mouseover', (event: MouseEvent, country: string) => {
                 this.highlightYAxis(country)
                 const players: Player[] = Object.values(this.playerData)
@@ -509,7 +501,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
         .selectAll('.y-axis .tick')
         .filter((tick: string) => tick !== country)
         .select('text')
-        .attr('opacity', this.notFocusedOpacity);
+        .attr('opacity', NOT_FOCUSED_OPACITY);
   }
   private unhighlightYAxis(country:string) {
     this.svg
@@ -529,7 +521,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     this.svg
         .selectAll('.player-circle')
         .filter((player2: Player) => !players.includes(player2))
-        .attr('opacity', this.notFocusedOpacity);
+        .attr('opacity', NOT_FOCUSED_OPACITY);
   };
 
   private unhighlightPlayer(players:Player[]) {
@@ -542,7 +534,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
   private highlightAvg(country:string) {
     this.svg.selectAll('.country-avg')
             .filter((team:Team) => team.country !== country)
-            .attr('opacity', this.notFocusedOpacity)
+            .attr('opacity', NOT_FOCUSED_OPACITY)
   }
 
   private unhighlightAvg(country:string) {
@@ -558,7 +550,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     this.svg
       .selectAll('.legend-item')
       .filter((item: LegendItem) => item.type !== type)
-      .attr('opacity',this.notFocusedOpacity) 
+      .attr('opacity',NOT_FOCUSED_OPACITY) 
     if (!this.toggle.checked) { 
       this.svg
       .selectAll('#avg-legend-item')
@@ -583,7 +575,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
         .style('opacity', 0.85)
         .style('left', e.pageX - 55 + 'px')
         .style('top', e.pageY - 75 + 'px')
-        .style('border', `2px solid ${this.countryColorScale(player.country)}`)
+        .style('border', `2px solid ${COUNTRY_COLOR_SCALE(player.country)}`)
         .style('background-color', this.legendColorScale(player.playsInTop25))
         .style('color', this.legendColorScale(player.playsInTop25) === "white" ? 'black' : this.textColor)
         .html(`
@@ -611,7 +603,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     .attr('cy', this.yScale.bandwidth() / 2)
     .attr('r', this.yScale.bandwidth() / 4)
     .attr('stroke-width', this.yScale.bandwidth() / 32)
-    .attr('stroke', (player: Player) => this.countryColorScale(player.country))
+    .attr('stroke', (player: Player) => COUNTRY_COLOR_SCALE(player.country))
     .attr('fill', this.defaultCircleColor)
     .attr('opacity', 1)
     .on('mouseover', (event: MouseEvent, player: Player, i:number) => {
@@ -752,7 +744,7 @@ private showAvgTooltip(event:MouseEvent,team:any) {
         .style('opacity', 0.85)
         .style('left', event.pageX + 100 + 'px')
         .style('top', event.pageY + 100 + 'px')
-        .style('border', `2px solid ${this.countryColorScale(team.country)}`)
+        .style('border', `2px solid ${COUNTRY_COLOR_SCALE(team.country)}`)
         .style('background-color', 'black')
         .style('color', this.textColor)
         .html(`
@@ -770,7 +762,7 @@ private drawAvg(): void {
     .attr('height',this.yScale.bandwidth() )
     .attr('x',(team:any) => this.ageScale(this.average(team.players.map(player => player.ageInYear))))
     .attr('stroke-width',1)
-    .attr('stroke', (team:any)=>this.countryColorScale(team.country))
+    .attr('stroke', (team:any)=>COUNTRY_COLOR_SCALE(team.country))
     .attr('opacity',0)
     .on('mouseover', (event: MouseEvent, team: any) => {
       if (this.toggle.checked) {

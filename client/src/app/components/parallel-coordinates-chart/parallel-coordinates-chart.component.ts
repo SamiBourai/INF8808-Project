@@ -3,13 +3,13 @@ import {
   Component,
   ElementRef,
   HostListener,
-  OnInit,
   ViewChild,
 } from '@angular/core';
 
 import * as d3 from 'd3';
 import { HttpClient } from '@angular/common/http';
-import { COLOR_PARALLEL_CHART, TEAM_STATS } from 'src/constants/constants';
+import { TEAM_STATS, CHART_POLICE, COUNTRY_COLOR_SCALE, NOT_FOCUSED_OPACITY } from 'src/constants/constants';
+import { Team } from 'src/models/interfaces/parallel';
 
 @Component({
   selector: 'app-parallel-coordinates-chart',
@@ -17,22 +17,18 @@ import { COLOR_PARALLEL_CHART, TEAM_STATS } from 'src/constants/constants';
   styleUrls: ['./parallel-coordinates-chart.component.css'],
 })
 export class ParallelCoordinatesChartComponent
-  implements OnInit, AfterViewInit
+  implements AfterViewInit
 {
   @ViewChild('parallelChart') private chartContainer!: ElementRef;
   private observer: IntersectionObserver | null = null;
 
   constructor(private http: HttpClient) {}
 
-  private data: any;
   private element: any;
   private margin = { top: 100, right: 50, bottom: 10, left: 50 };
   private width = 500 - this.margin.left - this.margin.right;
   private height = 500 - this.margin.top - this.margin.bottom;
   private xScale: any;
-  private colorScale: any;
-  private countries = ['Morocco', 'Argentina', 'France', 'Croatia', 'Ghana', 'Tunisia', 'Croatia'];
-  public colors = COLOR_PARALLEL_CHART
   private dimensions = ['pass', 'goal', 'recup', 'tacles', 'intercep'];
   private xlabels = {
     pass: 'Number of\nattempted passes\n(NAP)\n/90min',
@@ -45,14 +41,8 @@ export class ParallelCoordinatesChartComponent
   private animationTime = 1000;
   private yScales: { [key: string]: d3.ScaleLinear<number, number> } = {};
   private svg: any;
-  private color = d3.scaleOrdinal().domain(this.countries).range(this.colors);
-  
-  ngOnInit() {
-    
-    const list= TEAM_STATS
-    this.data = list
+  private data: Team[] = TEAM_STATS
 
-  }
 
   observeChart() {
     this.observer = new IntersectionObserver((entries) => {
@@ -86,14 +76,10 @@ export class ParallelCoordinatesChartComponent
       .scalePoint()
       .range([0, this.width])
       .domain(this.dimensions);
-    this.colorScale = d3
-      .scaleOrdinal()
-      .domain(this.countries)
-      .range(Object.values(this.colors));
 
     for (let dimension of this.dimensions) {
       const max = Math.max(
-        ...this.data.map((d: any) => parseFloat(d[dimension]))
+        ...this.data.map((d: Team) => parseFloat(d[dimension]))
       );
       this.yScales[dimension] = d3
         .scaleLinear()
@@ -105,29 +91,29 @@ export class ParallelCoordinatesChartComponent
   }
 
 
-  private highlight(d: any, color: any) {
+  private highlight(d: Team, color:string) {
     // first every group turns grey
     d3.selectAll('.line')
       .filter((node: any) => node.country !== d.country)
       .transition()
       .duration(200)
       .ease(d3.easeCubicInOut)
-      .style('opacity', '0.3');
+      .style('opacity', NOT_FOCUSED_OPACITY);
     // Second the hovered specie takes its color
     d3.selectAll('.' + d.country)
       .transition()
       .ease(d3.easeCubicInOut)
       .duration(200)
-      .style('stroke', color[d.country])
+      .style('stroke', color)
       .style('opacity', '1');
   }
 
-  doNotHighlight(d: any, color: any): void {
+  doNotHighlight(d: Team,color:string): void {
     d3.selectAll('.line')
       .transition()
       .ease(d3.easeCubicInOut)
       .duration(200)
-      .style('stroke', color[d.country])
+      .style('stroke', color)
       .style('opacity', '1');
   }
 
@@ -155,17 +141,17 @@ export class ParallelCoordinatesChartComponent
       .attr('stroke-width', 4)
       .attr('opacity', 0)
       .attr('d', (d: any) => this.path(d))
-      .attr('stroke', (d: any) => this.d_country(d))
-      .on('mouseover', (e, d) => {
-        this.highlight(d, this.color)
+      .attr('stroke', (d: Team) => COUNTRY_COLOR_SCALE(d.country))
+      .on('mouseover', (e, d:Team) => {
+        this.highlight(d, COUNTRY_COLOR_SCALE(d.country) as string)
         tooltip
           .style('opacity', 1)
-          .style('border', `2px solid ${this.d_country(d)}`)
+          .style('border', `2px solid ${COUNTRY_COLOR_SCALE(d.country)}`)
           .style('left', e.pageX + 5 + 'px')
           .style('top', e.pageY - 60 + 'px').html(`
             <div>
-                <h3 style='color:${this.colorScale(d.country)}>${d.country}</h3><br>
-                
+                <h3 style='color:${COUNTRY_COLOR_SCALE(d.country)}>${d.country}</h3><br>
+
                 <span style='font-weight:bold'>NAP: </span>${d.pass}<br>
                 <span style='font-weight:bold'>NGCA: </span> ${d.goal}<br>
                 <span style='font-weight:bold'>NR: </span>${d.recup} <br>
@@ -176,7 +162,7 @@ export class ParallelCoordinatesChartComponent
         
       })
       .on('mouseleave', (e, d) => {
-        this.doNotHighlight(d, this.color)
+        this.doNotHighlight(d, COUNTRY_COLOR_SCALE(d.country) as string)
         tooltip.style('opacity', 0);});
 
     paths
@@ -206,7 +192,7 @@ export class ParallelCoordinatesChartComponent
     this.svg
       .selectAll('.tick text')
       .attr('font-size', '12px')
-      .attr('font-family', 'Arial');
+      .attr('font-family', CHART_POLICE);
 
 
     this.svg
@@ -216,7 +202,7 @@ export class ParallelCoordinatesChartComponent
       .attr('y', -70)
       .style('fill', 'white')
       .attr('font-size', '12px')
-      .attr('font-family', 'Arial')
+      .attr('font-family', CHART_POLICE)
       .attr('opacity',0)
       .each((d: any, i: number, nodes: any) => {
         let text = this.xlabels[d];
@@ -233,10 +219,6 @@ export class ParallelCoordinatesChartComponent
       .transition()
       .delay((d:any,i:number) => i*this.animationTime/this.dimensions.length)
       .attr('opacity',1)
-  }
-
-  d_country(d) {
-    return this.colorScale(d.country); // removed nullish coalescing
   }
 
   d_class(d) {

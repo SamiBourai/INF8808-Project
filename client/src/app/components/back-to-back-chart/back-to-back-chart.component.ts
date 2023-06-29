@@ -7,12 +7,13 @@ import {
   HostListener,
 } from '@angular/core';
 import * as d3 from 'd3';
+import { CHART_POLICE, COUNTRIES, COUNTRY_COLOR_SCALE, NOM_PAYS_FONTSIZE, NOT_FOCUSED_OPACITY } from 'src/constants/constants';
+import { LegendItem } from 'src/models/interfaces/pictogram';
 
-interface CountryData {
+interface GoalsData {
   country: string;
   scored: number;
   conceded: number;
-  color: string
 }
 
 @Component({
@@ -23,45 +24,29 @@ interface CountryData {
 export class BackToBackChartComponent implements OnInit, AfterViewInit {
   @ViewChild('chart') private chartContainer!: ElementRef;
 
-  private data: CountryData[] = [];
+  private data: GoalsData[] = [];
   private observer: IntersectionObserver | null = null;
-
-  
+  private svg : any;
+  private transitionDuration: any;
+  private xScale: any;
+  private yScale: any;
 
   constructor() {}
 
   ngOnInit(): void {
-    const countries: string[] = [
-      'Morroco',
-      'Argentina',
-      'France',
-      'Croatia',
-      'Senegal',
-      'Tunisia',
-      'Ghana',
-    ];
     const scoredGoals: number[] = [6, 15, 16, 8, 5, 1, 5];
     const concededGoals: number[] = [5, 8, 8, 7, 7, 1, 7];
-    const colors: string[] = [
-      '#e80284',
-      '#03a0c7',
-      '#03a0c7',
-      '#03a0c7',
-      '#DB8500',
-      '#DB8500',
-      '#DB8500',
-    ];
+
     
 
-    this.data = countries.map((country, i) => ({
+    this.data = COUNTRIES.map((country, i) => ({
       country: country,
       scored: scoredGoals[i],
       conceded: -concededGoals[i],
-      color: colors[i],
     }));
 
     // Sort data by the difference between scored and conceded goals
-    this.data = this.data.sort((a: CountryData, b: CountryData) => {
+    this.data = this.data.sort((a: GoalsData, b: GoalsData) => {
     const differenceA = a.scored + a.conceded;
     const differenceB = b.scored + b.conceded;
     return differenceB - differenceA; // Sort in descending order
@@ -100,23 +85,22 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
     const width = element.offsetWidth - margin.left - margin.right;
     const height = 500 - margin.top - margin.bottom;
 
-    const legendItems : {type:string, text:string, color:string}[]= 
+    const legendItems : LegendItem[]= 
       [
-        {type:'conceded', text:'Conceded goals', color:'#F3535B'},
-        {type:'scored', text: 'Scored goals', color:'#21A179'}
+        {type:'conceded', text:'Conceded goals', color: '#F3535B'},
+        {type:'scored', text: 'Scored goals', color: '#21A179'}
       ]
-
-    const x = d3.scaleLinear().domain([-16, 16]).range([0, width]);
-    const y = d3
+    
+    const maxAgePlayer = Math.max(...this.data.map((goals:GoalsData) => [goals.scored, goals.conceded]).reduce((acc, val) => acc.concat(val), []));
+    this.xScale = d3.scaleLinear().domain([-maxAgePlayer, maxAgePlayer]).range([0, width]);
+    this.yScale = d3
       .scaleBand()
       .range([0, height])
       .domain(this.data.map((d) => d.country))
-      .padding(0.3);
-    const colorScale : any= d3.scaleOrdinal()
-      .domain(this.data.map((d:any)=> d.country))
-      .range(this.data.map((d:any)=> d.color))
-
-    const svg = d3
+      .padding(NOT_FOCUSED_OPACITY);
+    const typeGoalColorScale = d3.scaleBand()
+                                  .domain(legendItems.map((d:LegendItem) => d.type))
+    this.svg = d3
       .select(element)
       .append('svg')
       .attr('width', width + margin.left + margin.right)
@@ -125,12 +109,12 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .attr('transform', `translate(${margin.left},${margin.top})`);
     
 
-    let xAxis = svg
+    let xAxis =this.svg
       .append('g')
       .attr('transform', `translate(0,${-10})`)
       .call(
         d3
-          .axisBottom(x)
+          .axisBottom(this.xScale)
           .tickValues(Array.from({ length: 17 }, (_, index) => (index * 2) - 16)) //-16 to 16 2by2
           .tickSizeOuter(0)
           .tickFormat((d: any) => Math.abs(d as number).toString())
@@ -142,203 +126,223 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
     xAxis.selectAll('.tick text')
          .attr('dy', -18)
 
-    x.ticks().forEach((tick) => {
-      svg
+    this.xScale.ticks().forEach((tick) => {
+     this.svg
         .append('g')
         .attr('class', 'grid-line')
         .append('line')
-        .attr('x1', x(tick))
+        .attr('x1', this.xScale(tick))
         .attr('y1', 0)
-        .attr('x2', x(tick))
+        .attr('x2', this.xScale(tick))
         .attr('y2', height)
         .style('stroke', '#5a5858a8')
         .style('stroke-dasharray', '3, 3');
     });
 
-    // svg.append('g').call(d3.axisLeft(y).tickSizeOuter(0));
-    let yAxis = svg.append('g').call(d3.axisLeft(y).tickSize(0).tickSizeOuter(0));
+    //this.svg.append('g').call(d3.axisLeft(y).tickSizeOuter(0));
+    let yAxis =this.svg.append('g').call(d3.axisLeft(this.yScale).tickSize(0).tickSizeOuter(0));
     yAxis.select(".domain").remove();
     yAxis.selectAll("text")
           .attr("font-size", "15px")
           .attr("font-family", "Arial")
-          .attr("fill", (d:any,i:number) => colorScale(this.data[i].country))
+          .attr("fill", (d:any,i:number) => COUNTRY_COLOR_SCALE(this.data[i].country) as string)
           .attr("y",-10)
+          .on('mouseover',(event:MouseEvent,country:string) => {
+            this.svg.selectAll('.conceded-bar')
+                    .filter((node:GoalsData)=>node.country !== country)
+                    .attr('opacity',NOT_FOCUSED_OPACITY)
+            this.svg.selectAll('.scored-bar')
+                    .filter((node:GoalsData)=>node.country !== country)
+                    .attr('opacity',NOT_FOCUSED_OPACITY)
+            this.showGoal([country],true);
+            this.showGoal([country],false);
+            this.svg
+                .selectAll('.tick')
+                .filter((country2: string) => country2 === country )
+                .select('text')
+                .style('font-weight', 'bold');
+            this.svg
+                .selectAll('.tick')
+                .filter((country2: string) => country2 !== country)
+                .attr('opacity',NOT_FOCUSED_OPACITY);
+
+          })
+          .on('mouseout',(event:MouseEvent,country:string) => {
+            this.svg.selectAll('.conceded-bar')
+                    .filter((node:GoalsData)=>node.country !== country)
+                    .attr('opacity',1);
+            this.svg.selectAll('.scored-bar')
+                    .filter((node:GoalsData)=>node.country !== country)
+                    .attr('opacity',1);
+            this.hideGoal();
+            this.svg
+                .selectAll('.tick')
+                .filter((country2: string) => country2 === country )
+                .select('text')
+                .style('font-weight', 'noraml');
+            this.svg
+                .selectAll('.tick')
+                .filter((country2: string) => country2 !== country)
+                .attr('opacity',1);
+
+          })
 
 
-    svg.append('line')
-      .attr('x1', x(0))
+   this.svg.append('line')
+      .attr('x1', this.xScale(0))
       .attr('y1', 0)
-      .attr('x2', x(0))
+      .attr('x2', this.xScale(0))
       .attr('y2', height)
       .attr('stroke', 'black');
-    
-    const tooltip = d3.select('#tooltip');
-
-
-    const back2back_g = svg.append('g').attr('class','back2back-g')
+  
+    const back2back_g =this.svg.append('g').attr('class','back2back-g')
     back2back_g.append('g')
        .attr('class','conceded-g')
-      .selectAll('rect')
+      .selectAll('g')
       .data(this.data)
-      .enter()
+      .join('g')
+      .attr('class',`conceded-bar`)
       .append('rect')
-      .attr('class', (d: CountryData) => `conceded-${d.country}`)
-      .attr('x', (d: CountryData) => x(0))
-      .attr('y', (d: CountryData) => y(d.country) ?? '')
-      .attr('height', y.bandwidth())
+      .attr('x', (d: GoalsData) => this.xScale(0))
+      .attr('y', (d: GoalsData) => this.yScale(d.country) ?? '')
+      .attr('height', this.yScale.bandwidth())
       .attr('fill', '#F3535B')
       .attr('stroke','none')
-      .on('mouseover', (event: MouseEvent, d: CountryData) => {
-        back2back_g.selectAll(`.scored-g`).selectAll('rect').attr('opacity', 0.3);
-        back2back_g.selectAll('.conceded-g')
+      .on('mouseover', (event: MouseEvent, d: GoalsData) => {
+        back2back_g.selectAll(`.scored-bar`).attr('opacity', NOT_FOCUSED_OPACITY);
+        back2back_g.selectAll('.conceded-bar')
+           .filter((goal:GoalsData) => goal.country !== d.country)
            .selectAll('rect')
-           .filter((rect:any) => rect.country !== d.country)
-           .attr('opacity', 0.3);        
-        svg
+           .attr('opacity', NOT_FOCUSED_OPACITY);        
+       this.svg
           .selectAll('.tick')
           .filter((node: any) => node === d.country)
           .select('text')
           .style('font-weight', 'bold');
-        svg
+       this.svg
           .selectAll('.tick')
           .filter((node: any) => node !== d.country)
-          .attr('opacity',0.5)
-        svg
+          .attr('opacity',NOT_FOCUSED_OPACITY)
+       this.svg
           .selectAll('.legend-item')
           .filter((node:any) => node.type === "conceded")
           .select('text')
           .attr('font-weight','bold')
-        svg
+       this.svg
           .selectAll('.legend-item')
           .filter((node:any) => node.type !== "conceded")
-          .attr('opacity',0.3)
-        tooltip
-          .style('opacity', 1)
-          .style('border', `2px solid ${colorScale(d.country)}`)
-          .style('left', event.pageX - 55 + 'px')
-          .style('top', event.pageY - 75 + 'px').html(`
-      <divstyle="text-align: center;">
-        <div>${d.country}</div>
-        <div>Conceded Goals</div>
-        <div>${Math.abs(d.conceded)}</div>
-      </div>
-      `);
+          .attr('opacity',NOT_FOCUSED_OPACITY)
+        this.showGoal([d.country],false);
+
       })
-      .on('mouseout', (event: MouseEvent, d: CountryData) => {
-        back2back_g.selectAll(`.scored-g`).selectAll('rect').attr('opacity', 1);
-        back2back_g.selectAll('.conceded-g')
+      .on('mouseout', (event: MouseEvent, d: GoalsData) => {
+        back2back_g.selectAll(`.scored-bar`).attr('opacity', 1);
+        back2back_g.selectAll('.conceded-bar')
+           .filter((goal:GoalsData) => goal.country !== d.country)
            .selectAll('rect')
-           .filter((rect:any) => rect.country !== d.country)
-            .attr('opacity', 1); 
-        svg
+           .attr('opacity', 1); 
+       this.svg
           .selectAll('.tick')
           .filter((node: any) => node === d.country)
           .select('text')
           .style('font-weight', 'normal');
-        svg
+       this.svg
           .selectAll('.tick')
           .filter((node: any) => node !== d.country)
           .attr('opacity',1);
-        svg
+       this.svg
           .selectAll('.legend-item')
           .filter((node:any) => node.type === "conceded")
           .select('text')
           .attr('font-weight','normal');
-        svg
+       this.svg
           .selectAll('.legend-item')
           .filter((node:any) => node.type !== "conceded")
-          .attr('opacity',1)
-        tooltip.style('opacity', 0);
+          .attr('opacity',1);
+          this.hideGoal();
+
       })
       .attr('width', 0)
       .transition()
       .duration(1000)
-      .attr('width', (d: CountryData) => Math.abs(x(d.conceded) - x(0)))
-      .attr('x', (d: CountryData) => x(Math.min(0, d.conceded)));
+      .attr('width', (d: GoalsData) => Math.abs(this.xScale(d.conceded) - this.xScale(0)))
+      .attr('x', (d: GoalsData) => this.xScale(Math.min(0, d.conceded)));
 
       back2back_g.append('g')
       .attr('class','scored-g')
-      .selectAll('rect')
+      .selectAll('g')
       .data(this.data)
-      .enter()
+      .join('g')
+      .attr('class',`scored-bar`)
       .append('rect')
-      .attr('class', (d: CountryData) => `scored-${d.country}`)
-      .attr('x', (d: CountryData) => x(Math.min(0, d.scored)))
-      .attr('y', (d: CountryData) => y(d.country) ?? '')
-      .attr('height', y.bandwidth())
+      .attr('class', (d: GoalsData) => `scored-${d.country}`)
+      .attr('x', (d: GoalsData) => this.xScale(Math.min(0, d.scored)))
+      .attr('y', (d: GoalsData) => this.yScale(d.country) ?? '')
+      .attr('height', this.yScale.bandwidth())
       .attr('fill', '#21A179')
       .attr('stroke','none')
       .on('mouseover', (event: any, d: any) => {
-        back2back_g.selectAll(`.conceded-g`).selectAll('rect').attr('opacity', 0.3);
-        back2back_g.selectAll('.scored-g')
+        back2back_g.selectAll(`.conceded-bar`).attr('opacity', NOT_FOCUSED_OPACITY);
+        back2back_g.selectAll('.scored-bar')
+           .filter((goal:GoalsData) => goal.country !== d.country)
            .selectAll('rect')
-           .filter((rect:any) => rect.country !== d.country)
-           .attr('opacity', 0.3);
+           .attr('opacity', NOT_FOCUSED_OPACITY);
 
-        svg
+       this.svg
           .selectAll('.tick')
           .filter((node: any) => node === d.country)
           .select('text')
           .style('font-weight', 'bold');
-        svg
+       this.svg
           .selectAll('.tick')
           .filter((node: any) => node !== d.country)
-          .attr('opacity',0.5);
-        svg
+          .attr('opacity',NOT_FOCUSED_OPACITY);
+       this.svg
           .selectAll('.legend-item')
           .filter((node:any) => node.type !== "conceded")
           .select('text')
           .style('font-weight','bold');
-        svg
+       this.svg
           .selectAll('.legend-item')
           .filter((node:any) => node === "conceded")
-          .attr('opacity',0.3)
-        tooltip
-          .style('opacity', 1)
-          .style('border', `2px solid ${colorScale(d.country)}`)
-          .style('left', event.pageX - 55 + 'px')
-          .style('top', event.pageY - 75 + 'px').html(`
-      <divstyle="text-align: center;">
-        <div>${d.country}</div>
-        <div>Scored Goals</div>
-        <div>${Math.abs(d.scored)}</div>
-      </div>
-      `);
+          .attr('opacity',NOT_FOCUSED_OPACITY)
+          this.showGoal([d.country],true);
       })
-      .on('mouseout', (event: MouseEvent, d: CountryData) => {
-        back2back_g.selectAll(`.conceded-g`).selectAll('rect').attr('opacity', 1);
-        back2back_g.selectAll('.scored-g')
+      .on('mouseout', (event: MouseEvent, d: GoalsData) => {
+        back2back_g.selectAll(`.conceded-bar`).attr('opacity', 1);
+        back2back_g.selectAll('.scored-bar')
+           .filter((goal:GoalsData) => goal.country !== d.country)
            .selectAll('rect')
-           .filter((rect:any) => rect.country !== d.country)
           .attr('opacity', 1);
-        svg
+       this.svg
           .selectAll('.tick')
           .filter((node: any) => node === d.country)
           .select('text')
           .style('font-weight', 'normal');
-        svg
+       this.svg
           .selectAll('.tick')
           .filter((node: any) => node !== d.country)
           .attr('opacity',1);
-        svg
+       this.svg
           .selectAll('.legend-item')
           .filter((node:any) => node.type !== "conceded")
           .select('text')
           .style('font-weight','normal');
-        svg
+       this.svg
           .selectAll('.legend-item')
-          .filter((node:any) => node === "Conceded goals")
+          .filter((node:any) => node.type === "conceded")
           .attr('opacity',1)
-        tooltip.style('opacity', 0);
+        this.hideGoal();
+        
       })
       .attr('width', 0)
       .transition()
       .duration(1000)
-      .attr('width', (d: CountryData) => Math.abs(x(d.scored) - x(0)));
+      .attr('width', (d: GoalsData) => Math.abs(this.xScale(d.scored) - this.xScale(0)));
 
    
       
-    const legend = svg.append('g')
+    const legend =this.svg.append('g')
                       .attr('class','legend-g')
                       .selectAll('g')
                       .data(legendItems)
@@ -349,41 +353,45 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
                         let legendX = (width - 2 * 150) / 2;
                         return 'translate(' + (legendX + i * 150) + ',' + (-60) + ')';
                       })
-                      .on('mouseover',(event:any, d:any) => {
-                        svg.selectAll('.legend-item')
-                              .filter((item:any) => item.type === d.type)
+                      .on('mouseover',(event:any, d:LegendItem) => {
+                       this.svg.selectAll('.legend-item')
+                              .filter((item:LegendItem) => item.type === d.type)
                               .select('text')
                               .style('font-weight','bold');
-                        svg.selectAll('.legend-item')
-                              .filter((item:any) => item.type !== d.type)
-                              .style('opacity',0.3);
+                       this.svg.selectAll('.legend-item')
+                              .filter((item:LegendItem) => item.type !== d.type)
+                              .attr('opacity',NOT_FOCUSED_OPACITY);
+                        const countries: string[] = this.data.map((d:GoalsData) => d.country)
+                        
                         if (d.type === 'conceded') {
-                        svg.selectAll('.scored-g')
-                                  .selectAll('rect')
-                                  .attr('opacity',0.3)
+                          this.svg.selectAll('.scored-g')
+                                  .attr('opacity',NOT_FOCUSED_OPACITY)
+                          this.showGoal(countries,false)
                         } else {
-                          svg.selectAll('.conceded-g')
-                                  .selectAll('rect')
-                                  .attr('opacity',0.3)
+                          this.svg.selectAll('.conceded-g')
+                                  .attr('opacity',NOT_FOCUSED_OPACITY)
+                          this.showGoal(countries,true)
+                          
                         }
                       })
                       .on('mouseout',(event:any, d:any) => {
-                        svg.selectAll('.legend-item')
+                       this.svg.selectAll('.legend-item')
                               .filter((item:any) => item.type === d.type)
                               .select('text')
                               .style('font-weight','normal');
-                        svg.selectAll('.legend-item')
+                       this.svg.selectAll('.legend-item')
                               .filter((item:any) => item.type !== d.type)
                               .style('opacity',1);
-                        if (d.type === 'conceded') {
-                        svg.selectAll('.scored-g')
-                                  .selectAll('rect')
-                                  .attr('opacity',1)
-                        } else {
-                          svg.selectAll('.conceded-g')
-                                  .selectAll('rect')
-                                  .attr('opacity',1)
-                        }
+                      if (d.type === 'conceded') {
+                        this.svg.selectAll('.scored-g')
+                                .attr('opacity',1)
+                      } else {
+                        this.svg.selectAll('.conceded-g')
+                                .attr('opacity',1)
+                        
+                      }
+                        this.hideGoal();
+
                       })
     
 
@@ -412,14 +420,28 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
 
   }
 
+  showGoal(countries: string[], scored: boolean): void {
+    this.svg
+      .selectAll(scored?'.scored-bar':'.conceded-bar')
+      .filter((node: GoalsData) => countries.includes(node.country))
+      .append('text')
+      .text((d:GoalsData) =>scored?d.scored.toString():Math.abs(d.conceded).toString())
+      .attr('x', (d:GoalsData)=>scored? this.xScale(d.scored) + 5 : this.xScale(d.conceded) - 10)
+      .attr('y', (d:GoalsData) => this.yScale(d.country) + this.yScale.bandwidth()/2 + 4)
+      .style('font-size', NOM_PAYS_FONTSIZE)
+      .style('font-family', CHART_POLICE)
+      .attr('text-anchor', scored?'right':'left')
+      .attr('fill', scored?'#21A179':'#F3535B');
+  }
+
+  hideGoal(): void {
+    this.svg
+      .selectAll('.back2back-g text')
+      .remove();
+  }
+
   removeChart() {
     d3.select(this.chartContainer.nativeElement).selectAll('*').remove();
   }
 
-  ngOnDestroy() {
-    if (this.observer) {
-      this.observer.disconnect();
-      this.observer = null;
-    }
-  }
 }

@@ -7,8 +7,8 @@ import {
 } from '@angular/core';
 import * as d3 from 'd3';
 import {
-  COLORS_POSSESSION_CHART,
-  COUNTRIES,
+  CHART_POLICE,
+  COUNTRY_COLOR_SCALE,
   GRID_PLACE,
   WAFFLE_FIELD_COLORS,
 } from 'src/constants/constants';
@@ -47,7 +47,6 @@ export class TouchesComponent implements AfterViewInit {
 
   private typeColorScale: any;
 
-  private countryColorScale: any;
   private xScale: any;
   private yScale: any;
   private numSubRows: number = 10;
@@ -99,12 +98,8 @@ export class TouchesComponent implements AfterViewInit {
       (this.subHeight - this.boxGap * (this.numSubRows - 1)) / this.numSubRows,
       (this.subWidth - this.boxGap * (this.numSubCols - 1)) / this.numSubCols
     );
-    console.log(this.boxSize);
 
-    this.countryColorScale = d3
-      .scaleOrdinal()
-      .domain(COUNTRIES)
-      .range(COLORS_POSSESSION_CHART);
+  
     // Define the x-scale for positioning the sub-SVG elements
     this.xScale = d3
       .scaleLinear()
@@ -168,10 +163,10 @@ export class TouchesComponent implements AfterViewInit {
         .data([{ country: country }])
         .join('text')
         .attr('class', 'waffle-title')
-        .attr('fill', this.countryColorScale(country))
+        .attr('fill', COUNTRY_COLOR_SCALE(country))
         .attr('text-anchor', 'middle')
         .style('font-size', '15px')
-        .style('font-family', 'Arial')
+        .style('font-family', CHART_POLICE)
         .attr('x', (this.boxSize * this.numSubCols) / 2)
         .attr('y', -this.spacing / 3)
         .text(country);
@@ -203,7 +198,7 @@ export class TouchesComponent implements AfterViewInit {
             .style('opacity', 1)
             .style('left', _event?.pageX + 'px')
             .style('top', _event?.pageY + 'px')
-            .style('border', `2px solid ${this.countryColorScale(d.country)}`)
+            .style('border', `2px solid ${COUNTRY_COLOR_SCALE(d.country)}`)
             .html(this.getTipContent(d.label, d.percentage, d.country));
         })
         .on('mouseout', (_event: MouseEvent, d) => {
@@ -317,7 +312,7 @@ export class TouchesComponent implements AfterViewInit {
       .attr('x', this.legendRectSide + this.legendGap)
       // .attr('y', -this.legendRectSide/2)
       .attr('font-size', '12px')
-      .attr('font-family', 'Arial')
+      .attr('font-family', CHART_POLICE)
       .attr('fill', 'white')
       .attr('dy', (this.legendRectSide + this.legendGap) / 2)
       .text((d) => d.label);

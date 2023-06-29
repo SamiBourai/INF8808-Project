@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import {parse, ParseResult} from 'papaparse';
 import { countries } from './constants';
 import * as d3 from 'd3';
+import { CHART_POLICE, COUNTRY_COLOR_SCALE, NOT_FOCUSED_OPACITY } from 'src/constants/constants';
 
 interface PhaseDetails {
   Result: string,
@@ -137,19 +138,6 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     .domain(['W', 'L', 'D'])
     .range(['#21A179', '#F3535B', '#B8B8B8']);
 
-    // Create color scale for the results
-    const countryColorScale = d3
-    .scaleOrdinal()
-    .domain(countries)
-    .range([
-      '#e80284',
-      '#03a0c7',
-      '#03a0c7',
-      '#03a0c7',
-      '#DB8500',
-      '#DB8500',
-      '#DB8500',
-    ]);
 
     // Add horizontal lines
     // barsChart.selectAll("line")
@@ -190,7 +178,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     //            <div>Score: ${d.Score}</div>`);
     //   barsChart.selectAll(".result-rects")
     //   .style("opacity", function(rectData) {
-    //     return rectData === d ? 1 : 0.3;
+    //     return rectData === d ? 1 : NOT_FOCUSED_OPACITY;
     //   });
     //   // Highlight corresponding country
     //   this.highlightXLabel(d)
@@ -234,7 +222,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       .style("opacity", 1)
       .style("left", event.pageX + "px")
       .style("top", event.pageY - 20 + "px")
-      .style("border", `2px solid ${countryColorScale(d.Country)}`)
+      .style("border", `2px solid ${COUNTRY_COLOR_SCALE(d.Country)}`)
       .html(
         `<div>Date: ${d.Date}</div>
         <div>Display: ${d.Display}</div>
@@ -244,14 +232,14 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       barsChart.selectAll('.result-rects')
            //.selectAll('rect')
            .filter((dataRect:any) => dataRect !== d )
-           .attr('opacity', 0.3);
+           .attr('opacity', NOT_FOCUSED_OPACITY);
 
 
 
     // this.svg
     //   .selectAll(".result-rects") // Update the selector to target the rectangles
     //   .style("opacity", function (rectData) {
-    //     return rectData === d ? 1 : 0.3;
+    //     return rectData === d ? 1 : NOT_FOCUSED_OPACITY;
     //   });
 
     // Highlight corresponding country
@@ -300,7 +288,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
         .selectAll("text")
         .style("font-size", "15px")
         .style("font-family", "Arial")
-        .style("fill", (d) => countryColorScale(d as string) as string)
+        .style("fill", (d) => COUNTRY_COLOR_SCALE(d as string) as string)
         .on("mouseover", (event:any, d:any) => {
           this.highlightYaxis(d);
         })
@@ -353,14 +341,14 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
   //   // .text("Legend")
   //   // .attr('fill','white')
   //   // .style('font-size','15px')
-  //   // .style('font-style','Arial');
+  //   // .style('font-family',CHART_POLICE);
 
   //   legendSvg.append("text")
   //   .attr("x", legendWidth / 2)
   //   .attr("dy", "90%")
   //   .attr("text-anchor", "middle")
   //   .style("font-size", "12px")
-  //   .style('font-style','Arial')
+  //   .style('font-family',CHART_POLICE)
   //   .attr('fill','white')
   //   .text("Without penalty shootouts");
 
@@ -420,7 +408,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       .text("Legend")
       .attr('fill', 'white')
       .style('font-size', '15px')
-      .style('font-style', 'Arial');
+      .style('font-family', CHART_POLICE);
   
     const legendItems = legendSvg.selectAll(".legend-items")
       .data(legendData)
@@ -468,7 +456,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
   highlightLegend(d:any) : void {
     this.svg.selectAll(".legend-items")
             .filter((node:any) => node.Result !== d.Result)
-            .attr('opacity', 0.3)
+            .attr('opacity', NOT_FOCUSED_OPACITY)
     this.svg.selectAll(".legend-items")
             .filter((node:any) => node.Result === d.Result)
             .selectAll('text')
@@ -496,7 +484,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     this.svg
     .selectAll('.x-axis .tick text')
     .filter((node: any) => node !== d.Phase)
-    .attr('opacity',0.3)
+    .attr('opacity',NOT_FOCUSED_OPACITY)
   }  
 
   unhighlightXLabel(d:any) : void {
@@ -547,7 +535,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     this.svg
     .selectAll('.result-rects')
     .filter((node: any) => node.Result !== d.Result)
-    .attr('opacity', 0.3);
+    .attr('opacity', NOT_FOCUSED_OPACITY);
   }
 
   unHighlightRect(d:any) : void { 
