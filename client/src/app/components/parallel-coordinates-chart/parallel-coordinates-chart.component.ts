@@ -163,13 +163,14 @@ export class ParallelCoordinatesChartComponent
           .style('border', `2px solid ${this.d_country(d)}`)
           .style('left', e.pageX + 5 + 'px')
           .style('top', e.pageY - 60 + 'px').html(`
-            <div style="text-align: center;">
-                <h3>${d.country}</h3>
-                <p>NAP: ${d.pass}</p>
-                <p>NGCA: ${d.goal}</p>
-                <p>NR: ${d.recup} </p>
-                <p>NT: ${d.tacles}</p>
-                <p>NI: ${d.intercep}</p>
+            <div>
+                <h3 style='color:${this.colorScale(d.country)}>${d.country}</h3><br>
+                
+                <span style='font-weight:bold'>NAP: </span>${d.pass}<br>
+                <span style='font-weight:bold'>NGCA: </span> ${d.goal}<br>
+                <span style='font-weight:bold'>NR: </span>${d.recup} <br>
+                <span style='font-weight:bold'>NT: </span>${d.tacles}<br>
+                <span style='font-weight:bold'>NI: </span>${d.intercep}
             </div>
           `);
         

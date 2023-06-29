@@ -79,10 +79,10 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
   // SVG Parameters
   private svg: any;
   private element: any;
-  private margin = { top: 50, right: 100, bottom: 20, left: 150 };
+  private margin = { top: 50, right: 100, bottom: 10, left: 150 };
   private width: number = 0;
   private heightLegend: number = 150;
-  private height: number = 500 - this.margin.top - this.margin.bottom - this.heightLegend;
+  private height: number = 450 - this.margin.top - this.margin.bottom - this.heightLegend;
   private ageAxisOffset = -30;
 
   // D3 Elements and Parameters

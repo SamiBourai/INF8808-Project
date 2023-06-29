@@ -4,9 +4,8 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    margin-top: 1vh;
 }
-
-
 
 .top3 {
     color:#03a0c7;
@@ -20,24 +19,34 @@
     color : #E80284;
   }
 
+  .toggle-color {
+    color: #69f0ae;
+  }
+
 .text {
     width: 100%;
     display: flex;
     position: relative;
-    font-size:15px;
+    font-size: 17px;
     font-family: Arial ;
     text-align: justify;
     text-justify: inter-word;
     flex-direction: column;
+    margin-bottom: 1em;
+    text-indent: 3px;
+
+    
 
 }
 
 p {
-    font-size:15px;
-    font-family: Arial ;
-    justify-content:left;
-    text-indent: 3px;
-  }
+    margin-bottom: 0;
+  } 
+
+.container {
+  flex-direction: row;
+
+}
 
 .toggle-bar {
     position: relative;

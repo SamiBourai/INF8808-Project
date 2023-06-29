@@ -5,7 +5,6 @@ import {
   HostListener,
   OnInit,
   ViewChild,
-  Renderer2,
 } from '@angular/core';
 import * as d3 from 'd3';
 
@@ -14,7 +13,7 @@ import * as d3 from 'd3';
   templateUrl: './banner.component.html',
   styleUrls: ['./banner.component.css']
 })
-export class BannerComponent implements OnInit,  AfterViewInit{
+export class BannerComponent implements AfterViewInit{
   @ViewChild('legendChart') private chartContainer!: ElementRef;
   private observer: IntersectionObserver | null = null;
   public countries: string[] = [
@@ -34,18 +33,12 @@ export class BannerComponent implements OnInit,  AfterViewInit{
   private svg: any;
   private countryColorScale: any;
   private xScale: any;
-  private data = this.countries.reduce((acc, country, i) => {
-    acc[country] = this.colors[i];
-    return acc;
-}, {});
 
 
 
   constructor() { }
 
-  ngOnInit(): void {
 
-  }
   observeChart() {
     const options = {
       root: null, // relative to document viewport 
