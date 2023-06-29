@@ -139,19 +139,15 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .attr("font-size", "12px")
       .attr("font-family", CHART_POLICE);
   
-    xAxis.selectAll('.tick text').attr('dy', -18)
+    xAxis.selectAll('.y-axis .tick text').attr('dy', -18)
 
     this.drawgridLines();
   }
 
   private drawYAxis(): void {
-    let yAxis =this.svg.append('g').call(d3.axisLeft(this.yScale).tickSize(0).tickSizeOuter(0));
-    yAxis.select(".domain").remove();
-    yAxis.selectAll("text")
-          .attr("font-size", "15px")
-          .attr("font-family", CHART_POLICE)
-          .attr("fill", (d:any,i:number) => COUNTRY_COLOR_SCALE(this.data[i].country) as string)
-          .attr("y",-10)
+    let yAxis =this.svg.append('g').call(d3.axisLeft(this.yScale).tickSize(0).tickSizeOuter(0))
+                        .attr('class', 'y-axis');
+    yAxis.selectAll(".tick")
           .on('mouseover',(event:MouseEvent,country:string) => {
             this.svg.selectAll('.conceded-bar')
                     .filter((node:GoalsData)=>node.country !== country)
@@ -162,12 +158,12 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
             this.showGoal([country],true);
             this.showGoal([country],false);
             this.svg
-                .selectAll('.tick')
+                .selectAll('.y-axis .tick')
                 .filter((country2: string) => country2 === country )
-                .select('text')
+                .selectAll('text')
                 .style('font-weight', 'bold');
             this.svg
-                .selectAll('.tick')
+                .selectAll('.y-axis .tick')
                 .filter((country2: string) => country2 !== country)
                 .attr('opacity',NOT_FOCUSED_OPACITY);
 
@@ -181,15 +177,20 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
                     .attr('opacity',1);
             this.hideGoal();
             this.svg
-                .selectAll('.tick')
+                .selectAll('.y-axis .tick')
                 .filter((country2: string) => country2 === country )
-                .select('text')
-                .style('font-weight', 'noraml');
+                .selectAll('text')
+                .style('font-weight', 'normal');
             this.svg
-                .selectAll('.tick')
+                .selectAll('.y-axis .tick')
                 .filter((country2: string) => country2 !== country)
                 .attr('opacity',1);
           })
+          .select('text')
+          .attr("font-size", "15px")
+          .attr("font-family", CHART_POLICE)
+          .attr("fill", (d:any,i:number) => COUNTRY_COLOR_SCALE(this.data[i].country) as string)
+          .attr("y",-10)
     }
 
     private drawScoredGoalsBars(backToBackGroupingElement: any): void {
@@ -214,22 +215,22 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
            .attr('opacity', NOT_FOCUSED_OPACITY);
 
        this.svg
-          .selectAll('.tick')
-          .filter((node: any) => node === d.country)
+          .selectAll('.y-axis .tick')
+          .filter((node: string) => node === d.country)
           .select('text')
           .style('font-weight', 'bold');
        this.svg
-          .selectAll('.tick')
-          .filter((node: any) => node !== d.country)
+          .selectAll('.y-axis .tick')
+          .filter((node: string) => node !== d.country)
           .attr('opacity',NOT_FOCUSED_OPACITY);
        this.svg
           .selectAll('.legend-item')
-          .filter((node:any) => node.type !== "conceded")
-          .select('text')
+          .filter((node:LegendItem) => node.type !== "conceded")
+          .selectAll('text')
           .style('font-weight','bold');
        this.svg
           .selectAll('.legend-item')
-          .filter((node:any) => node === "conceded")
+          .filter((node:LegendItem) => node.type === "conceded")
           .attr('opacity',NOT_FOCUSED_OPACITY)
           this.showGoal([d.country],true);
       })
@@ -239,23 +240,23 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
            .filter((goal:GoalsData) => goal.country !== d.country)
            .selectAll('rect')
           .attr('opacity', 1);
-       this.svg
-          .selectAll('.tick')
-          .filter((node: any) => node === d.country)
-          .select('text')
+        this.svg
+          .selectAll('.y-axis .tick')
+          .filter((node: string) => node === d.country)
+          .selectAll('text')
           .style('font-weight', 'normal');
        this.svg
-          .selectAll('.tick')
-          .filter((node: any) => node !== d.country)
+          .selectAll('.y-axis .tick text')
+          .filter((node: string) => node !== d.country)
           .attr('opacity',1);
        this.svg
           .selectAll('.legend-item')
-          .filter((node:any) => node.type !== "conceded")
+          .filter((node:LegendItem) => node.type !== "conceded")
           .select('text')
           .style('font-weight','normal');
        this.svg
           .selectAll('.legend-item')
-          .filter((node:any) => node.type === "conceded")
+          .filter((node:LegendItem) => node.type === "conceded")
           .attr('opacity',1)
         this.hideGoal();
         
@@ -286,19 +287,19 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
            .selectAll('rect')
            .attr('opacity', NOT_FOCUSED_OPACITY);        
        this.svg
-          .selectAll('.tick')
+          .selectAll('.y-axis .tick')
           .filter((node: any) => node === d.country)
           .select('text')
           .style('font-weight', 'bold');
        this.svg
-          .selectAll('.tick')
+          .selectAll('.y-axis .tick')
           .filter((node: any) => node !== d.country)
           .attr('opacity',NOT_FOCUSED_OPACITY)
        this.svg
           .selectAll('.legend-item')
           .filter((node:any) => node.type === "conceded")
           .select('text')
-          .attr('font-weight','bold')
+          .style('font-weight','bold')
        this.svg
           .selectAll('.legend-item')
           .filter((node:any) => node.type !== "conceded")
@@ -313,19 +314,19 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
            .selectAll('rect')
            .attr('opacity', 1); 
        this.svg
-          .selectAll('.tick')
+          .selectAll('.y-axis .tick')
           .filter((node: any) => node === d.country)
           .select('text')
           .style('font-weight', 'normal');
        this.svg
-          .selectAll('.tick')
+          .selectAll('.y-axis .tick')
           .filter((node: any) => node !== d.country)
           .attr('opacity',1);
        this.svg
           .selectAll('.legend-item')
           .filter((node:any) => node.type === "conceded")
           .select('text')
-          .attr('font-weight','normal');
+          .style('font-weight','normal');
        this.svg
           .selectAll('.legend-item')
           .filter((node:any) => node.type !== "conceded")
@@ -360,8 +361,7 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
                       .attr('class','legend-g')
                       .selectAll('g')
                       .data(legendItems)
-                      .enter()
-                      .append('g')
+                      .join('g')
                       .attr('class', 'legend-item')
                       .attr('transform',  (d, i) => {
                         let legendX = (this.width - 2 * 150) / 2;
@@ -373,8 +373,11 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
                               .select('text')
                               .style('font-weight','bold');
                        this.svg.selectAll('.legend-item')
-                              .filter((item:LegendItem) => item.type !== d.type)
-                              .attr('opacity',NOT_FOCUSED_OPACITY);
+                       .filter((item:LegendItem) => {
+                        console.log('filter', item);
+                        return item.type !== d.type;
+                      })                              
+                      .attr('opacity',NOT_FOCUSED_OPACITY);
                         const countries: string[] = this.data.map((d:GoalsData) => d.country)
                         
                         if (d.type === 'conceded') {
@@ -388,14 +391,14 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
                           
                         }
                       })
-                      .on('mouseout',(event:any, d:any) => {
+                      .on('mouseout',(event:any, d:LegendItem) => {
                        this.svg.selectAll('.legend-item')
-                              .filter((item:any) => item.type === d.type)
+                              .filter((item:LegendItem) => item.type === d.type)
                               .select('text')
                               .style('font-weight','normal');
                        this.svg.selectAll('.legend-item')
-                              .filter((item:any) => item.type !== d.type)
-                              .style('opacity',1);
+                              .filter((item:LegendItem) => item.type !== d.type)
+                              .attr('opacity',1);
                       if (d.type === 'conceded') {
                         this.svg.selectAll('.scored-g')
                                 .attr('opacity',1)
@@ -410,17 +413,17 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       return legend;              
     }
 
-    private drawLegendRect(legend: any): void {
-      legend
+    private drawLegendRect(): void {
+      this.svg.selectAll('.legend-item')
       .append('rect')
       .attr('x', 0)
       .attr('width', 18)
       .attr('height', 18)
-      .style('fill', (d:any) => d.color);
+      .style('fill', (d:LegendItem) => d.color);
     }
 
-    private drawLegendText(legend: any): void {
-      legend
+    private drawLegendText(): void {
+      this.svg.selectAll('.legend-item')
       .append('text')
       .attr('x', 24)
       .attr('y', 9)
@@ -429,15 +432,15 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .style('fill', 'white')
       .style("font-size", "12px")
       .style("font-family", CHART_POLICE)
-      .text((d) => {
+      .text((d:LegendItem) => {
         return d.text;
       });
     }
 
     private drawLegend(): void {
-      const legend = this.createLegendItems();
-      this.drawLegendRect(legend);
-      this.drawLegendText(legend);
+      this.createLegendItems();
+      this.drawLegendRect();
+      this.drawLegendText();
     }
 
   createChart(): void {
