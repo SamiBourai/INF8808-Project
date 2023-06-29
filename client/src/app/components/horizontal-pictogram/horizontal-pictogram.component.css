@@ -28,6 +28,7 @@
     font-family: Arial ;
     text-align: justify;
     text-justify: inter-word;
+    flex-direction: column;
 
 }
 
