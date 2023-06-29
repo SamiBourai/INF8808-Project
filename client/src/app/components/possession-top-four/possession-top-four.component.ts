@@ -13,7 +13,8 @@ import {
   NOT_FOCUSED_OPACITY,
   NOM_PAYS_FONTSIZE,
   CHART_POLICE,
-  COUNTRY_COLOR_SCALE
+  COUNTRY_COLOR_SCALE,
+  POSSESSION_DATA_TOP3,
 } from 'src/constants/constants';
 import { Possession } from 'src/models/interfaces/possession';
 @Component({
@@ -24,25 +25,25 @@ import { Possession } from 'src/models/interfaces/possession';
 export class PossessionTopFourComponent implements OnInit, AfterViewInit {
   @ViewChild('histogramme2') private chartContainer!: ElementRef;
 
-  private element : any;
+  private element: any;
   private margin = { top: 70, right: 100, bottom: 40, left: 100 };
   private width = 0;
   private height = 400 - this.margin.top - this.margin.bottom;
-  private layoutStroke = '#5a5858a8'
+  private layoutStroke = '#5a5858a8';
   private xOffSet = 30;
   private transitionDuration = 100;
   private data: Possession[] = [];
   private observer: IntersectionObserver | null = null;
   private svg: any;
-  private yScale:any;
-  private xScale:any;
+  private yScale: any;
+  private xScale: any;
 
   constructor() {}
 
   ngOnInit(): void {
     this.data = COUNTRIES_TOP4.map((country, i) => ({
       country: country,
-      percentage: POSSESSION_CHART_DATA[i],
+      percentage: POSSESSION_DATA_TOP3[i],
     }));
   }
 
@@ -65,19 +66,19 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
-    this.observer?.disconnect()
-    this.observeChart()
-    this.removeChart()
+    this.observer?.disconnect();
+    this.observeChart();
+    this.removeChart();
   }
 
   createChart(): void {
     this.element = this.chartContainer.nativeElement;
     this.margin = { top: 70, right: 100, bottom: 40, left: 100 };
-    this.width = this.element.offsetWidth - this.margin.left - this.margin.right;
-    const layoutStrok = '#5a5858a8'
+    this.width =
+      this.element.offsetWidth - this.margin.left - this.margin.right;
+    const layoutStrok = '#5a5858a8';
 
     this.xScale = d3.scaleLinear().domain([0, 100]).range([0, this.width]);
-
 
     this.yScale = d3
       .scaleBand()
@@ -107,10 +108,10 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
 
     xAxis.selectAll('.tick text').attr('dy', -20);
 
-    this.svg.append('g')
-       .attr('class','layout')
-    this.xScale.ticks().forEach((tick:string) => {
-      this.svg.select('.layout')
+    this.svg.append('g').attr('class', 'layout');
+    this.xScale.ticks().forEach((tick: string) => {
+      this.svg
+        .select('.layout')
         .append('g')
         .attr('class', 'grid-line')
         .append('line')
@@ -141,7 +142,10 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
       .append('text')
       .attr('class', 'x label')
       .attr('text-anchor', 'end')
-      .attr('x', (this.width + this.margin.left + this.margin.right) / 2 + this.xOffSet)
+      .attr(
+        'x',
+        (this.width + this.margin.left + this.margin.right) / 2 + this.xOffSet
+      )
       .attr('y', -40)
       //fill with white
       .attr('fill', '#fff')
@@ -149,37 +153,43 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
       .style('font-family', CHART_POLICE)
       .text('Average Possession (%) (Knockout Stage)');
 
-
-    this.svg.append('g')
-      .attr('class','bars-g');
-    this.svg.select('.bars-g')
+    this.svg.append('g').attr('class', 'bars-g');
+    this.svg
+      .select('.bars-g')
       .selectAll('g')
       .data(this.data)
       .join('g')
       .attr('class', 'bar-g')
       .append('rect')
       .attr('x', 0)
-      .attr('y', (possesion: Possession) => this.yScale(possesion.country) ?? '')
+      .attr(
+        'y',
+        (possesion: Possession) => this.yScale(possesion.country) ?? ''
+      )
       .attr('height', this.yScale.bandwidth())
-      .attr('fill', (possession: Possession) => COUNTRY_COLOR_SCALE(possession.country))
+      .attr('fill', (possession: Possession) =>
+        COUNTRY_COLOR_SCALE(possession.country)
+      )
       .on('mouseover', (event: any, possession: Possession) => {
         this.highlightYAxis(possession.country);
         this.highlightBar(possession);
       })
       .on('mouseout', (event: MouseEvent, possession: Possession) => {
-        this.unhighlightYAxis(possession.country)
+        this.unhighlightYAxis(possession.country);
         this.unhighlightBar(possession);
       })
       .attr('width', 0)
       .transition()
       .duration(1000)
-      .attr('width', (possesion: Possession) =>this.xScale(possesion.percentage));
+      .attr('width', (possesion: Possession) =>
+        this.xScale(possesion.percentage)
+      );
   }
 
   highlightBar(possession: Possession): void {
     this.svg
       .selectAll('.bar-g')
-      .filter((node: any) =>  node.country !== possession.country)
+      .filter((node: any) => node.country !== possession.country)
       .select('rect')
       .transition()
       .duration(this.transitionDuration)
@@ -189,15 +199,26 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
     const barmargin = 5;
     this.svg
       .selectAll('.bar-g')
-      .filter((possession2: Possession) => possession2.country === possession.country)
+      .filter(
+        (possession2: Possession) => possession2.country === possession.country
+      )
       .append('text')
       .text((possesion: Possession) => possesion.percentage.toString())
       .style('font-size', NOM_PAYS_FONTSIZE)
       .style('font-family', CHART_POLICE)
-      .attr('x', (possesion: Possession) => this.xScale(possesion.percentage) + barmargin)
-      .attr('y', (possesion: Possession) => this.yScale(possesion.country) + this.yScale.bandwidth()/2 + 4)
+      .attr(
+        'x',
+        (possesion: Possession) => this.xScale(possesion.percentage) + barmargin
+      )
+      .attr(
+        'y',
+        (possesion: Possession) =>
+          this.yScale(possesion.country) + this.yScale.bandwidth() / 2 + 4
+      )
       .attr('text-anchor', 'left')
-      .attr('fill', (possession: Possession) => COUNTRY_COLOR_SCALE(possession.country));
+      .attr('fill', (possession: Possession) =>
+        COUNTRY_COLOR_SCALE(possession.country)
+      );
   }
 
   unhighlightBar(d: any): void {
@@ -216,7 +237,7 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
       .remove();
   }
 
-  highlightYAxis(country:string) {
+  highlightYAxis(country: string) {
     this.svg
       .selectAll('.y-axis .tick')
       .filter((tick: string) => tick === country)
@@ -225,10 +246,10 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
     this.svg
       .selectAll('.y-axis .tick')
       .filter((tick: string) => tick !== country)
-      .attr('opacity',NOT_FOCUSED_OPACITY);
+      .attr('opacity', NOT_FOCUSED_OPACITY);
   }
 
-  unhighlightYAxis(country:string) {
+  unhighlightYAxis(country: string) {
     this.svg
       .selectAll('.y-axis .tick')
       .filter((tick: string) => tick === country)
