@@ -121,7 +121,7 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       )
       .select('text')
       .attr("font-size", "12px")
-      .attr("font-family", "Arial");
+      .attr("font-family", CHART_POLICE);
 
     xAxis.selectAll('.tick text')
          .attr('dy', -18)
@@ -144,7 +144,7 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
     yAxis.select(".domain").remove();
     yAxis.selectAll("text")
           .attr("font-size", "15px")
-          .attr("font-family", "Arial")
+          .attr("font-family", CHART_POLICE)
           .attr("fill", (d:any,i:number) => COUNTRY_COLOR_SCALE(this.data[i].country) as string)
           .attr("y",-10)
           .on('mouseover',(event:MouseEvent,country:string) => {
@@ -412,7 +412,7 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .style('text-anchor', 'start')
       .style('fill', 'white')
       .style("font-size", "12px")
-      .style("font-family", "Arial")
+      .style("font-family", CHART_POLICE)
       .text((d) => {
         return d.text;
       });

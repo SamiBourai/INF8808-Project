@@ -12,7 +12,7 @@ import { HttpClient } from '@angular/common/http';
 import { MatSlideToggleChange,MatSlideToggle } from '@angular/material/slide-toggle';
 
 import {Team,Player,LegendItem} from 'src/models/interfaces/pictogram';
-import { COUNTRY_COLOR_SCALE, NOT_FOCUSED_OPACITY } from 'src/constants/constants';
+import { CHART_POLICE, COUNTRY_COLOR_SCALE, NOT_FOCUSED_OPACITY } from 'src/constants/constants';
 
 
 @Component({
@@ -432,7 +432,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
                         .call(d3.axisLeft(this.yScale).tickSize(0).tickSizeOuter(0));
         yAxis.selectAll("text")
               .attr("font-size", "15px")
-              .attr("font-family", "Arial")
+              .attr("font-family", CHART_POLICE)
               .attr("color", (d:string) => COUNTRY_COLOR_SCALE(d))
               .on('mouseover', (event: MouseEvent, country: string) => {
                 this.highlightYAxis(country)
@@ -474,7 +474,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     xAxis.selectAll("text")
           .attr('class','x-tick')
           .attr("font-size", "12px")
-          .attr("font-family", "Arial")
+          .attr("font-family", CHART_POLICE)
           .attr("color", "white")
           .attr("opacity",0)
   }
@@ -675,7 +675,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
       .attr('stroke',this.legendStrokeColor)
       .style('fill', (item:LegendItem) => item.color)
       .attr("font-size", "12px")
-      .attr("font-family", "Arial")
+      .attr("font-family", CHART_POLICE)
     
       // Draw legend item colored rectangle for age average for each team
     legend.selectAll('.legend-item')
@@ -716,7 +716,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
       .text((item:LegendItem) => item.text)
       .attr('fill',this.textColor)
       .attr("font-size", "12px")
-      .attr("font-family", "Arial")
+      .attr("font-family", CHART_POLICE)
       var textSize = Math.max(...legend.selectAll('.legend-item').nodes().map((itemNode: SVGGElement) => itemNode.getBBox().width));
 
       legend
@@ -726,7 +726,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
       .text('by')
       .attr('fill',this.textColor)
       .attr("font-size", "12px")
-      .attr("font-family", "Arial")
+      .attr("font-family", CHART_POLICE)
       legend
       .append('text')
       .attr('transform', () => `translate(${this.margin.left + textSize + 50},
@@ -734,7 +734,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
       .text('Team')
       .attr('fill',this.legendStrokeColor)
       .attr("font-size", "12px")
-      .attr("font-family", "Arial")
+      .attr("font-family", CHART_POLICE)
 
     
 }

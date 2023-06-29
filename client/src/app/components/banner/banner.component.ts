@@ -7,6 +7,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
+import { CHART_POLICE, COUNTRY_COLOR_SCALE, NOM_PAYS_FONTSIZE } from 'src/constants/constants';
 
 @Component({
   selector: 'app-banner',
@@ -95,9 +96,9 @@ export class BannerComponent implements AfterViewInit{
             .text((d:any)=> d)
             .attr('x',(d:any)=>this.xScale(d) + 35 )
             .attr('y', 15)
-            .attr('fill',(d:any)=>this.countryColorScale(d))
-            .style('font-size','15px')
-            .style("font-family", "Arial")
+            .attr('fill',(d:any)=>COUNTRY_COLOR_SCALE(d))
+            .style('font-size',NOM_PAYS_FONTSIZE)
+            .style("font-family", CHART_POLICE)
 
   }
 

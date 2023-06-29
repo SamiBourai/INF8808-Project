@@ -32,7 +32,7 @@ export const COUNTRIES_TOP4: string[] = [
   'Croatia',
 ];
 
-export const COUNTRY_COLOR_SCALE = d3.scaleOrdinal()
+export const COUNTRY_COLOR_SCALE= d3.scaleOrdinal()
                                       .domain(Object.keys(COLORS_COUNTRIES))
                                       .range(Object.values(COLORS_COUNTRIES));
 

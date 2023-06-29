@@ -224,9 +224,11 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       .style("top", event.pageY - 20 + "px")
       .style("border", `2px solid ${COUNTRY_COLOR_SCALE(d.Country)}`)
       .html(
-        `<div>Date: ${d.Date}</div>
-        <div>Display: ${d.Display}</div>
-        <div>Score: ${d.Score}</div>`
+        `<div>
+          <span style="font-weight:bold">Date: </span> ${d.Date}<br>
+          <span style="font-weight:bold">Display: </span>${d.Display}<br>
+          <span style="font-weight:bold">Score: </span>${d.Score}
+        </div>`
       );
 
       barsChart.selectAll('.result-rects')
@@ -279,7 +281,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
         .attr("transform", `translate(0, ${barsChart.attr('height')})`) // Adjust the vertical position of the x-axis
         .selectAll("text")
         .style("font-size", "12px")
-        .style("font-family", "Arial");
+        .style("font-family", CHART_POLICE);
 
     // Add y-axis
       barsChart.append("g")
@@ -287,7 +289,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
         .attr('class','y-axis')
         .selectAll("text")
         .style("font-size", "15px")
-        .style("font-family", "Arial")
+        .style("font-family", CHART_POLICE)
         .style("fill", (d) => COUNTRY_COLOR_SCALE(d as string) as string)
         .on("mouseover", (event:any, d:any) => {
           this.highlightYaxis(d);
@@ -340,7 +342,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
   //   // .attr("font-weight", "bold")
   //   // .text("Legend")
   //   // .attr('fill','white')
-  //   // .style('font-size','15px')
+  //   // .style('font-size',CHART_FONTSIZE)
   //   // .style('font-family',CHART_POLICE);
 
   //   legendSvg.append("text")
@@ -372,7 +374,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
   //     .attr("x", 40)
   //     .attr("y", 35)
   //     .attr("font-size", "12px")
-  //     .attr("font-family", "Arial")
+  //     .attr("font-family", CHART_POLICE)
   //     .text(d => d.result)
   //     .attr('fill','white');
   // }
@@ -400,15 +402,6 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       .attr("fill", "none")
       .attr("stroke", "none");
   
-    legendSvg.append("text")
-      .attr("x", legendWidth / 2)
-      .attr("y", 20)
-      .attr("text-anchor", "middle")
-      .attr("font-weight", "bold")
-      .text("Legend")
-      .attr('fill', 'white')
-      .style('font-size', '15px')
-      .style('font-family', CHART_POLICE);
   
     const legendItems = legendSvg.selectAll(".legend-items")
       .data(legendData)
@@ -439,7 +432,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       .attr("x", 40)
       .attr("y", 15)
       .attr("font-size", "12px")
-      .attr("font-family", "Arial")
+      .attr("font-family", CHART_POLICE)
       .text(d => {
         if (d.Result == "W") {
           return "Win"

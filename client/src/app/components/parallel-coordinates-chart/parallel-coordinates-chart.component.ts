@@ -104,7 +104,6 @@ export class ParallelCoordinatesChartComponent
       .transition()
       .ease(d3.easeCubicInOut)
       .duration(200)
-      .style('stroke', color)
       .style('opacity', '1');
   }
 
@@ -113,7 +112,6 @@ export class ParallelCoordinatesChartComponent
       .transition()
       .ease(d3.easeCubicInOut)
       .duration(200)
-      .style('stroke', color)
       .style('opacity', '1');
   }
 
@@ -150,13 +148,12 @@ export class ParallelCoordinatesChartComponent
           .style('left', e.pageX + 5 + 'px')
           .style('top', e.pageY - 60 + 'px').html(`
             <div>
-                <h3 style='color:${COUNTRY_COLOR_SCALE(d.country)}>${d.country}</h3><br>
-
-                <span style='font-weight:bold'>NAP: </span>${d.pass}<br>
-                <span style='font-weight:bold'>NGCA: </span> ${d.goal}<br>
-                <span style='font-weight:bold'>NR: </span>${d.recup} <br>
-                <span style='font-weight:bold'>NT: </span>${d.tacles}<br>
-                <span style='font-weight:bold'>NI: </span>${d.intercep}
+                <h3 style='color:${COUNTRY_COLOR_SCALE(d.country)}'>${d.country}</h3>
+                <p><span style='font-weight:bold'>NAP: </span></span>${d.pass}</p>
+                <p< <span style='font-weight:bold'>NGCA: </span> ${d.goal}</p>
+                <p><span style='font-weight:bold'>NR: </span>${d.recup} </p>
+                <p><span style='font-weight:bold'>NT: </span>${d.tacles}</p>
+                <p><span style='font-weight:bold'>NI: </span>${d.intercep}</p>
             </div>
           `);
         

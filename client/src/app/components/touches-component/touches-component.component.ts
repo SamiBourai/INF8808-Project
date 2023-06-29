@@ -10,6 +10,7 @@ import {
   CHART_POLICE,
   COUNTRY_COLOR_SCALE,
   GRID_PLACE,
+  NOM_PAYS_FONTSIZE,
   WAFFLE_FIELD_COLORS,
 } from 'src/constants/constants';
 import { Touches } from 'src/models/interfaces/touches';
@@ -165,7 +166,7 @@ export class TouchesComponent implements AfterViewInit {
         .attr('class', 'waffle-title')
         .attr('fill', COUNTRY_COLOR_SCALE(country))
         .attr('text-anchor', 'middle')
-        .style('font-size', '15px')
+        .style('font-size', NOM_PAYS_FONTSIZE)
         .style('font-family', CHART_POLICE)
         .attr('x', (this.boxSize * this.numSubCols) / 2)
         .attr('y', -this.spacing / 3)
