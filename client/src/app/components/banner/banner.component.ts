@@ -96,7 +96,7 @@ export class BannerComponent implements AfterViewInit{
             .text((d:any)=> d)
             .attr('x',(d:any)=>this.xScale(d) + 35 )
             .attr('y', 15)
-            .attr('fill',(d:any)=>COUNTRY_COLOR_SCALE(d))
+            .attr('fill',(d:any)=>this.countryColorScale(d))
             .style('font-size',NOM_PAYS_FONTSIZE)
             .style("font-family", CHART_POLICE)
 

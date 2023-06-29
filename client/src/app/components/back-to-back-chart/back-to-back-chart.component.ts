@@ -73,10 +73,9 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
+    this.removeChart()
     this.observer?.disconnect()
     this.observeChart()
-    this.removeChart()
-    this.createChart();
   }
 
   createChart(): void {

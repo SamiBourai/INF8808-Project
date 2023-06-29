@@ -34,11 +34,13 @@ h1 {
   }
   
   p {
-    font-size:18px;
-    font-family: 'Poppins', sans-serif;
-    justify-content:space-evenly;
+    font-size:17px;
+    font-family: Arial;
+    /* justify-content:space-evenly; */
     text-indent: 3px;
     line-height: 1.5;
+    text-align: justify;
+    text-justify: inter-word;
     /* margin: 0 10% ; */
   }
 

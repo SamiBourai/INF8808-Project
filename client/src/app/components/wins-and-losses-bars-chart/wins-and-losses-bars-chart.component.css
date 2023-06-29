@@ -10,13 +10,17 @@
 }
 
 
-
 .text {
+    width: 100%;
     display: flex;
     position: relative;
-    padding: 10px;
-    font-size:17px;
+    font-size: 17px;
     font-family: Arial ;
+    text-align: justify;
+    text-justify: inter-word;
+    flex-direction: column;
+    margin-bottom: 1em;
+    text-indent: 3px;
 }
 
 

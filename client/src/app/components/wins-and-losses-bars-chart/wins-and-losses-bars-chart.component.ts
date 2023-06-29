@@ -139,7 +139,6 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     .range(['#21A179', '#F3535B', '#B8B8B8']);
 
 
-    // Add horizontal lines
     // barsChart.selectAll("line")
     // .data(countries)
     // .enter()
@@ -236,14 +235,6 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
            .filter((dataRect:any) => dataRect !== d )
            .attr('opacity', NOT_FOCUSED_OPACITY);
 
-
-
-    // this.svg
-    //   .selectAll(".result-rects") // Update the selector to target the rectangles
-    //   .style("opacity", function (rectData) {
-    //     return rectData === d ? 1 : NOT_FOCUSED_OPACITY;
-    //   });
-
     // Highlight corresponding country
     this.highlightXLabel(d);
     this.highlightYaxis(d.Country);
@@ -293,91 +284,16 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
         .style("fill", (d) => COUNTRY_COLOR_SCALE(d as string) as string)
         .on("mouseover", (event:any, d:any) => {
           this.highlightYaxis(d);
+          this.highlightLineCountry(d)
         })
         .on("mouseout", (event, d) => {
           this.unHighlightYaxis(d)
+          this.unHighlightLineCountry(d)
         });
 
         this.createLegend(barsChart.attr('width'))
     }
 
-  // createLegend(): void{
-  //   const element = this.legendContainer.nativeElement
-  //   const margin = { top: 10, right: 30, bottom: 50, left: 50 };
-  //   const width = element.offsetWidth - margin.left - margin.right;
-  //   const height = 200 - margin.top - margin.bottom;
-  //   const legendX = width; // Adjust the horizontal position of the legend
-  //   const legendY = 50; // Adjust the vertical position of the legend
-
-  //  // Legend data
-  //   const legendData = [
-  //     { result: "Win", color: "#21A179" },
-  //     { result: "Loss", color: "#F3535B" },
-  //     { result: "Draw", color: "#B8B8B8" }
-  //   ];
-
-  //   // Create the legend container
-  //   const legendContainer = d3.select(element);
-
-  //   // Create the legend SVG element
-  //   const legendSvg = legendContainer.append("svg")
-  //     .attr("width", width + margin.left + margin.right)
-  //     .attr("height", '100%')
-  //     .append("g")
-  //     .attr("transform", `translate(${width - (margin.right + 50)}, ${margin.top})`)
-      
-  //   const legendWidth = 150
-  //   legendSvg.append("rect")
-  //   .attr("x", 0)
-  //   .attr("y", 0)
-  //   .attr("width", legendWidth)
-  //   .attr("height", '100%')
-  //   .attr("fill", "none")
-  //   .attr("stroke", "none");
-
-  //   // legendSvg.append("text")
-  //   // .attr("x", legendWidth / 2)
-  //   // .attr("dy", "10%")
-  //   // .attr("text-anchor", "middle")
-  //   // .attr("font-weight", "bold")
-  //   // .text("Legend")
-  //   // .attr('fill','white')
-  //   // .style('font-size',CHART_FONTSIZE)
-  //   // .style('font-family',CHART_POLICE);
-
-  //   legendSvg.append("text")
-  //   .attr("x", legendWidth / 2)
-  //   .attr("dy", "90%")
-  //   .attr("text-anchor", "middle")
-  //   .style("font-size", "12px")
-  //   .style('font-family',CHART_POLICE)
-  //   .attr('fill','white')
-  //   .text("Without penalty shootouts");
-
-  //   // Create a group for each legend item
-  //   const legendItems = legendSvg.selectAll("g")
-  //     .data(legendData)
-  //     .enter()
-  //     .append("g")
-  //     .attr("transform", (d, i) => `translate(0, ${10 + i * 30})`);
-
-  //   // Add colored rectangles
-  //   legendItems.append("rect")
-  //     .attr("x", 10)
-  //     .attr("y", 20)
-  //     .attr("width", 20)
-  //     .attr("height", 20)
-  //     .attr("fill", d => d.color);
-
-  //   // Add legend text
-  //   legendItems.append("text")
-  //     .attr("x", 40)
-  //     .attr("y", 35)
-  //     .attr("font-size", "12px")
-  //     .attr("font-family", CHART_POLICE)
-  //     .text(d => d.result)
-  //     .attr('fill','white');
-  // }
   createLegend(width: number): void {
     const legendData = [
       { Result: "W", Color: "#21A179" },
@@ -494,6 +410,20 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
         .selectAll('.x-axis .tick text')
         .filter((node: any) => node !== d.Country)
         .attr('opacity',1)
+  }
+
+  highlightLineCountry(d:any){
+    // Reduce opacity of other country names
+    this.svg.selectAll('.result-rects')
+           .filter((node:any) => node.Country !== d )
+           .attr('opacity', 0.3);
+  }
+
+  unHighlightLineCountry(d:any){
+    // Reduce opacity of other country names
+    this.svg.selectAll('.result-rects')
+           .filter((node:any) => node.Country !== d )
+           .attr('opacity', 1);
   }
   
 
