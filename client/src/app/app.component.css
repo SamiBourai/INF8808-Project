@@ -41,10 +41,13 @@ margin-bottom: 0.5rem;
 }
 
 .dot-text {
-color: #fff;
-margin-right: 10px;
-opacity: 0;
-transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease;
+  color: #fff;
+  margin-right: 10px;
+  opacity: 0;
+  background-color: #1e1e1e;
+  border: 1px solid #fff;
+  padding: 4px;
 }
 
 .dot-container:hover .dot-text,

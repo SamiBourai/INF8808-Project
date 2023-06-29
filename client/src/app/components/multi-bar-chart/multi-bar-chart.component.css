@@ -4,18 +4,18 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    /* margin: 0 10% */
+    margin: 5%
 }
 
 
 .text {
     display: flex;
+    flex-direction: column;
     position: relative;
     font-size:15px;
     font-family: Arial ;
     padding-bottom: 8%;
 }
-
 
 #tooltip {
     display: flex;

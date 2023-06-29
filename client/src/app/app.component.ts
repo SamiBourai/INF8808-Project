@@ -1,11 +1,18 @@
-import { Component, OnInit,AfterViewInit, ElementRef, ViewChild, ViewChildren, QueryList } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ElementRef,
+  ViewChild,
+  ViewChildren,
+  QueryList,
+} from '@angular/core';
 import * as aos from 'aos';
-
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit, AfterViewInit {
   @ViewChild('navDots') navDots!: ElementRef;
@@ -15,13 +22,13 @@ export class AppComponent implements OnInit, AfterViewInit {
     // Initialize sections as an array of objects, each with an id and a name.
     sections : { id: string; name: string }[] = [
       { id: 'section0', name: 'Introduction' },
-      { id: 'section1', name: 'Team' },
-      { id: 'section2', name: 'Win vs Defeat' },
+      { id: 'section1', name: 'Teams' },
+      { id: 'section2', name: 'Results'},
       { id: 'section3', name: 'Goals' },
       { id: 'section4', name: 'Activity' },
-      { id: 'section5', name: 'Effectivness' },
-      { id: 'section6', name: 'Possession 1' },
-      { id: 'section7', name: 'Possession 2' },
+      { id: 'section5', name: 'Efficiency' },
+      { id: 'section6', name: 'Possessions' },
+      { id: 'section7', name: 'Touches' },
     ]
   
     activeSection = 0;
@@ -57,34 +64,40 @@ export class AppComponent implements OnInit, AfterViewInit {
       }
     }
 
-    showSectionName(index: number): void {
-      const dotText = document.getElementById('dot-text-' + index);
-      if (dotText) {
-        dotText.style.opacity = '1';
-      }
+  showSectionName(index: number): void {
+    const dotText = document.getElementById('dot-text-' + index);
+    if (dotText) {
+      dotText.style.opacity = '1';
     }
-  
-    hideSectionName(index: number): void {
-      const dotText = document.getElementById('dot-text-' + index);
-      if (dotText) {
-        dotText.style.opacity = '0';
-      }
+  }
+
+  hideSectionName(index: number): void {
+    const dotText = document.getElementById('dot-text-' + index);
+    if (dotText) {
+      dotText.style.opacity = '0';
     }
-  
+  }
 
   ngAfterViewInit(): void {
     this.sectionElements.forEach((section, index) => {
-      const observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            this.navDots.nativeElement.children[index].classList.add('active');
-          } else {
-            this.navDots.nativeElement.children[index].classList.remove('active');
-          }
-        });
-      }, {
-        threshold: 0.7 // adjust as needed
-      });
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              this.navDots.nativeElement.children[index].classList.add(
+                'active'
+              );
+            } else {
+              this.navDots.nativeElement.children[index].classList.remove(
+                'active'
+              );
+            }
+          });
+        },
+        {
+          threshold: 0.7, // adjust as needed
+        }
+      );
 
       observer.observe(section.nativeElement);
     });

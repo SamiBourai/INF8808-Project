@@ -11,29 +11,7 @@ import * as d3 from 'd3';
 import { HttpClient } from '@angular/common/http';
 import { MatSlideToggleChange,MatSlideToggle } from '@angular/material/slide-toggle';
 
-interface LegendItem {
-    type: string,
-    color: string,
-    text : string,
-}
-interface Team {
-  name: string,
-  rank : number,
-  country : string,
-}
-
-interface Player {
-  numero : number ,
-  name: string,
-  position : string,
-  club : string,
-  age : string,
-  ageInYear : number,
-  country : string,
-  clubCountry : string,
-  playsInTop25 : boolean,
-}
-
+import {Team,Player,LegendItem} from 'src/models/interfaces/pictogram';
 
 
 @Component({
@@ -47,6 +25,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
   @ViewChild('toggle') private toggle!: MatSlideToggle; 
 
   private observer: IntersectionObserver | null = null;
+  /* Constants */
   public countries: string[] = [
     'Morocco',
     'Argentina',
@@ -63,9 +42,22 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     'Bundesliga',
     'Liga',
   ];
+
+  public legendItems: LegendItem[] = [
+    {type: 'true' ,color: 'white',text:'Player plays in a club in the Top 5 of Top 5 european championship at the end of 2021-2022 season'},
+    {type: 'false', color:'black',text:'Player plays in an other clubs'},
+    {type: 'rect', color: 'black', text: 'Average player age'},
+  ]
+
+  private  positionType: {[key: string]: any} = {
+    'AT': 'Forward ',
+    'MT': 'Midfielder',
+    'DF': 'Defender ',
+    'GB': 'Goalkeeper',
+  }
+
   public colors: string[] = [
     '#e80284',
-    // '#03a0c7',
     '#03a0c7',
     '#03a0c7',
     '#03a0c7',
@@ -73,24 +65,27 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     '#DB8500',
     '#DB8500',
   ];
+  public defaultCircleColor : string = '#000000'
+  public legendStrokeColor : string = '#69f0ae';
   public textColor = 'white'
 
-  public legendItems: LegendItem[] = [
-    {type: 'true' ,color: 'white',text:'Player plays in a club in the Top 5 of Top 5 european championship at the end of 2021-2022 season'},
-    {type: 'false', color:'black',text:'Player plays in an other clubs'},
-    {type: 'rect', color: 'black', text: 'Average player age'},
-  ]
+
+  // Data 
   private top25TeamNamesData : string[]= [];
   private playerData: {[country: string]: Player[]} = {};
+  private noPlayer:Player = { numero: 0,name: '',position: '',club: '',age: '',ageInYear: 0,
+                            country: '', clubCountry: '', playsInTop25: false}
 
-
+  // SVG Parameters
+  private svg: any;
   private element: any;
   private margin = { top: 50, right: 100, bottom: 20, left: 150 };
   private width: number = 0;
   private heightLegend: number = 150;
   private height: number = 500 - this.margin.top - this.margin.bottom - this.heightLegend;
   private ageAxisOffset = -30;
-  private svg: any;
+
+  // D3 Elements and Parameters
   private xScale: any;
   private yScale: any;
   private ageScale: any;
@@ -99,16 +94,20 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
   private scrollingdown: boolean = false;
   private transitiondone: boolean = true;
   private transitionDuration: number = 1000;
+  private notFocusedOpacity: number = 0.3;
+
 
 
   constructor(private http: HttpClient, private renderer: Renderer2) { }
   
-
+  // --------------------------------------------------------------------------//
+  // --------------------------------------------------------------------------//
+  // Init
   async ngOnInit(): Promise<void> {
 
     await this.loadPlayers();
     await this.loadChampionships();
-    this.cleanPos();
+    this.cleanPosition();
     this.cleanAge();
     this.cleanClub();
     this.orderPlayers();
@@ -195,32 +194,28 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     });
   }
 
-  cleanPos() {
-    const positionType: {[key: string]: any} = {
-        'AT': 'Forward ',
-        'MT': 'Midfielder',
-        'DF': 'Defender ',
-        'GB': 'Goalkeeper',
-    }
-
+  // Clean Position format 
+  cleanPosition() {
     Object.keys(this.playerData).forEach((country) => {
         this.playerData[country].forEach((player: Player) => {
             let playerPos = "";
             for(let pos of player.position.split(',')){
-                playerPos += positionType[pos.trim()] || pos.trim();
+                playerPos += this.positionType[pos.trim()] || pos.trim();
                 playerPos += ',';
             }
             player.position = playerPos.slice(0, -1); // Removes the trailing comma
         });
     });
 }
-
-
+  // Sanitize text
+  // Trim, normalize space, ...
   sanitize(str : string) {
     return str.trim().replace(/\s/g, ' ').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   } 
 
-
+  // Clean club format (isolate club name and club country)
+  // "1.it Parma" => Player.club = Parma
+  //                 Player.clubCountry = IT
   cleanClub() {
     Object.keys(this.playerData).forEach((country) => {
       this.playerData[country].forEach((player:  Player) => {
@@ -288,7 +283,6 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     }
   }
   
-
   // Order the players
   // For each team, put player that plays in top 5 first, and sort them by club name 
   // inside each category
@@ -304,8 +298,11 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     }, {});
   } 
   
-  
-  
+
+
+// --------------------------------------------------------------------------//
+// --------------------------------------------------------------------------//
+  // After Init
   ngAfterViewInit() {
     // Listen to wheel event in the hscroll element
     this.renderer.listen(this.hscroll.nativeElement, 'wheel', (event) => {
@@ -313,7 +310,9 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     this.observeChart();
   }
   
-
+  // Check the element is on the screem
+  // If intersecting, create the chart
+  // Otherwise remove the chart
   observeChart() {
     this.observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -327,6 +326,8 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     this.observer.observe(this.chartContainer.nativeElement);
   }
 
+  // Event listener on windows risizing. 
+  // If event occurs, delete and recreate the chart
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.removeChart()
@@ -334,10 +335,13 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     this.observeChart()
   }
 
+  // Create the chart
+  // (Call the creation and drawing of all the elements that compose the SVG
+  // Scale, Axis, Legend, Pictogramm ... )
   createChart(): void {
     this.element = this.chartContainer.nativeElement;
     this.width = this.element.offsetWidth - this.margin.left - this.margin.right;
-    this.createColorScale();
+    this.createLegendColorScale();
     this.createCountryColorScale();
     this.createXScale();
     this.createYScale();
@@ -347,8 +351,8 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     this.drawAgeAxis();
     this.drawLegend();
     this.createCountryG();
-    this.addCircle();
-    this.addAvg();
+    this.drawCircle();
+    this.drawAvg();
     
  
   }
@@ -358,8 +362,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
         .append('svg')
         .attr('width', this.width + this.margin.left + this.margin.right)
         .attr('height', this.height + this.margin.top + this.margin.bottom + this.heightLegend);
-
-    this.svg.append('g')
+  this.svg.append('g')
         .attr('class', 'pictogram-g')
         .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
   }
@@ -392,30 +395,44 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
   private createYScale(): void {
       this.yScale = d3.scaleBand()
           .domain(Object.keys(this.playerData))
-          .range([this.height, 0])
+          .range([0, this.height])
           .padding(0.2);
   }
 
-  private createColorScale() : void {
+  // Define the color scale for the graph
+  private createLegendColorScale() : void {
     this.legendColorScale = d3.scaleOrdinal()
                         .domain(this.legendItems.map((item:LegendItem) => item.type))
                         .range(this.legendItems.map((item:LegendItem) => item.color))
   }
+
+  // Define the color scale for the country color code
   private createCountryColorScale() : void {
     this.countryColorScale = d3.scaleOrdinal()
                         .domain(this.countries)
                         .range(this.colors)
   }
 
-  private countClub(d) {
-    const dplayers = this.playerData[d];
-    const countTot = dplayers.length;
-    const countIn = dplayers.reduce((accumulator, player) => accumulator + (player.playsInTop25? 1 : 0), 0);
-    const countOut = countTot - countIn
-
-    return countIn.toString() + "/" + countOut.toString() + "(" + countTot.toString() + "}"
+  private showYAxisTootltip(event:MouseEvent,country:string) {
+    d3.select('#tooltip')
+                  .style('opacity', 0.85)
+                  .style('left', event.pageX - 55 + 'px')
+                  .style('top', event.pageY - 75 + 'px')
+                  .style('border', `2px solid ${this.countryColorScale(country)}`)
+                  .style('background-color', this.textColor)
+                  .style('color', 'black')
+                  .html( () => {
+                    const counts = this.countClub(country)
+                    return `
+                    <div>
+                    <span style='font-weight:bold;font-size:15px;color:${this.countryColorScale(country)};'> ${country}</span><br><br>
+                    <span style='font-weight:bold'>In Top 5's Top5 :</span> ${counts.in}<br>
+                    <span style='font-weight:bold'>Not In Top 5's Top5 :</span> ${counts.out}<br>
+                    <span style='font-weight:bold'>Total Players :</span> ${counts.total} <br>
+                    </div>
+                  `});
   }
-
+  // Draw the y axis
   private drawYAxis() : void {
     let yAxis = this.svg.append('g')
                         .attr('class','y-axis')
@@ -425,61 +442,35 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
               .attr("font-size", "15px")
               .attr("font-family", "Arial")
               .attr("color", (d:string) => this.countryColorScale(d))
-              .on('mouseover', (event: MouseEvent, d: any) => {
-                this.svg
-                  .selectAll('.y-axis .tick')
-                  .filter((node: any) => node === d)
-                  .select('text')
-                  .style('font-weight', 'bold');
-                this.svg
-                  .selectAll('.y-axis .tick')
-                  .filter((node: any) => node !== d)
-                  .select('text')
-                  .attr('opacity', 0.5);
-                this.svg
-                  .selectAll('.player-circle')
-                  .filter((node: any) => node['country'] !== d)
-                  .attr('opacity', 0.5);
-                d3.select('#tooltip')
-                  .style('opacity', 0.85)
-                  .style('left', event.pageX - 55 + 'px')
-                  .style('top', event.pageY - 75 + 'px')
-                  .style('border', `2px solid ${this.countryColorScale(d.country)}`)
-                  .style('background-color', this.textColor)
-                  .style('color', 'black')
-                  .html(`
-                    <div>
-                      ${this.countClub(d)}
-                    </div>
-                  `);
+              .on('mouseover', (event: MouseEvent, country: string) => {
+                this.highlightYAxis(country)
+                const players: Player[] = Object.values(this.playerData)
+                                        .reduce((acc : Player[], players: Player[]) => acc.concat(players), [])
+                                        .filter((player:Player) => player.country === country); 
+                this.highlightPlayer(players);  
+                this.showYAxisTootltip(event,country);
               })
-              .on('mouseout', (event: MouseEvent, d: any) => {
-                this.svg
-                  .selectAll('.y-axis .tick')
-                  .filter((node: any) => node === d)
-                  .select('text')
-                  .style('font-weight', 'normal');
-                  this.svg
-                  .selectAll('.y-axis .tick')
-                  .filter((node: any) => node !== d)
-                  .select('text')
-                  .attr('opacity',1)
-                  this.svg
-                  .selectAll('.player-circle')
-                  .filter((node: any) => node['country'] !== d)
-                  .attr('opacity',1)
-                d3.select('#tooltip')
-                  .style('opacity',0)
+              .on('mouseout', (event: MouseEvent, country: string) => {
+                this.unhighlightYAxis(country)
+                const players: Player[] = Object.values(this.playerData)
+                                        .reduce((acc : Player[], players: Player[]) => acc.concat(players), [])
+                                        .filter((player:Player) => player.country === country); 
+                this.unhighlightPlayer(players);
+                this.hideToolTip();
               });
   }
+
+  // Draw the age axis above the graph
   private drawAgeAxis() : void {
     let xAxis = this.svg.append('g')
                         .attr('class','x-axis')
                         .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`)
                         .attr("opacity",0)
                         .call(d3.axisTop(this.ageScale).ticks(5));
-    var axisSize = xAxis.node().getBBox();
+    // Size of the axis
+    const axisSize = xAxis.node().getBBox();
 
+    // Place the title of the axi a thee center
     xAxis.append("text")
       .attr("class", "axis-label")
       .attr("x", axisSize.width/2) 
@@ -487,6 +478,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
       .style("text-anchor", "middle")
       .attr('fill', this.textColor)
       .text("Player Age (years old)");
+    // Initially set the opacity to 0, only appearing when toggle button is checked
     xAxis.selectAll("text")
           .attr('class','x-tick')
           .attr("font-size", "12px")
@@ -495,6 +487,7 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
           .attr("opacity",0)
   }
 
+  // Add a g to the pictogram for each country
   private createCountryG(): void {
       const data = Object.entries(this.playerData).map(([country, players]) => ({ country, players }));
       this.svg.select('.pictogram-g')
@@ -502,11 +495,113 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
           .data(data)
           .join('g')
           .attr('class','country-g')
+          // use yScale to place it
           .attr('transform', (d:any) => `translate(0, ${this.yScale(d.country)})`);
   }
 
+  private highlightYAxis(country:string) {
+    this.svg
+        .selectAll('.y-axis .tick')
+        .filter((tick: string) => tick === country)
+        .select('text')
+        .style('font-weight', 'bold');
+      this.svg
+        .selectAll('.y-axis .tick')
+        .filter((tick: string) => tick !== country)
+        .select('text')
+        .attr('opacity', this.notFocusedOpacity);
+  }
+  private unhighlightYAxis(country:string) {
+    this.svg
+      .selectAll('.y-axis .tick')
+      .filter((tick: string) => tick === country)
+      .select('text')
+      .style('font-weight', 'normal');
+    this.svg
+      .selectAll('.y-axis .tick')
+      .filter((tick: string) => tick !== country)
+      .select('text')
+      .attr('opacity',1)
+  };
 
-  private addCircle(): void {
+  // Highlight Player by lowering opacity of not focused player
+  private highlightPlayer(players:Player[]) {
+    this.svg
+        .selectAll('.player-circle')
+        .filter((player2: Player) => !players.includes(player2))
+        .attr('opacity', this.notFocusedOpacity);
+  };
+
+  private unhighlightPlayer(players:Player[]) {
+    this.svg
+        .selectAll('.player-circle')
+        .filter((player2: Player) => !players.includes(player2))
+        .attr('opacity', 1);
+  };
+
+  private highlightAvg(country:string) {
+    this.svg.selectAll('.country-avg')
+            .filter((team:Team) => team.country !== country)
+            .attr('opacity', this.notFocusedOpacity)
+  }
+
+  private unhighlightAvg(country:string) {
+    this.svg.selectAll('.country-avg')
+            .filter((team:Team) => team.country !== country)
+            .attr('opacity', 1)
+  }
+
+
+
+  private highlightLegendItem(type:string) {
+
+    this.svg
+      .selectAll('.legend-item')
+      .filter((item: LegendItem) => item.type !== type)
+      .attr('opacity',this.notFocusedOpacity) 
+    if (!this.toggle.checked) { 
+      this.svg
+      .selectAll('#avg-legend-item')
+      .attr('opacity',0) 
+    }
+  };
+  private unhighlightLegendItem(type:string) {
+    this.svg
+      .selectAll('.legend-item')
+      .filter((item: LegendItem) => this.toggle.checked?item.type !== type:!['rect',item.type].includes(type))
+      .attr('opacity',1) 
+    if (!this.toggle.checked) { 
+      this.svg
+      .selectAll('#avg-legend-item')
+      .attr('opacity',0) 
+    }
+    
+  };
+
+  private showTootltip(e:MouseEvent,player:Player) {
+      d3.select('#tooltip')
+        .style('opacity', 0.85)
+        .style('left', e.pageX - 55 + 'px')
+        .style('top', e.pageY - 75 + 'px')
+        .style('border', `2px solid ${this.countryColorScale(player.country)}`)
+        .style('background-color', this.legendColorScale(player.playsInTop25))
+        .style('color', this.legendColorScale(player.playsInTop25) === "white" ? 'black' : this.textColor)
+        .html(`
+          <div>
+            <span style='font-weight:bold;font-size:15px;'>${player.name}</span> #${player.numero}</span><br><br>
+            <span style='font-weight:bold'>Club:</span> ${player.club}, ${player.clubCountry}<br>
+            <span style='font-weight:bold'>Age:</span> ${player.age}<br>
+            <span style='font-weight:bold'>Field Position:</span> ${player.position}<br>
+          </div>
+        `)
+  }
+
+  private hideToolTip() {
+    d3.select('#tooltip')
+    .style('opacity', 0)
+  }
+  // Draw the circle representing the data
+  private drawCircle(): void {
     this.svg.selectAll('.country-g')
     .selectAll('circle')
     .data((team:any) => team.players)
@@ -517,64 +612,19 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     .attr('r', this.yScale.bandwidth() / 4)
     .attr('stroke-width', this.yScale.bandwidth() / 32)
     .attr('stroke', (player: Player) => this.countryColorScale(player.country))
-    .attr('fill', 'black')
+    .attr('fill', this.defaultCircleColor)
     .attr('opacity', 1)
     .on('mouseover', (event: MouseEvent, player: Player, i:number) => {
-      this.svg
-        .selectAll('.y-axis .tick')
-        .filter((tick: string) => tick === player.country)
-        .select('text')
-        .style('font-weight', 'bold');
-      this.svg
-        .selectAll('.y-axis .tick')
-        .filter((tick: string) => tick !== player.country)
-        .select('text')
-        .attr('opacity', 0.5);
-      this.svg
-        .selectAll('.player-circle')
-        .filter((player2: Player) => player2 !== player)
-        .attr('opacity', 0.5);
-      this.svg
-        .selectAll('.legend-item')
-        .filter((item: LegendItem) => (item.type==='true') !== player.playsInTop25 || item.type==='rect' )
-        .attr('opacity',0.5)
-      d3.select('#tooltip')
-        .style('opacity', 0.85)
-        .style('left', this.xScale(i - 1)  +  'px')
-        .style('top', this.yScale(player.country) + 'px')
-        .style('border', `2px solid ${this.countryColorScale(player.country)}`)
-        .style('background-color', this.legendColorScale(player.playsInTop25))
-        .style('color', this.legendColorScale(player.playsInTop25) === "white" ? 'black' : this.textColor)
-        .html(`
-          <div>
-            <span style='font-weight:bold;font-size:15px'>${player.name}</span> #${player.numero}<br><br>
-            <span style='font-weight:bold'>Club:</span> ${player.club}, ${player.clubCountry}<br>
-            <span style='font-weight:bold'>Age:</span> ${player.age}<br>
-            <span style='font-weight:bold'>Field Position:</span> ${player.position}<br>
-          </div>
-        `);
+      this.highlightYAxis(player.country);
+      this.highlightPlayer([player]);
+      player.playsInTop25 ? this.highlightLegendItem('true') : this.highlightLegendItem('false')
+      this.showTootltip(event,player);
     })    
     .on('mouseout', (event: MouseEvent, player: Player) => {
-      this.svg
-        .selectAll('.y-axis .tick')
-        .filter((tick: string) => tick === player.country)
-        .select('text')
-        .style('font-weight', 'normal');
-        this.svg
-        .selectAll('.y-axis .tick')
-        .filter((tick: string) => tick !== player.country)
-        .select('text')
-        .attr('opacity',1)
-        this.svg
-        .selectAll('.player-circle')
-        .filter((player2: Player) => player2 !== player)
-        .attr('opacity',1)
-        this.svg
-        .selectAll('.legend-item')
-        .filter((item: LegendItem) => (item.type ==='true') !== player.playsInTop25 || item.type==='rect' )
-        .attr('opacity',1)
-      d3.select('#tooltip')
-        .style('opacity', 0)
+      this.unhighlightYAxis(player.country)
+      this.unhighlightPlayer([player]);
+      player.playsInTop25 ? this.unhighlightLegendItem('true') : this.unhighlightLegendItem('false')
+      this.hideToolTip();
     })
     let n = this.svg.selectAll('.country-g').selectAll('circle').size();
 
@@ -605,32 +655,63 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
     // Place it below the image
     .attr('transform', (d:any, i:number) => `translate(${this.margin.left},
         ${this.height + this.margin.top + this.heightLegend/2 + (i - 1.5)*this.yScale.bandwidth()})`);
-
-    // Draw legend item colored rectangles for players in/out top25
+    
+    // Draw legend for the colored dot items of the legend
     legend.selectAll('.legend-item')
       .filter((item:LegendItem) => item.type === 'true' || item.type === 'false' )
+      // Add mouseover/mouseout highlighting 
+      .on("mouseover", (event:any,item:LegendItem) => {
+        const players: Player[] = Object.values(this.playerData)
+                                        .reduce((acc : Player[], players: Player[]) => acc.concat(players), [])
+                                        .filter((player:Player) => player.playsInTop25 === (item.type === 'true')); 
+        this.highlightPlayer(players);  
+        this.highlightLegendItem(item.type);
+      })
+      .on("mouseout", (event:any,item:LegendItem) => {
+        const players: Player[] = Object.values(this.playerData)
+                                        .reduce((acc : Player[], players: Player[]) => acc.concat(players), [])
+                                        .filter((player:Player) => player.playsInTop25 === (item.type === 'true')); 
+        this.unhighlightPlayer(players);  
+        this.unhighlightLegendItem(item.type);
+  
+      })
+    // Draw circles 
       .append('circle')
       .attr('cx', 0)
       .attr('r', this.yScale.bandwidth() / 4)
       .attr('stroke-width',this.yScale.bandwidth() / 16)
-      .attr('stroke','#69f0ae')
+      .attr('stroke',this.legendStrokeColor)
       .style('fill', (item:LegendItem) => item.color)
       .attr("font-size", "12px")
       .attr("font-family", "Arial")
-    // Draw 
+    
+      // Draw legend item colored rectangle for age average for each team
     legend.selectAll('.legend-item')
       .filter((item:LegendItem) => item.type === 'rect')
       .attr('id','avg-legend-item')
-    legend.select('#avg-legend-item')
       .attr('opacity',0)
+      .on("mouseover", (event:any,item:LegendItem) => {
+        if (this.toggle.checked) {
+        this.highlightPlayer([]);  
+        this.highlightLegendItem(item.type);
+      }
+
+      })
+      // Add mouseover/mouseout highlighting 
+      .on("mouseout", (event:any,item:LegendItem) => {
+        if (this.toggle.checked) {
+          this.unhighlightPlayer([]);  
+          this.unhighlightLegendItem(item.type);
+        }
+      })
       .append('rect')
       .attr('x', -2)
       .attr('y',-this.yScale.bandwidth()/2)
-      .attr('stroke','#69f0ae')
+      .attr('stroke',this.legendStrokeColor)
       .attr('strok-width',1)
       .attr('width', 4)
       .attr('height',this.yScale.bandwidth() )
-      .style('fill', (item:LegendItem) => item.color);
+      .style('fill', (item:LegendItem) => item.color)
       
 
     // Draw legend text
@@ -659,33 +740,29 @@ export class HorizontalPictogramComponent implements OnInit, AfterViewInit {
       .attr('transform', () => `translate(${this.margin.left + textSize + 50},
         ${this.height + this.margin.top + this.heightLegend/2 - 0.5*this.yScale.bandwidth()})`)
       .text('Team')
-      .attr('fill','#69f0ae')
+      .attr('fill',this.legendStrokeColor)
       .attr("font-size", "12px")
       .attr("font-family", "Arial")
 
     
 }
 
-convertAgeToYearsAndDays(age) {
-  const daysInYear = 365; // Compte tenu des années bissextiles
-  
-  const years = Math.floor(age);
-  const days = Math.round((age - years) * daysInYear);
-  const agestr = years.toString() + " years " + days.toString() + " days";
-  return agestr;
+private showAvgTooltip(event:MouseEvent,team:any) {
+  d3.select('#tooltip')
+        .style('opacity', 0.85)
+        .style('left', event.pageX + 100 + 'px')
+        .style('top', event.pageY + 100 + 'px')
+        .style('border', `2px solid ${this.countryColorScale(team.country)}`)
+        .style('background-color', 'black')
+        .style('color', this.textColor)
+        .html(`
+          <div>
+            <span style='font-weight:bold'>Average Age :</span> ${this.convertAgeToYearsAndDays(this.average(team.players.map(player => player.ageInYear)))}
+          </div>
+        `);
 }
 
-private average(numbers:any) {
-  if (numbers.length === 0) {
-    return 0; // Return 0 for an empty array or handle it as needed
-  }
-
-  const sum = numbers.reduce((total, number) => total + number, 0);
-  const average = sum / numbers.length;
-
-  return average;
-};
-private addAvg(): void {
+private drawAvg(): void {
   this.svg.selectAll('.country-g')
     .append('rect')
     .attr('class','country-avg')
@@ -696,58 +773,22 @@ private addAvg(): void {
     .attr('stroke', (team:any)=>this.countryColorScale(team.country))
     .attr('opacity',0)
     .on('mouseover', (event: MouseEvent, team: any) => {
-      this.svg
-        .selectAll('.y-axis .tick')
-        .filter((tick: string) => tick === team.country)
-        .select('text')
-        .style('font-weight', 'bold');
-      this.svg
-        .selectAll('.y-axis .tick')
-        .filter((tick: string) => tick !== team.country)
-        .select('text')
-        .attr('opacity', 0.5);
-      this.svg
-        .selectAll('.player-circle')
-        // .filter((player: Player) => player.country !== i)
-        .attr('opacity', 0.5);
-      this.svg
-        .selectAll('.legend-item')
-        .filter((item: LegendItem) => item.type !== 'rect')
-        .attr('opacity', 0.5);
-      d3.select('#tooltip')
-        .style('opacity', 0.85)
-        .style('left', event.pageX - 55 + 'px')
-        .style('top', event.pageY - 75 + 'px')
-        .style('border', `2px solid ${this.countryColorScale(team.country)}`)
-        .style('background-color', 'black')
-        .style('color', this.textColor)
-        .html(`
-          <div>
-            <p>Average Age : ${this.convertAgeToYearsAndDays(this.average(team.players.map(player => player.ageInYear)))}</p>
-          </div>
-        `);
+      if (this.toggle.checked) {
+        this.highlightYAxis(team.country);
+        this.highlightPlayer([]);
+        this.highlightAvg(team.country);
+        this.highlightLegendItem('rect');
+        this.showAvgTooltip(event,team);
+      }
     })    
     .on('mouseout', (event: MouseEvent, team: any) => {
-      this.svg
-        .selectAll('.y-axis .tick')
-        .filter((tick: string) => tick === team.country)
-        .select('text')
-        .style('font-weight', 'normal');
-        this.svg
-        .selectAll('.y-axis .tick')
-        .filter((tick: any) => tick !== team.country)
-        .select('text')
-        .attr('opacity',1)
-        this.svg
-        .selectAll('.player-circle')
-        // .filter((node: any) => node !== d)
-        .attr('opacity',1)
-        this.svg
-        .selectAll('.legend-item')
-        .filter((item: LegendItem) => item.type !== 'rect')
-        .attr('opacity', 1);
-      d3.select('#tooltip')
-        .style('opacity', 0)
+      if (this.toggle.checked) {
+        this.unhighlightYAxis(team.country);
+        this.unhighlightPlayer([]);
+        this.unhighlightAvg(team.country);
+        this.unhighlightLegendItem('rect');
+        this.hideToolTip();
+      }
     })
     
 }
@@ -881,11 +922,39 @@ changeToggle() {
   removeChart() {
     d3.select(this.chartContainer.nativeElement).selectAll('*').remove();
   }
+// ----------------------------------------------------------------------------//
+// Util functinos //
+// Convert numerical age in years + 
+convertAgeToYearsAndDays(age:number) {
+  const daysInYear = 365; // Compte tenu des années bissextiles
+  
+  const years = Math.floor(age);
+  const days = Math.round((age - years) * daysInYear);
+  const agestr = years.toString() + " years " + days.toString() + " days";
+  return agestr;
+}
 
-  ngOnDestroy() {
-    if (this.observer) {
-      this.observer.disconnect();
-      this.observer = null;
-    }
+ // Count the number of players in each group
+ private countClub(d) {
+  const dplayers = this.playerData[d];
+  const countTot = dplayers.length;
+  const countIn = dplayers.reduce((accumulator, player) => accumulator + (player.playsInTop25? 1 : 0), 0);
+  const countOut = countTot - countIn
+
+  return {in:countIn, out:countOut,total:countTot}
+}
+
+private average(numbers:any) {
+  if (numbers.length === 0) {
+    return 0; // Return 0 for an empty array or handle it as needed
   }
+
+  const sum = numbers.reduce((total, number) => total + number, 0);
+  const average = sum / numbers.length;
+
+  return average;
+};
+
+
+
 }

@@ -7,6 +7,11 @@ import {
   ViewChild,
 } from '@angular/core';
 import * as d3 from 'd3';
+import {
+  COLOR_OF_TOP4,
+  COUNTRIES_TOP4,
+  POSSESSION_DATA_TOP3,
+} from 'src/constants/constants';
 import { Possession } from 'src/models/interfaces/possession';
 
 @Component({
@@ -21,27 +26,23 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
   constructor() {}
 
   ngOnInit(): void {
-    const possessionPercentages2: number[] = [39, 51.3, 56.5, 54.3];
-    const countries2: string[] = ['Morroco', 'Argentina', 'France', 'Croatia'];
-    const colors2: string[] = ['#e80284', '#03a0c7', '#03a0c7', '#03a0c7'];
-
-    this.data2 = countries2.map((country, i) => ({
+    this.data2 = COUNTRIES_TOP4.map((country, i) => ({
       country: country,
-      possessionPercentage: possessionPercentages2[i],
-      color: colors2[i],
+      possessionPercentage: POSSESSION_DATA_TOP3[i],
+      color: COLOR_OF_TOP4[i],
     }));
   }
 
   ngAfterViewInit() {
-    this.observeChart2();
+    this.observeChart();
   }
-  observeChart2() {
+  observeChart() {
     this.observer2 = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          this.createChart2();
+          this.createChart();
         } else {
-          this.removeChart2();
+          this.removeChart();
         }
       });
     });
@@ -50,24 +51,24 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
 
   @HostListener('window:resize', ['$event'])
   onResize2(event: any) {
-    this.removeChart2()
+    this.removeChart()
     this.observer2?.disconnect()
-    this.observeChart2()
+    this.observeChart()
   }
 
-  /**
-   * chart 2
-   */
-  createChart2(): void {
+  createChart(): void {
     let element = this.chartContainer2.nativeElement;
     const margin = { top: 70, right: 100, bottom: 40, left: 100 };
     const width = element.offsetWidth - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
     const x = d3.scaleLinear().domain([0, 100]).range([0, width]);
-     // Sort Data
-     this.data2 = this.data2.sort((eq1:Possession, eq2:Possession) => eq2.possessionPercentage - eq1.possessionPercentage);
-    
+    // Sort Data
+    this.data2 = this.data2.sort(
+      (eq1: Possession, eq2: Possession) =>
+        eq2.possessionPercentage - eq1.possessionPercentage
+    );
+
     const y = d3
       .scaleBand()
       .range([0, height])
@@ -112,15 +113,15 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
 
     let yAxis = svg
       .append('g')
-      .attr('class','y-axis')
+      .attr('class', 'y-axis')
       .call(d3.axisLeft(y).tickSizeOuter(0))
       .attr('stroke', 'none');
-    
-    yAxis.selectAll('.tick text')
-         .attr('fill', (d:any,i:any) => this.data2[i].color) // This will hide the tick lines
-         .attr('font-size',15)
-         .attr("font-family", "Arial")
 
+    yAxis
+      .selectAll('.tick text')
+      .attr('fill', (d: any, i: any) => this.data2[i].color) // This will hide the tick lines
+      .attr('font-size', 15)
+      .attr('font-family', 'Arial');
 
     const tooltip = d3.select('#tooltip');
 
@@ -131,8 +132,8 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
       .attr('x', (width + margin.left + margin.right) / 2 + 30)
       .attr('y', -40)
       .attr('fill', '#fff')
-      .style("font-size", "12px")
-      .style("font-family", "Arial")
+      .style('font-size', '12px')
+      .style('font-family', 'Arial')
       .text('Average Possession (%) (Knockout Stage)');
 
     svg
@@ -145,7 +146,7 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
       .attr('y', (d: Possession) => y(d.country) ?? '')
       .attr('height', y.bandwidth())
       .attr('fill', (d: Possession) => d.color)
-      .on('mouseover', (event: any, d: any) => {
+      .on('mouseover', (event: any, d: Possession) => {
         svg.select(`.possession-${d.country}`).attr('fill', '#08b355');
         svg
           .selectAll('.y-axis .tick')
@@ -155,13 +156,15 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
         svg
           .selectAll('.y-axis .tick')
           .filter((node: any) => node !== d.country)
-          .attr('opacity',0.3)
-        svg.selectAll('rect')
-            .filter((node:any) => node.country !== d.country)
-            .transition()
-            .duration(100)
-            .ease(d3.easeCubicInOut)
-            .attr('opacity',0.3)
+          .attr('opacity', 0.3);
+
+        svg
+          .selectAll('rect')
+          .filter((node: any) => node.country !== d.country)
+          .transition()
+          .duration(100)
+          .ease(d3.easeCubicInOut)
+          .attr('opacity', 0.3);
         tooltip
           .style('opacity', 1)
           .style('border', `2px solid ${d.color}`)
@@ -169,7 +172,6 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
           .style('top', event.pageY - 75 + 'px').html(`
       <div>
       <div>${d.country}</div>
-      <div>Average Possession</div>
       <div>${Math.abs(d.possessionPercentage)}%</div>
       </div>
       `);
@@ -178,21 +180,22 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
         svg.select(`.possession-${d.country}`).attr('fill', '#35d047b6');
         svg
           .selectAll('.y-axis .tick')
-            .filter((node:any) => node.country !== d.country)
+          .filter((node: any) => node.country !== d.country)
           .select('text')
           .style('font-weight', 'normal');
         tooltip.style('opacity', 0);
-      
-        svg.selectAll('rect')
-          .filter((node:any) => node.country !== d.country)
-          .transition()
-            .duration(100)
-            .ease(d3.easeCubicInOut)
-            .attr('opacity',1)
+
         svg
-            .selectAll('.y-axis .tick')
-            .filter((node: any) => node !== d.country)
-            .attr('opacity',1)
+          .selectAll('rect')
+          .filter((node: any) => node.country !== d.country)
+          .transition()
+          .duration(100)
+          .ease(d3.easeCubicInOut)
+          .attr('opacity', 1);
+        svg
+          .selectAll('.y-axis .tick')
+          .filter((node: any) => node !== d.country)
+          .attr('opacity', 1);
       })
       .attr('width', 0)
       .transition()
@@ -202,7 +205,7 @@ export class PossessionTopFourComponent implements OnInit, AfterViewInit {
       );
   }
 
-  removeChart2() {
+  removeChart() {
     d3.select(this.chartContainer2.nativeElement).selectAll('*').remove();
   }
 }
