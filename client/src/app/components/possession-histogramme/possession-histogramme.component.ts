@@ -78,11 +78,6 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
 
     this.xScale = d3.scaleLinear().domain([0, 100]).range([0, this.width]);
 
-    // Sort Data
-    this.data = this.data.sort(
-      (eq1: Possession, eq2: Possession) =>
-        eq2.percentage - eq1.percentage
-    );
 
     this.yScale = d3
       .scaleBand()

@@ -45,12 +45,6 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       conceded: -concededGoals[i],
     }));
 
-    // Sort data by the difference between scored and conceded goals
-    this.data = this.data.sort((a: GoalsData, b: GoalsData) => {
-    const differenceA = a.scored + a.conceded;
-    const differenceB = b.scored + b.conceded;
-    return differenceB - differenceA; // Sort in descending order
-  });
   }
 
   ngAfterViewInit() {

@@ -14,6 +14,18 @@
     gap: 2%;
 }
 
+  .top3 {
+    color:#03a0c7;
+  }
+
+  .african {
+    color:   #DB8500
+  }
+
+  .morocco {
+    color : #E80284;
+  }
+
 .text{
     flex : 2;
     flex-wrap: wrap;

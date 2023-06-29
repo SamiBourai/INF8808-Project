@@ -1,39 +1,29 @@
-
-
-.wrapper{
+.wrapper {
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    /* margin: 0 10% */
-
-}
-
-
-.text {
+  }
+  
+  .top3 {
+    color: #03a0c7;
+  }
+  
+  .african {
+    color: #DB8500;
+  }
+  
+  .morocco {
+    color: #E80284;
+  }
+  
+  .text {
     width: 100%;
-    display: flex;
-    position: relative;
     font-size: 17px;
-    font-family: Arial ;
+    font-family: Arial;
     text-align: justify;
     text-justify: inter-word;
-    flex-direction: column;
     margin-bottom: 1em;
     text-indent: 3px;
-}
-
-
-#tooltip {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    line-height: 1;
-    padding: 1rem;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.8);
-    border-radius: 2px;
-    pointer-events: none;
-    border-radius: 5%;
-    transition-duration: 1s;
-}
+  }
+  

@@ -113,7 +113,6 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
         ...data,
         sum: data.values.passes + data.values.shots + data.values.occasions,
       }))
-      .sort((a, b) => b.sum - a.sum)
       .reduce((acc, { country, ...data }) => {
         acc[country] = data;
         return acc;
