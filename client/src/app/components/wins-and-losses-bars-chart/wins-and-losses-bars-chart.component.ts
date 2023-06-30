@@ -386,7 +386,6 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
   }
 
   highlightRect(d:any) : void { 
-    console.log(d)
     this.svg
     .selectAll('.result-rects')
     .filter((node: any) => node.Result !== d.Result)

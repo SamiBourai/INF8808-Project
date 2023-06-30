@@ -375,7 +375,6 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
                               .style('font-weight','bold');
                        this.svg.selectAll('.legend-item')
                        .filter((item:LegendItem) => {
-                        console.log('filter', item);
                         return item.type !== d.type;
                       })                              
                       .attr('opacity',NOT_FOCUSED_OPACITY);
