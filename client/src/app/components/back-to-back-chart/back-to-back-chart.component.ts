@@ -225,12 +225,12 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
           .attr('opacity',NOT_FOCUSED_OPACITY);
        this.svg
           .selectAll('.legend-item')
-          .filter((node:LegendItem) => node.type !== "conceded")
+          .filter((node:LegendItem) => node.type === "scored")
           .selectAll('text')
           .style('font-weight','bold');
        this.svg
           .selectAll('.legend-item')
-          .filter((node:LegendItem) => node.type === "conceded")
+          .filter((node:LegendItem) => node.type !== "scored")
           .attr('opacity',NOT_FOCUSED_OPACITY)
           this.showGoal([d.country],true);
       })
@@ -246,17 +246,17 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
           .selectAll('text')
           .style('font-weight', 'normal');
        this.svg
-          .selectAll('.y-axis .tick text')
+          .selectAll('.y-axis .tick')
           .filter((node: string) => node !== d.country)
           .attr('opacity',1);
        this.svg
           .selectAll('.legend-item')
-          .filter((node:LegendItem) => node.type !== "conceded")
+          .filter((node:LegendItem) => node.type === "scored")
           .select('text')
           .style('font-weight','normal');
        this.svg
           .selectAll('.legend-item')
-          .filter((node:LegendItem) => node.type === "conceded")
+          .filter((node:LegendItem) => node.type !== "scored")
           .attr('opacity',1)
         this.hideGoal();
         
@@ -324,12 +324,12 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
           .attr('opacity',1);
        this.svg
           .selectAll('.legend-item')
-          .filter((node:any) => node.type === "conceded")
+          .filter((node:LegendItem) => node.type === "conceded")
           .select('text')
           .style('font-weight','normal');
        this.svg
           .selectAll('.legend-item')
-          .filter((node:any) => node.type !== "conceded")
+          .filter((node:LegendItem) => node.type !== "conceded")
           .attr('opacity',1);
           this.hideGoal();
 
