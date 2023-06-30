@@ -42,9 +42,9 @@ export class BannerComponent implements AfterViewInit{
 
   observeChart() {
     const options = {
-      root: null, // relative to document viewport 
-      rootMargin: '-150px', // margin around root. Values are similar to css property. Unitless values not allowed
-      threshold: 0.5 // visible amount of item shown in relation to root
+      root: null,
+      rootMargin: '-150px',
+      threshold: 0.5
     };
     this.observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -122,7 +122,7 @@ export class BannerComponent implements AfterViewInit{
     this.xScale = d3.scaleBand()
         .domain(this.countries)
         .range([0, this.width])
-        .paddingInner(0.1); // You can adjust this to add some padding between bars
+        .paddingInner(0.1);
 
   }
 

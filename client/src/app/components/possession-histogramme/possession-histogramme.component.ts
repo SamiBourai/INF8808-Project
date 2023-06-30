@@ -130,12 +130,12 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
 
     yAxis
       .selectAll('.tick text')
-      .attr('fill', (country: string) => COUNTRY_COLOR_SCALE(country)) // This will hide the tick lines
+      .attr('fill', (country: string) => COUNTRY_COLOR_SCALE(country))
       .attr('font-size', NOM_PAYS_FONTSIZE)
       .attr('font-family', CHART_POLICE)
       .attr('class', 'ytick');
 
-    this.svg.selectAll('.tick line').attr('stroke', 'none'); // This will hide the tick lines
+    this.svg.selectAll('.tick line').attr('stroke', 'none');
 
     this.svg
       .append('text')
@@ -143,7 +143,6 @@ export class PossessionHistogrammeComponent implements OnInit, AfterViewInit {
       .attr('text-anchor', 'end')
       .attr('x', (this.width + this.margin.left + this.margin.right) / 2 + this.xOffSet)
       .attr('y', -40)
-      //fill with white
       .attr('fill', '#fff')
       .style('font-size', '12px')
       .style('font-family', CHART_POLICE)

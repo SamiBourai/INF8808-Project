@@ -1,8 +1,4 @@
 import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
-// import { countries } from './constants';
-// import * as fs from 'fs';
-// import fs from 'fs';
-// import {parse} from 'csv-parse';
 import { HttpClient } from '@angular/common/http';
 import {parse, ParseResult} from 'papaparse';
 import { countries } from './constants';
@@ -75,10 +71,8 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           this.createChart();
-          // this.createLegend();
         } else {
           this.removeChart();
-          // this.removeLegend();
         }
       });
     });
@@ -88,7 +82,6 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
-    // d3.select(this.chartContainer.nativeElement).select('svg').remove();
     this.removeChart()
     this.observer?.disconnect()
     this.observeChart()
@@ -116,7 +109,6 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       .attr('width', width*0.95)
       .attr('transform', `translate(${margin.left},${150})`);
 
-    // create tooltip element
     const tooltip = d3.select("#tooltip")
     
     // Create scales for x and y axes
@@ -138,138 +130,85 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     .domain(['W', 'L', 'D'])
     .range(['#21A179', '#F3535B', '#B8B8B8']);
 
+    barsChart
+    .selectAll("line")
+    .data(countries)
+    .enter()
+    .append("line")
+    .attr("x1", 0)
+    .attr("x2", width)
+    .attr("y1", (d) => yScale(d)! + yScale!.bandwidth() / 2)
+    .attr("y2", (d) => yScale(d)! + yScale!.bandwidth() / 2)
+    .attr("stroke", "gray")
+    .attr("stroke-dasharray", "3,3");
 
-    // barsChart.selectAll("line")
-    // .data(countries)
-    // .enter()
-    // .append("line")
-    // .attr("x1", 0)
-    // .attr("x2", width)
-    // .attr("y1", d => yScale(d)! + yScale!.bandwidth() / 2)
-    // .attr("y2", d => yScale(d)! + yScale!.bandwidth() / 2)
-    // .attr("stroke", "gray")
-    // .attr("stroke-dasharray", "3,3");
-
-    // const groupedData = d3.group(this.dataMap, d => d.Phase);
-    // const rectWidth = xScale!.bandwidth() - xScale!.bandwidth()/4
-    // barsChart.selectAll("rect")
-    // .data(groupedData)
-    // .enter()
-    // .append("g")
-    // .selectAll("rect")
-    // .data(d => d[1])
-    // .enter()
-    // .append("rect")
-    // .attr('class', "result-rects")
-    // .attr("x", d => xScale(d.Phase)! + (xScale!.bandwidth() - rectWidth) / 2)
-    // .attr("y", yScale.bandwidth() / 2)
-    // .attr("width", rectWidth)
-    // .attr("height", 0)
-    // .attr("fill", d => colorScale(d.Result) as string)
-    // .on("mouseover", (event, d) => {
-    //   // Show tooltip with details
-    //   tooltip.style("opacity", 1)
-    //     .style("left", event.pageX + "px")
-    //     .style("top", (event.pageY - 20) + "px")
-    //     .style("border", `2px solid ${countryColorScale(d.Country)}`)
-    //     .html(`<div>Date: ${d.Date}</div>
-    //            <div>Display: ${d.Display}</div>
-    //            <div>Score: ${d.Score}</div>`);
-    //   barsChart.selectAll(".result-rects")
-    //   .style("opacity", function(rectData) {
-    //     return rectData === d ? 1 : NOT_FOCUSED_OPACITY;
-    //   });
-    //   // Highlight corresponding country
-    //   this.highlightXLabel(d)
-    //   this.highlightYaxis(d.Country)
-    //   this.highlightLegend(d)
-      
-    // })
-    // Add horizontal lines
-  barsChart
-  .selectAll("line")
-  .data(countries)
-  .enter()
-  .append("line")
-  .attr("x1", 0)
-  .attr("x2", width)
-  .attr("y1", (d) => yScale(d)! + yScale!.bandwidth() / 2)
-  .attr("y2", (d) => yScale(d)! + yScale!.bandwidth() / 2)
-  .attr("stroke", "gray")
-  .attr("stroke-dasharray", "3,3");
-
-  const groupedData = d3.group(this.dataMap, (d) => d.Phase);
-  const rectWidth = xScale!.bandwidth() - xScale!.bandwidth() / 4;
-  barsChart
-  .selectAll("rect") // Update the selector to target the rectangles
-  .data(groupedData)
-  .enter()
-  .append("g")
-  .selectAll("rect") // Update the selector to target the rectangles
-  .data((d) => d[1])
-  .enter()
-  .append("rect")
-  .attr("class", "result-rects") // Assign a class to the rectangles
-  .attr("x", (d) => xScale(d.Phase)! + (xScale!.bandwidth() - rectWidth) / 2)
-  .attr("y", yScale.bandwidth() / 2)
-  .attr("width", rectWidth)
-  .attr("height", 0)
-  .attr("fill", (d) => colorScale(d.Result) as string)
-  .on("mouseover", (event, d) => {
-    // Show tooltip with details
-    tooltip
-      .style("opacity", 1)
-      .style("left", event.pageX + "px")
-      .style("top", event.pageY - 20 + "px")
-      .style("border", `2px solid ${COUNTRY_COLOR_SCALE(d.Country)}`)
-      .html(
-        `<div>
-          <span style="font-weight:bold">Date: </span> ${d.Date}<br>
-          <span style="font-weight:bold">Display: </span>${d.Display}<br>
-          <span style="font-weight:bold">Score: </span>${d.Score}
-        </div>`
-      );
+    const groupedData = d3.group(this.dataMap, (d) => d.Phase);
+    const rectWidth = xScale!.bandwidth() - xScale!.bandwidth() / 4;
+    barsChart
+    .selectAll("rect")
+    .data(groupedData)
+    .enter()
+    .append("g")
+    .selectAll("rect")
+    .data((d) => d[1])
+    .enter()
+    .append("rect")
+    .attr("class", "result-rects")
+    .attr("x", (d) => xScale(d.Phase)! + (xScale!.bandwidth() - rectWidth) / 2)
+    .attr("y", yScale.bandwidth() / 2)
+    .attr("width", rectWidth)
+    .attr("height", 0)
+    .attr("fill", (d) => colorScale(d.Result) as string)
+    .on("mouseover", (event, d) => {
+      // Show tooltip with details
+      tooltip
+        .style("opacity", 1)
+        .style("left", event.pageX + "px")
+        .style("top", event.pageY - 20 + "px")
+        .style("border", `2px solid ${COUNTRY_COLOR_SCALE(d.Country)}`)
+        .html(
+          `<div>
+            <span style="font-weight:bold">Date: </span> ${d.Date}<br>
+            <span style="font-weight:bold">Display: </span>${d.Display}<br>
+            <span style="font-weight:bold">Score: </span>${d.Score}
+          </div>`
+        );
 
       barsChart.selectAll('.result-rects')
-           //.selectAll('rect')
-           .filter((dataRect:any) => dataRect !== d )
-           .attr('opacity', NOT_FOCUSED_OPACITY);
+          .filter((dataRect:any) => dataRect !== d )
+          .attr('opacity', NOT_FOCUSED_OPACITY);
 
-    // Highlight corresponding country
-    this.highlightXLabel(d);
-    this.highlightYaxis(d.Country);
-    this.highlightLegend(d);
+      // Highlight corresponding country
+      this.highlightXLabel(d);
+      this.highlightYaxis(d.Country);
+      this.highlightLegend(d);
     })
+    .on("mouseout", (event, d) => {
+      barsChart.selectAll('.result-rects')
+          .filter((dataRect:any) => dataRect !== d )
+          .attr('opacity', 1);
 
-      .on("mouseout", (event, d) => {
-        // barsChart.selectAll(".result-rects")
-        barsChart.selectAll('.result-rects')
-           //.selectAll('rect')
-           .filter((dataRect:any) => dataRect !== d )
-           .attr('opacity', 1);
-        //this.svg.selectAll(".result-rects").style("opacity", 1) // Update the selector to target the rectangles
-        // .style("opacity", 1);
-        // Hide tooltip
-        tooltip.style("opacity", 0);
-        this.unhighlightXLabel(d)
-        this.unHighlightYaxis(d.Country)
-        this.unHighlightLegend(d)
-      })
-      .transition()
-      .duration(350)
-      .delay((d, i) => {
-        const phaseIndex = phases.indexOf(d.Phase);
-        const countryIndex = countries.indexOf(d.Country);
-        return (phaseIndex * countries.length + countryIndex) * 50; // Delay based on phase and country index
-      })
-      .attr("y", d => yScale(d.Country)!)
-      .attr("height", yScale.bandwidth());
+      // Hide tooltip
+      tooltip.style("opacity", 0);
+      this.unhighlightXLabel(d)
+      this.unHighlightYaxis(d.Country)
+      this.unHighlightLegend(d)
+    })
+    .transition()
+    .duration(350)
+    .delay((d, i) => {
+      const phaseIndex = phases.indexOf(d.Phase);
+      const countryIndex = countries.indexOf(d.Country);
+      return (phaseIndex * countries.length + countryIndex) * 50;
+    })
+    .attr("y", d => yScale(d.Country)!)
+    .attr("height", yScale.bandwidth());
 
     // Add x-axis
       barsChart.append("g")
         .call(d3.axisBottom(xScale).tickValues(phases))
         .attr('class', 'x-axis')
-        .attr("transform", `translate(0, ${barsChart.attr('height')})`) // Adjust the vertical position of the x-axis
+        .attr("transform", `translate(0, ${barsChart.attr('height')})`)
         .selectAll("text")
         .style("font-size", "12px")
         .style("font-family", CHART_POLICE);
@@ -303,8 +242,8 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
     
     const legendWidth = 150;
     const legendHeight = 200;
-    const legendX = width; // Adjust the horizontal position of the legend
-    const legendY = 0; // Adjust the vertical position of the legend
+    const legendX = width;
+    const legendY = 0;
     
     const legendSvg = this.svg.append("g")
       .attr("class", "legend")
@@ -335,7 +274,6 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
 
   
     legendItems.append("rect")
-      // .attr('class', 'legend-items-rect')
       .attr("x", 10)
       .attr("y", 0)
       .attr("width", 20)
@@ -388,7 +326,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
       .selectAll('.x-axis .tick')
       .filter((node: any) => node === d.Phase)
       .select('text')
-      .style('font-weight', 'bold') // Make the x-axis label of the hovered rectangle bold
+      .style('font-weight', 'bold')
     
     this.svg
     .selectAll('.x-axis .tick text')
@@ -399,7 +337,7 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
   unhighlightXLabel(d:any) : void {
     this.svg
       .selectAll('.x-axis text')
-      .style('font-weight', 'normal'); // Reset the font weight of all x-axis labels
+      .style('font-weight', 'normal');
 
     this.svg
         .selectAll('.x-axis .tick text')
@@ -413,14 +351,12 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
   }
 
   highlightLineCountry(d:any){
-    // Reduce opacity of other country names
     this.svg.selectAll('.result-rects')
            .filter((node:any) => node.Country !== d )
            .attr('opacity', 0.3);
   }
 
   unHighlightLineCountry(d:any){
-    // Reduce opacity of other country names
     this.svg.selectAll('.result-rects')
            .filter((node:any) => node.Country !== d )
            .attr('opacity', 1);
@@ -428,21 +364,17 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
   
 
   highlightYaxis(d:any){
-    // Reduce opacity of other country names
     this.svg.selectAll('.y-axis .tick')
-    .filter((node: any) => node === d)
-    .select('text')
-    .style('font-weight', 'bold');
-    this.svg.selectAll('.y-axis .tick')
-    .filter((node: any) => node !== d)
-    .select('text')
-    .attr('opacity', 0.5);
-    // Make the hovered country name bold
-   // d3.select(this).style("font-weight", "bold");
+          .filter((node: any) => node === d)
+          .select('text')
+          .style('font-weight', 'bold');
+          this.svg.selectAll('.y-axis .tick')
+          .filter((node: any) => node !== d)
+          .select('text')
+          .attr('opacity', 0.5);
   }
 
   unHighlightYaxis(d:any){
-    // Reduce opacity of other country names
     this.svg.selectAll('.y-axis .tick')
           .filter((node: any) => node === d)
           .select('text')
@@ -464,12 +396,10 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
   unHighlightRect(d:any) : void { 
     this.svg
     .selectAll('.result-rects')
-    // .filter((node: any) => node.Result !== d)
     .attr('opacity', 1);
   }
 
-  extractPhases(): string[]{
-
+  extractPhases(): string[] {
     const phasesSet = new Set<string>();
     Object.keys(this.countryMap).forEach((country) => {
       const phases = Object.keys(this.countryMap[country]);
@@ -483,9 +413,4 @@ export class WinsAndLossesBarsChartComponent implements OnInit, AfterViewInit {
   removeChart():void{
       d3.select(this.chartContainer.nativeElement).selectAll('*').remove();
   }
-
-  // removeLegend():void{
-  //   d3.select(this.legendContainer.nativeElement).selectAll('*').remove();
-  // }
-
 }

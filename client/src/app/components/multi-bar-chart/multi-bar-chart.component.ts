@@ -309,26 +309,26 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       defs
         .append('pattern')
         .attr('id', `dotted-${country}`)
-        .attr('width', '5') // Increase for larger spacing
-        .attr('height', '5') // Increase for larger spacing
+        .attr('width', '5')
+        .attr('height', '5')
         .attr('patternUnits', 'userSpaceOnUse')
         .append('circle')
-        .attr('cx', '2.5') // Half of the width
-        .attr('cy', '2.5') // Half of the height
-        .attr('r', '2') // Increase for larger dots
+        .attr('cx', '2.5')
+        .attr('cy', '2.5')
+        .attr('r', '2')
         .attr('fill', color);
 
       // striped fill
       defs
         .append('pattern')
         .attr('id', `striped-${country}`)
-        .attr('width', '10') // Increase for thicker stripes
-        .attr('height', '10') // Adjust if you adjust other parameters
+        .attr('width', '10') 
+        .attr('height', '10') 
         .attr('patternTransform', 'rotate(45 0 0)')
         .attr('patternUnits', 'userSpaceOnUse')
         .append('rect')
-        .attr('width', '5') // Half of the pattern width
-        .attr('height', '10') // Same as the pattern height
+        .attr('width', '5') 
+        .attr('height', '10') 
         .attr('fill', color);
     });
 
@@ -336,26 +336,26 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
     defs
       .append('pattern')
       .attr('id', 'dotted-pattern')
-      .attr('width', '5') // Increase for larger spacing
-      .attr('height', '5') // Increase for larger spacing
+      .attr('width', '5') 
+      .attr('height', '5')
       .attr('patternUnits', 'userSpaceOnUse')
       .append('circle')
-      .attr('cx', '2.5') // Half of the width
-      .attr('cy', '2.5') // Half of the height
-      .attr('r', '2') // Increase for larger dots
+      .attr('cx', '2.5') 
+      .attr('cy', '2.5') 
+      .attr('r', '2') 
       .attr('fill', this.colorLegend);
 
     // striped fill
     defs
       .append('pattern')
       .attr('id', 'striped-pattern')
-      .attr('width', '10') // Increase for thicker stripes
-      .attr('height', '10') // Adjust if you adjust other parameters
+      .attr('width', '10') 
+      .attr('height', '10') 
       .attr('patternTransform', 'rotate(45 0 0)')
       .attr('patternUnits', 'userSpaceOnUse')
       .append('rect')
-      .attr('width', '5') // Half of the pattern width
-      .attr('height', '10') // Same as the pattern height
+      .attr('width', '5') 
+      .attr('height', '10') 
       .attr('fill', this.colorLegend);
 
     const multibars_g = this.svg
@@ -424,7 +424,7 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
             this.unhighlightLegend(dd);
           });
       })
-      .transition() // start a transition
+      .transition()
       .duration(200)
       .ease(d3.easeCubicInOut)
       .delay((d, i) => {
@@ -506,16 +506,13 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
       .style('font-size', 15)
       .style('font-family', CHART_POLICE);
 
-    const legendItemSize = 20; // Adjust the size of each legend item
-    const legendItemSpacing = 10; // Adjust the spacing between legend items
+    const legendItemSize = 20;
+    const legendItemSpacing = 10;
     const legendHeight =
       Object.keys(this.legendData).length *
-      (legendItemSize + legendItemSpacing); // Calculate the height based on the number of legend items
+      (legendItemSize + legendItemSpacing);
 
-    const legendItemPadding = 10; // Adjust the padding between legend items as needed
-
-    let legendWidth = 120; // Initialize the legend width
-    // Adjust the legend positioning based on the calculated legend width
+    let legendWidth = 120;
     const legendX = width - legendWidth;
     const legend = this.svg
       .append('g')
@@ -568,8 +565,8 @@ export class PolarAreaChartsComponent implements OnInit, AfterViewInit {
     legendItems
       .append('text')
       .attr('class', 'legend-item-text')
-      .attr('x', legendItemSize + 5) // Adjust the position of the text relative to the rectangle
-      .attr('y', legendItemSize / 2) // Adjust the position of the text relative to the rectangle
+      .attr('x', legendItemSize + 5)
+      .attr('y', legendItemSize / 2)
       .attr('dy', '0.35em')
       .text((d) => d.values.label)
       .attr('fill', 'white')

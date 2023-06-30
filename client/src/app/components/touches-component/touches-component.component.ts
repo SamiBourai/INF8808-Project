@@ -42,9 +42,9 @@ export class TouchesComponent implements AfterViewInit {
 
   width: number = 400;
   height: number = 500;
-  numCols = 3; // Number of columns
-  numRows = 3; // Number of rows
-  spacing = 40; // Spacing between sub-SVG elements
+  numCols = 3;
+  numRows = 3;
+  spacing = 40;
 
   private typeColorScale: any;
 
@@ -58,8 +58,8 @@ export class TouchesComponent implements AfterViewInit {
   private subWidth: number = 0;
   private subHeight: number = 0;
 
-  private boxSize: number = 12; // Size of each box
-  private boxGap: number = 1; // space between each box
+  private boxSize: number = 12;
+  private boxGap: number = 1;
 
   constructor() {}
 
@@ -100,14 +100,11 @@ export class TouchesComponent implements AfterViewInit {
       (this.subWidth - this.boxGap * (this.numSubCols - 1)) / this.numSubCols
     );
 
-  
-    // Define the x-scale for positioning the sub-SVG elements
     this.xScale = d3
       .scaleLinear()
       .domain([1, this.numCols])
       .range([0, this.width - this.subWidth]);
 
-    // Define the y-scale for positioning the sub-SVG elements
     this.yScale = d3
       .scaleLinear()
       .domain([1, this.numRows])
@@ -142,10 +139,8 @@ export class TouchesComponent implements AfterViewInit {
     this.data.forEach((d, i) => {
       const currentsubSvg = this.subSvgs.get(d.country);
       const { country, ...rest } = d;
-
       const data: any[] = [];
 
-      // Create an array of the keys
       Object.keys(rest).forEach((key) => {
         let keyArray = new Array(
           Math.round((d[key] / 100) * this.numSubCols * this.numSubRows)
@@ -175,7 +170,6 @@ export class TouchesComponent implements AfterViewInit {
       currentsubSvg
         .append('g')
         .attr('class', 'waffle-g')
-        // .attr("transform",`translate(${},0)`)
         .selectAll('rect')
         .data(data)
         .join('rect')
@@ -311,7 +305,6 @@ export class TouchesComponent implements AfterViewInit {
     legend_items
       .append('text')
       .attr('x', this.legendRectSide + this.legendGap)
-      // .attr('y', -this.legendRectSide/2)
       .attr('font-size', '12px')
       .attr('font-family', CHART_POLICE)
       .attr('fill', 'white')
@@ -338,7 +331,6 @@ export class TouchesComponent implements AfterViewInit {
   }
 
   private createFieldSVGForEachCountry(country: string, i: number): any {
-    // Create the sub-SVG elements
     return this.svg
       .select('.all-waffle-charts')
       .append('g')

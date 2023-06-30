@@ -103,18 +103,18 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
   }
   
   private drawgridLines(): void {
-    this.xScale.ticks().forEach((tick) => {
+    Array.from({ length: 17 }, (_, index) => (index * 2) - 16).forEach((tick) => {
       this.svg
-        .append('g')
-        .attr('class', 'grid-line')
-        .append('line')
-        .attr('x1', this.xScale(tick))
-        .attr('y1', 0)
-        .attr('x2', this.xScale(tick))
-        .attr('y2', this.height)
-        .style('stroke', '#5a5858a8')
-        .style('stroke-dasharray', '3, 3');
-    });
+          .append('g')
+          .attr('class', 'grid-line')
+          .append('line')
+          .attr('x1', this.xScale(tick))
+          .attr('y1', 0)
+          .attr('x2', this.xScale(tick))
+          .attr('y2', this.height)
+          .style('stroke', '#5a5858a8')
+          .style('stroke-dasharray', '3, 3');
+  });
 
     this.svg.append('line')
       .attr('x1', this.xScale(0))
@@ -131,7 +131,7 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
       .call(
         d3
           .axisBottom(this.xScale)
-          .tickValues(Array.from({ length: 17 }, (_, index) => (index * 2) - 16)) //-16 to 16 2by2
+          .tickValues(Array.from({ length: 17 }, (_, index) => (index * 2) - 16))
           .tickSizeOuter(0)
           .tickFormat((d: any) => Math.abs(d as number).toString())
       )
@@ -147,6 +147,7 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
   private drawYAxis(): void {
     let yAxis =this.svg.append('g').call(d3.axisLeft(this.yScale).tickSize(0).tickSizeOuter(0))
                         .attr('class', 'y-axis');
+    yAxis.select(".domain").remove();
     yAxis.selectAll(".tick")
           .on('mouseover',(event:MouseEvent,country:string) => {
             this.svg.selectAll('.conceded-bar')
@@ -239,14 +240,14 @@ export class BackToBackChartComponent implements OnInit, AfterViewInit {
         backToBackGroupingElement.selectAll('.scored-bar')
            .filter((goal:GoalsData) => goal.country !== d.country)
            .selectAll('rect')
-          .attr('opacity', 1);
+           .attr('opacity', 1);
         this.svg
           .selectAll('.y-axis .tick')
           .filter((node: string) => node === d.country)
           .selectAll('text')
           .style('font-weight', 'normal');
        this.svg
-          .selectAll('.y-axis .tick text')
+          .selectAll('.y-axis .tick')
           .filter((node: string) => node !== d.country)
           .attr('opacity',1);
        this.svg

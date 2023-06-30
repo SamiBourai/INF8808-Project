@@ -99,6 +99,7 @@ export class ParallelCoordinatesChartComponent
       .duration(200)
       .ease(d3.easeCubicInOut)
       .style('opacity', NOT_FOCUSED_OPACITY);
+      
     // Second the hovered specie takes its color
     d3.selectAll('.' + d.country)
       .transition()
@@ -173,7 +174,6 @@ export class ParallelCoordinatesChartComponent
   
     this.svg
     .selectAll('g')
-    // For each dimension of the dataset, add a 'g' element:
     .data(this.dimensions)
     .join('g')
     .attr('class', 'y-axis')
@@ -203,7 +203,7 @@ export class ParallelCoordinatesChartComponent
       .attr('opacity',0)
       .each((d: any, i: number, nodes: any) => {
         let text = this.xlabels[d];
-        let parts = text.split('\n'); // split on space, or choose your own criterion
+        let parts = text.split('\n');
         parts.forEach((part: any, index: number) => {
           d3.select(nodes[i])
             .append('tspan')

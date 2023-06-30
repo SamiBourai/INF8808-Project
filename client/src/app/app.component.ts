@@ -56,13 +56,13 @@ export class AppComponent implements OnInit, AfterViewInit {
       });
     }
   
-    scrollToSection(i: number): void {
-      const elem = document.getElementById(this.sections[i].id);
-  
-      if (elem) {
-        elem.scrollIntoView({ behavior: 'smooth' });
-      }
+  scrollToSection(i: number): void {
+    const elem = document.getElementById(this.sections[i].id);
+
+    if (elem) {
+      elem.scrollIntoView({ behavior: 'smooth' });
     }
+  }
 
   showSectionName(index: number): void {
     const dotText = document.getElementById('dot-text-' + index);
@@ -95,7 +95,7 @@ export class AppComponent implements OnInit, AfterViewInit {
           });
         },
         {
-          threshold: 0.7, // adjust as needed
+          threshold: 0.7,
         }
       );
 
